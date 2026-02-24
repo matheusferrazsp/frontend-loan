@@ -1,9 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
 import { toast } from "sonner";
 import { z } from "zod";
 
 import { Helmet } from "react-helmet-async";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +27,8 @@ const resetPasswordSchema = z
 type ResetPasswordForm = z.infer<typeof resetPasswordSchema>;
 
 export function ResetPassword() {
+  const navigate = useNavigate();
+
   const {
     register,
     handleSubmit,
@@ -35,7 +39,7 @@ export function ResetPassword() {
 
   // Captura o token da URL manualmente
   const urlParams = new URLSearchParams(window.location.search);
-  const token = urlParams.get("token");
+  const token = urlParams.get("email");
 
   async function handleResetPassword(data: ResetPasswordForm) {
     if (!token) {
@@ -44,14 +48,17 @@ export function ResetPassword() {
     }
 
     try {
-      console.log("Token:", token);
-      console.log("Nova senha:", data.password);
-
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await axios.post("http://localhost:3333/api/reset-password", {
+        token: token, // O token que veio da URL
+        password: data.password, // A nova senha validada pelo Zod
+      });
 
       toast.success("Senha redefinida com sucesso!");
-    } catch {
-      toast.error("Erro ao redefinir a senha.");
+
+      // Redireciona para o login após o sucesso
+      setTimeout(() => navigate("/sign-in"), 2000);
+    } catch (error) {
+      toast.error("Erro ao redefinir a senha. Tente novamente.");
     }
   }
 

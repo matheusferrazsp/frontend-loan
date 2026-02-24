@@ -1,5 +1,6 @@
 // Importa o resolver do Zod para conectar validação com react-hook-form
 import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
 import { toast } from "sonner";
 // Importa o Zod para fazer validação de dados
 import { z } from "zod";
@@ -7,6 +8,7 @@ import { z } from "zod";
 import { Helmet } from "react-helmet-async";
 // Importa funções e tipos do react-hook-form para lidar com formulários
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +27,7 @@ type SignInForm = z.infer<typeof signInForm>;
 
 // ✅ 3. Componente de Login
 export function SignIn() {
+  const navigate = useNavigate();
   // useForm configura o formulário com os tipos e a validação do Zod
   const {
     register,
@@ -37,14 +40,29 @@ export function SignIn() {
   // ✅ 4. Função chamada quando o formulário é enviado com sucesso
   async function handleSignIn(data: SignInForm) {
     try {
-      console.log(data);
+      await axios.post("http://localhost:3333/api/login", {
+        email: data.email,
+        password: data.password,
+      });
 
-      // Simula uma requisição (exemplo)
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      toast.success("Login realizado com sucesso!");
-    } catch {
-      toast.error("Credenciais inválidas.");
+      toast.success(
+        "Login realizado com sucesso! Redirecionando para o seu Dashboard.",
+        {
+          action: {
+            label: "Ir para o Dashboard",
+            onClick: () => {
+              navigate("/");
+            },
+          },
+        },
+      );
+      setTimeout(() => navigate("/"), 2000);
+    } catch (error: any) {
+      if (error.response?.status === 401) {
+        toast.error("Credenciais inválidas.");
+      } else {
+        toast.error("Erro ao realizar login. Tente novamente.");
+      }
     }
   }
 

@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -25,13 +26,15 @@ export function ForgotPassword() {
 
   async function handleForgotPassword(data: forgotPasswordSchema) {
     try {
-      console.log("Enviando link para:", data.email);
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await axios.post("http://localhost:3333/api/forgot-password", {
+        email: data.email,
+      });
+
       toast.success(
         "Um link de redefinição de senha foi enviado para o seu e-mail.",
       );
-    } catch {
-      toast.error("Erro ao enviar e-mail de redefinição.");
+    } catch (error: any) {
+      toast.error("Erro ao processar solicitação. Tente novamente.");
     }
   }
 

@@ -1,5 +1,6 @@
 // Importa o resolver do Zod para conectar validação com react-hook-form
 import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
 import { toast } from "sonner";
 // Importa o Zod para fazer validação de dados
 import { z } from "zod";
@@ -13,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-// ✅ 1. Cria o schema de validação com Zod
+// 1. Cria o schema de validação com Zod
 const SignUpForm = z
   .object({
     name: z
@@ -33,7 +34,7 @@ const SignUpForm = z
 // Usa o prório schema do Zod para gerar o tipo TypeScript
 type SignUpForm = z.infer<typeof SignUpForm>;
 
-// ✅ 3. Componente de Registro
+// 3. Componente de Registro
 export function Register() {
   const navigate = useNavigate();
 
@@ -45,13 +46,14 @@ export function Register() {
     resolver: zodResolver(SignUpForm), // conecta o schema do Zod ao formulário
   });
 
-  // ✅ 4. Função chamada quando o formulário é enviado com sucesso
+  // 4. Função chamada quando o formulário é enviado com sucesso
   async function handleRegister(data: SignUpForm) {
     try {
-      console.log("Usuário cadastrado:", data);
-
-      // Simula uma requisição (exemplo)
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await axios.post("http://localhost:3333/api/users", {
+        name: data.name,
+        email: data.email,
+        password: data.password,
+      });
 
       toast.success("Cadastro realizado com sucesso!", {
         action: {
@@ -61,12 +63,19 @@ export function Register() {
           },
         },
       });
-    } catch {
-      toast.error("Erro ao realizar cadastro.");
+
+      setTimeout(() => navigate("/sign-in"), 2000);
+    } catch (error: any) {
+      // Trata erro de email duplicado (409) que configuramos no back-end
+      if (error.response?.status === 409) {
+        toast.error("Este e-mail já está em uso.");
+      } else {
+        toast.error("Erro ao realizar cadastro. Tente novamente.");
+      }
     }
   }
 
-  // ✅ 5. Retorno do JSX (interface visual do login)
+  // 5. Retorno do JSX (interface visual do login)
   return (
     <>
       <Helmet>
