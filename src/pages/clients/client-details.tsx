@@ -31,7 +31,7 @@ export interface ClientDetailsProps {
 
 export function ClientDetails(props: ClientDetailsProps) {
   return (
-    <DialogContent className="w-[90vw] md:w-[50vw] h-[70vh] ">
+    <DialogContent className="w-[90vw] md:w-[50vw] h-[90vh] ">
       <DialogHeader>
         <DialogTitle>Cliente: {props.id}</DialogTitle>
         <DialogDescription>Detalhes do cliente</DialogDescription>
