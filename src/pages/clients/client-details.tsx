@@ -13,7 +13,7 @@ export interface ClientDetailsProps {
   email: string;
   cpf: string;
   phone: string;
-  adress: string;
+  address: string;
   value: number;
   loanInterest: number;
   installments: number;
