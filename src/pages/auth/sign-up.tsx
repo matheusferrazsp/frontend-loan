@@ -1,6 +1,5 @@
 // Importa o resolver do Zod para conectar validação com react-hook-form
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios from "axios";
 import { toast } from "sonner";
 // Importa o Zod para fazer validação de dados
 import { z } from "zod";
@@ -50,7 +49,7 @@ export function Register() {
   // 4. Função chamada quando o formulário é enviado com sucesso
   async function handleRegister(data: SignUpForm) {
     try {
-      await api.post("/api/users", {
+      await api.post("/users", {
         name: data.name,
         email: data.email,
         password: data.password,
@@ -104,7 +103,7 @@ export function Register() {
           {/* Campo de email */}
           <div className="space-y-2">
             <Label htmlFor="email">Seu e-mail</Label>
-            <Input id="name" type="text" {...register("email")} />
+            <Input id="email" type="email" {...register("email")} />
             {errors.email && (
               <p className="text-red-500 text-sm">{errors.email.message}</p>
             )}
