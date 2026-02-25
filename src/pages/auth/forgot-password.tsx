@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { api } from "@/lib/axios";
 
 const forgotPasswordSchema = z.object({
   email: z.string().email({ message: "E-mail inválido" }),
@@ -26,7 +27,7 @@ export function ForgotPassword() {
 
   async function handleForgotPassword(data: forgotPasswordSchema) {
     try {
-      await axios.post("http://localhost:3333/api/forgot-password", {
+      await api.post("/forgot-password", {
         email: data.email,
       });
 

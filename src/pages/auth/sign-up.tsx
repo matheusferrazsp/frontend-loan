@@ -13,6 +13,7 @@ import { useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { api } from "@/lib/axios";
 
 // 1. Cria o schema de validação com Zod
 const SignUpForm = z
@@ -49,7 +50,7 @@ export function Register() {
   // 4. Função chamada quando o formulário é enviado com sucesso
   async function handleRegister(data: SignUpForm) {
     try {
-      await axios.post("http://localhost:3333/api/users", {
+      await api.post("/api/users", {
         name: data.name,
         email: data.email,
         password: data.password,
