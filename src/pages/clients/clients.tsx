@@ -34,10 +34,16 @@ export function Clients() {
     try {
       setIsLoading(true);
       const response = await api.get("/clients");
-      setClients(response.data);
-      setFilteredClients(response.data); // Inicializa os filtrados com todos os clientes
+
+      // Força a garantia de que estamos lidando com um Array
+      const data = Array.isArray(response.data) ? response.data : [];
+
+      setClients(data);
+      setFilteredClients(data);
     } catch (error) {
       console.error("Erro ao carregar clientes:", error);
+      setClients([]); // Reset para array vazio em caso de erro
+      setFilteredClients([]);
     } finally {
       setIsLoading(false);
     }
