@@ -14,6 +14,6 @@ export default defineConfig({
   preview: {
     port: 4173,
     host: "0.0.0.0",
-    allowedHosts: ["https://frontend-loan-production.up.railway.app"],
+    allowedHosts: true,
   },
 });
