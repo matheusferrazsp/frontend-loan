@@ -1,5 +1,9 @@
 import { Building, ChevronDown, LogOut } from "lucide-react";
 
+import { useNavigate } from "react-router";
+
+// Importe o navigate
+
 import { Button } from "./ui/button";
 import {
   DropdownMenu,
@@ -11,6 +15,19 @@ import {
 } from "./ui/dropdown-menu";
 
 export function AccountMenu() {
+  const navigate = useNavigate();
+
+  // 1. Busca os dados do usuário salvos no SignIn
+  const userJson = localStorage.getItem("user");
+  const user = userJson ? JSON.parse(userJson) : { name: "Usuário", email: "" };
+
+  // 2. Função de Logout
+  function handleSignOut() {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/sign-in", { replace: true });
+  }
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -18,25 +35,35 @@ export function AccountMenu() {
           variant="outline"
           className="flex items-center gap-1 md:gap-2 select-none text-sm md:text-sm"
         >
+          {/* Pode manter o nome do app ou o primeiro nome do user aqui */}
           LoanX
           <ChevronDown className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56 ">
+
+      <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel className="flex flex-col">
-          <span>Matheus Ferraz</span>
+          {/* 3. Exibe os dados reais do banco */}
+          <span>{user.name}</span>
           <span className="text-xs font-normal text-muted-foreground">
-            contatomatheus.oferraz@gmail.com
+            {user.email}
           </span>
         </DropdownMenuLabel>
+
         <DropdownMenuSeparator />
+
         <DropdownMenuItem>
           <Building className="mr-2 h-4 w-4" />
           <span>Perfil do usuário</span>
         </DropdownMenuItem>
-        <DropdownMenuItem className="text-rose-500 dark:text-rose-400">
+
+        {/* 4. Troquei o <a> pelo onClick funcional */}
+        <DropdownMenuItem
+          onClick={handleSignOut}
+          className="text-rose-500 dark:text-rose-400 cursor-pointer"
+        >
           <LogOut className="mr-2 h-4 w-4" />
-          <a href="/sign-in">Sair</a>
+          <span>Sair</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

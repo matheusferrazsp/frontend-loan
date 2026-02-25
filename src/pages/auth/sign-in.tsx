@@ -40,10 +40,14 @@ export function SignIn() {
   // ✅ 4. Função chamada quando o formulário é enviado com sucesso
   async function handleSignIn(data: SignInForm) {
     try {
-      await axios.post("http://localhost:3333/api/login", {
+      const response = await axios.post("http://localhost:3333/api/login", {
         email: data.email,
         password: data.password,
       });
+
+      localStorage.setItem("token", response.data.token);
+
+      localStorage.setItem("user", JSON.stringify(response.data.user));
 
       toast.success(
         "Login realizado com sucesso! Redirecionando para o seu Dashboard.",
