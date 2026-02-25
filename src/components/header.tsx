@@ -16,11 +16,11 @@ export function Header() {
         <nav className="flex items-center whitespace-nowrap space-x-4 md:space-x-4 lg:space-x-6">
           <NavLink to="/">
             <Home className="h-4 w-4" />
-            Início
+            Dashboard
           </NavLink>
           <NavLink to="/clients">
             <Contact className=" h-4 w-4 " />
-            Lista de clientes
+            Clientes
           </NavLink>
         </nav>
         <div className="ml-auto flex items-center gap-2">

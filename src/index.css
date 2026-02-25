@@ -118,3 +118,8 @@
     @apply bg-background text-foreground;
   }
 }
+
+.dark input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) !important;
+  cursor: pointer;
+}

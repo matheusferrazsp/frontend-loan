@@ -35,15 +35,13 @@ export function AccountMenu() {
           variant="outline"
           className="flex items-center gap-1 md:gap-2 select-none text-sm md:text-sm"
         >
-          {/* Pode manter o nome do app ou o primeiro nome do user aqui */}
-          LoanX
+          {user.name.split(" ")[0]}
           <ChevronDown className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel className="flex flex-col">
-          {/* 3. Exibe os dados reais do banco */}
           <span>{user.name}</span>
           <span className="text-xs font-normal text-muted-foreground">
             {user.email}
@@ -57,7 +55,6 @@ export function AccountMenu() {
           <span>Perfil do usuário</span>
         </DropdownMenuItem>
 
-        {/* 4. Troquei o <a> pelo onClick funcional */}
         <DropdownMenuItem
           onClick={handleSignOut}
           className="text-rose-500 dark:text-rose-400 cursor-pointer"

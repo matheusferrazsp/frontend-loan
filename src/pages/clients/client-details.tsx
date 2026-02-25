@@ -1,3 +1,6 @@
+import { MessageCircle } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   DialogContent,
@@ -30,186 +33,228 @@ export interface ClientDetailsProps {
 }
 
 export function ClientDetails(props: ClientDetailsProps) {
+  // Formata números para Moeda Brasileira
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    }).format(value);
+  };
+
+  // Formata o telefone para exibição
+  const formatPhoneDisplay = (v: string) => {
+    if (!v) return "---";
+    const cleaned = v.replace(/\D/g, "");
+    return cleaned
+      .replace(/^(\d{2})(\d)/g, "($1) $2")
+      .replace(/(\d)(\d{4})$/, "$1-$2");
+  };
+
+  // Formata datas ignorando fuso horário local
+  const formatDate = (dateString: string) => {
+    if (!dateString) return "---";
+    return new Date(dateString).toLocaleDateString("pt-BR", {
+      timeZone: "UTC",
+    });
+  };
+
+  const whatsappNumber = props.phone.replace(/\D/g, "");
+  const whatsappLink = `https://wa.me/55${whatsappNumber}`;
+
   return (
-    <DialogContent className="w-[90vw] md:w-[50vw] h-[90vh] ">
-      <DialogHeader>
-        <DialogTitle>Cliente: {props.id}</DialogTitle>
-        <DialogDescription>Detalhes do cliente</DialogDescription>
+    <DialogContent className="w-[95vw] md:max-w-[700px] max-h-[90vh] flex flex-col p-0 overflow-hidden">
+      <DialogHeader className="p-6 pb-0">
+        <DialogTitle className="break-all">Cliente: {props.name}</DialogTitle>
+        <DialogDescription>Detalhes financeiros e cadastrais</DialogDescription>
       </DialogHeader>
 
-      <div className="space-y-6 overflow-x-auto">
+      <div className="flex-1 overflow-y-auto p-6 scrollbar-thin">
         <Table>
           <TableBody>
+            {/* STATUS VISUAL */}
             <TableRow>
-              <TableCell className="text-muted-foreground">Status</TableCell>
+              <TableCell className="text-muted-foreground">
+                Status do Empréstimo
+              </TableCell>
               <TableCell className="flex justify-end">
                 <div className="flex items-center gap-2">
-                  <span className="h-2 w-2 rounded-full bg-rose-500"></span>
-                  <span className="font-medium ">Atrasado</span>
+                  <span
+                    className={`h-2 w-2 rounded-full ${props.lateInstallments > 0 ? "bg-rose-500" : "bg-emerald-500"}`}
+                  />
+                  <span className="font-medium">
+                    {props.lateInstallments > 0 ? "Atrasado" : "Em dia"}
+                  </span>
                 </div>
               </TableCell>
             </TableRow>
+
             <TableRow>
-              <TableCell className="text-muted-foreground ">Nome</TableCell>
-              <TableCell className="flex justify-end ">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium ">Daiane</span>
-                </div>
+              <TableCell className="text-muted-foreground">
+                Nome Completo
+              </TableCell>
+              <TableCell className="text-right font-medium">
+                {props.name}
               </TableCell>
             </TableRow>
-            <TableRow>
-              <TableCell className="text-muted-foreground">E-mail</TableCell>
-              <TableCell className="flex justify-end">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium ">daiane@gmail.com</span>
-                </div>
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className="text-muted-foreground">CPF</TableCell>
-              <TableCell className="flex justify-end">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium ">135.123.456-78</span>
-                </div>
-              </TableCell>
-            </TableRow>
+
+            {/* CONTATO E WHATSAPP */}
             <TableRow>
               <TableCell className="text-muted-foreground">Telefone</TableCell>
-              <TableCell className="flex justify-end">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium ">(11) 91234-5678</span>
-                </div>
+              <TableCell className="flex flex-col items-end gap-2">
+                <span className="font-medium">
+                  {formatPhoneDisplay(props.phone)}
+                </span>
+                <Button
+                  asChild
+                  size="sm"
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2 h-8"
+                >
+                  <a
+                    href={whatsappLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <MessageCircle className="h-4 w-4" />
+                    WhatsApp
+                  </a>
+                </Button>
               </TableCell>
             </TableRow>
+
             <TableRow>
-              <TableCell className="text-muted-foreground ">Endereço</TableCell>
-              <TableCell className="flex justify-end">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium word-wrap whitespace-normal break-words text-right">
-                    Rua das Flores, 123, São Paulo, SP
-                  </span>
-                </div>
+              <TableCell className="text-muted-foreground">E-mail</TableCell>
+              <TableCell className="text-right font-medium break-all">
+                {props.email || "---"}
               </TableCell>
             </TableRow>
+
             <TableRow>
-              <TableCell className="text-muted-foreground">Valor</TableCell>
-              <TableCell className="flex justify-end">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium ">R$ 10.000,00</span>
-                </div>
+              <TableCell className="text-muted-foreground">CPF</TableCell>
+              <TableCell className="text-right font-medium">
+                {props.cpf}
               </TableCell>
             </TableRow>
+
             <TableRow>
-              <TableCell className="text-muted-foreground">Juros</TableCell>
-              <TableCell className="flex justify-end">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium ">20%</span>
-                </div>
+              <TableCell className="text-muted-foreground">Endereço</TableCell>
+              <TableCell className="text-right font-medium max-w-[250px] break-words">
+                {props.address || "---"}
               </TableCell>
             </TableRow>
-            <TableRow>
-              <TableCell className="text-muted-foreground">Parcelas</TableCell>
-              <TableCell className="flex justify-end">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium ">10</span>
-                </div>
+
+            {/* VALORES FORMATADOS COMO DINHEIRO (R$) */}
+            <TableRow className="bg-muted/30">
+              <TableCell className="text-muted-foreground">
+                Valor Total Empréstimo
+              </TableCell>
+              <TableCell className="text-right font-bold">
+                {formatCurrency(props.value)}
               </TableCell>
             </TableRow>
+
             <TableRow>
               <TableCell className="text-muted-foreground">
-                Parcelas pagas
+                Taxa de Juros
               </TableCell>
-              <TableCell className="flex justify-end">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium ">5</span>
-                </div>
+              <TableCell className="text-right font-medium">
+                {props.loanInterest}%
               </TableCell>
             </TableRow>
+
             <TableRow>
               <TableCell className="text-muted-foreground">
-                Parcelas Atrasadas
+                Valor Mensal (Juros)
               </TableCell>
-              <TableCell className="flex justify-end">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium ">2</span>
-                </div>
+              <TableCell className="text-right font-medium">
+                {formatCurrency(props.monthlyPaid)}
               </TableCell>
             </TableRow>
+
             <TableRow>
               <TableCell className="text-muted-foreground">
-                Total pago
+                Total Pago até o momento
               </TableCell>
-              <TableCell className="flex justify-end">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium ">R$ 5.000,00</span>
-                </div>
+              <TableCell className="text-right font-medium text-emerald-600">
+                {formatCurrency(props.valuePaid)}
               </TableCell>
             </TableRow>
+
+            {/* PARCELAS E DATAS */}
             <TableRow>
               <TableCell className="text-muted-foreground">
-                Valor mensal
+                Parcelas (Pagas / Total)
               </TableCell>
-              <TableCell className="flex justify-end">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium ">R$ 1.000,00</span>
-                </div>
+              <TableCell className="text-right font-medium">
+                {props.installmentsPaid} de {props.installments}
               </TableCell>
             </TableRow>
+
             <TableRow>
               <TableCell className="text-muted-foreground">
-                Data do empréstimo
+                Parcelas em Atraso
               </TableCell>
-              <TableCell className="flex justify-end">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium ">01/01/2023</span>
-                </div>
+              <TableCell className="text-right font-medium text-rose-500">
+                {props.lateInstallments}
               </TableCell>
             </TableRow>
+
             <TableRow>
               <TableCell className="text-muted-foreground">
-                Mensalidade paga
+                Data da Contratação
               </TableCell>
-              <TableCell className="flex justify-end">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium ">
-                    <Checkbox className="mr-5" disabled>
-                      Sim
-                    </Checkbox>
-                    <Checkbox className="" disabled>
-                      Não
-                    </Checkbox>
-                  </span>
-                </div>
+              <TableCell className="text-right font-medium">
+                {formatDate(props.loanDate)}
               </TableCell>
             </TableRow>
+
             <TableRow>
               <TableCell className="text-muted-foreground">
-                Dívida total paga
+                Vencimento Próxima Parcela
               </TableCell>
-              <TableCell className="flex justify-end">
+              <TableCell className="text-right font-medium">
+                {formatDate(props.nextPaymentDate)}
+              </TableCell>
+            </TableRow>
+
+            {/* STATUS DE PAGAMENTO */}
+            <TableRow>
+              <TableCell className="text-muted-foreground">
+                Mensalidade deste mês paga?
+              </TableCell>
+              <TableCell className="flex justify-end gap-4">
                 <div className="flex items-center gap-2">
-                  <span className="font-medium ">
-                    <Checkbox className="mr-5" disabled>
-                      Sim
-                    </Checkbox>
-                    <Checkbox disabled>Não</Checkbox>
-                  </span>
+                  <Checkbox checked={props.monthlyFeePaid} disabled />
+                  <span className="text-sm">Sim</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Checkbox checked={!props.monthlyFeePaid} disabled />
+                  <span className="text-sm">Não</span>
                 </div>
               </TableCell>
             </TableRow>
+
+            <TableRow>
+              <TableCell className="text-muted-foreground">
+                Dívida Total Quitada?
+              </TableCell>
+              <TableCell className="flex justify-end gap-4">
+                <div className="flex items-center gap-2">
+                  <Checkbox checked={props.totalDebtPaid} disabled />
+                  <span className="text-sm">Sim</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Checkbox checked={!props.totalDebtPaid} disabled />
+                  <span className="text-sm">Não</span>
+                </div>
+              </TableCell>
+            </TableRow>
+
             <TableRow>
               <TableCell className="text-muted-foreground">
                 Observações
               </TableCell>
-              <TableCell className="flex justify-end">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium whitespace-normal break-words text-right">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                    Nihil labore hic, libero velit iusto enim quisquam fuga
-                    inventore ipsam aliquid ipsa, dicta quos. Repellat laborum
-                    facere molestiae laudantium! Aut, excepturi?
-                  </span>
-                </div>
+              <TableCell className="text-right font-medium max-w-[300px] break-words py-4 italic">
+                {props.observations || "Nenhuma observação."}
               </TableCell>
             </TableRow>
           </TableBody>
