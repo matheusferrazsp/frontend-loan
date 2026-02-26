@@ -1,28 +1,27 @@
-import { Contact, Home, Landmark } from "lucide-react";
+import { ChartSpline, UserRoundPen } from "lucide-react";
 
 import { AccountMenu } from "./account-menu";
 import { NavLink } from "./nav-link";
 import { ThemeToggle } from "./theme/theme-toggle";
-import { Separator } from "./ui/separator";
 
 export function Header() {
   return (
     <div className="border-b">
-      <div className="flex h-16 items-center md:gap-6 md:px-6 gap-4 px-8 ">
-        <Landmark className="hidden sm:flex md:h-6 md:w-6" />
-
-        <Separator orientation="vertical" className="md:h-6" />
-
-        <nav className="flex items-center whitespace-nowrap space-x-4 md:space-x-4 lg:space-x-6">
+      <div className="flex h-20 items-center px-5 md:px-6 gap-2 md:gap-4">
+        <nav className="flex items-center space-x-5 md:space-x-4 lg:space-x-6">
+          {/* Dashboard: Apenas o ícone no mobile, texto aparece no desktop */}
           <NavLink to="/">
-            <Home className="h-4 w-4" />
-            Dashboard
+            <ChartSpline className="h-5 w-5 md:h-4 md:w-4" />
+            <span className="md:inline">Dashboard</span>
           </NavLink>
+
+          {/* Clientes: Ícone + Texto sempre visíveis */}
           <NavLink to="/clients">
-            <Contact className=" h-4 w-4 " />
-            Clientes
+            <UserRoundPen className="h-5 w-5 md:h-4 md:w-4" />
+            <span className="text-sm md:text-base">Clientes</span>
           </NavLink>
         </nav>
+
         <div className="ml-auto flex items-center gap-2">
           <ThemeToggle />
           <AccountMenu />

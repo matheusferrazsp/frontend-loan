@@ -35,7 +35,7 @@ export function AccountMenu() {
           variant="outline"
           className="flex items-center gap-1 md:gap-2 select-none text-sm md:text-sm"
         >
-          {user.name.split(" ")[0]}
+          Conta
           <ChevronDown className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
