@@ -68,7 +68,7 @@ export function ClientDetails(props: ClientDetailsProps) {
         <DialogDescription>Detalhes financeiros e cadastrais</DialogDescription>
       </DialogHeader>
 
-      <div className="flex-1 overflow-y-auto p-6 scrollbar-thin overflow-x-hidden">
+      <div className="w-[100vw] flex-1 overflow-y-auto p-3 scrollbar-thin overflow-x-hidden">
         <Table>
           <TableBody>
             {/* STATUS VISUAL */}
