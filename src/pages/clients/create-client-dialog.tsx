@@ -119,16 +119,16 @@ export function CreateClientDialog() {
 
       <form
         onSubmit={handleSubmit(handleCreateClient)}
-        className="flex w-[100vw] flex-col flex-1 overflow-x-hidden"
+        className=" flex w-[100vw] flex-col flex-1 overflow-x-hidden"
       >
         {/* ÁREA DE SCROLL */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin">
           {/* GRUPO 1: Data e Nome */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
+            <div className="space-y-2 ">
               <Label htmlFor="loanDate">Data do Empréstimo</Label>
               <Input
-                className="py-2"
+                className=" h-10  cursor-pointer z-20"
                 id="loanDate"
                 type="date"
                 {...register("loanDate")}
