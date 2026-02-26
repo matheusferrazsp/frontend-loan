@@ -57,7 +57,7 @@ export function ClientTableFilters({ onFilter }: FilterProps) {
         <Input
           {...register("date")}
           type="date"
-          className="order-2 block w-full bg-transparent border-muted px-3 py-2 text-sm md:text-base appearance-none"
+          className="order-2 text-sm w-100% md:h-8 md:w-[180px] appearance-none py-2"
         />
 
         <Controller

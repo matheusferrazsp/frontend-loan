@@ -109,7 +109,7 @@ export function CreateClientDialog() {
   }
 
   return (
-    <DialogContent className="md:max-w-[500px] h-[75vh] w-[95vw] p-0 overflow-x-hidden flex flex-col md:max-h-[85vh] max-h-[95vh] rounded-lg">
+    <DialogContent className="md:max-w-[500px] h-[75vh] w-[100vw] p-0 overflow-x-hidden flex flex-col md:max-h-[85vh] max-h-[95vh] rounded-lg">
       <DialogHeader className="pt-10 pb-0">
         <DialogTitle>Novo cliente</DialogTitle>
         <DialogDescription>
@@ -119,7 +119,7 @@ export function CreateClientDialog() {
 
       <form
         onSubmit={handleSubmit(handleCreateClient)}
-        className="flex flex-col flex-1 overflow-x-hidden"
+        className="flex w-[100vw] flex-col flex-1 overflow-x-hidden"
       >
         {/* ÁREA DE SCROLL */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin">
@@ -128,6 +128,7 @@ export function CreateClientDialog() {
             <div className="space-y-2">
               <Label htmlFor="loanDate">Data do Empréstimo</Label>
               <Input
+                className="py-2"
                 id="loanDate"
                 type="date"
                 {...register("loanDate")}
@@ -260,6 +261,7 @@ export function CreateClientDialog() {
               <Label htmlFor="nextPaymentDate">Próxima Parcela (Data)</Label>
               <Input
                 id="nextPaymentDate"
+                className="py-2"
                 type="date"
                 {...register("nextPaymentDate")}
                 required
@@ -271,6 +273,7 @@ export function CreateClientDialog() {
               </Label>
               <Input
                 id="lastPaymentDate"
+                className="py-2"
                 type="date"
                 {...register("lastPaymentDate")}
               />

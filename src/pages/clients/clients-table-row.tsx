@@ -72,7 +72,7 @@ export function ClientsTableRow({ client }: ClientsTableRowProps) {
           <span
             className={`h-2 w-2 rounded-full ${client.lateInstallments > 0 ? "bg-rose-500" : "bg-emerald-500"}`}
           />
-          <span className="font-medium text-muted-foreground">
+          <span className="flex items-center gap-2 whitespace-nowrapfont-medium text-muted-foreground">
             {client.lateInstallments > 0 ? "Atrasado" : "Em dia"}
           </span>
         </div>
