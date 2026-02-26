@@ -109,7 +109,7 @@ export function CreateClientDialog() {
   }
 
   return (
-    <DialogContent className="md:max-w-[500px] h-[95vh] md:h-[85vh] w-[95vw] p-0 flex flex-col rounded-lg overflow-hidden">
+    <DialogContent className="md:max-w-[500px] h-[70vh] md:h-[85vh] w-[95vw] p-0 flex flex-col rounded-lg overflow-hidden">
       <DialogHeader className="pt-8 px-6 pb-0">
         <DialogTitle>Novo cliente</DialogTitle>
         <DialogDescription>
@@ -128,7 +128,7 @@ export function CreateClientDialog() {
             <div className="space-y-2 ">
               <Label htmlFor="loanDate">Data do Empréstimo</Label>
               <Input
-                className=" h-10  cursor-pointer w-full"
+                className="h-10 w-full px-3 py-0 leading-none appearance-none flex items-center"
                 id="loanDate"
                 type="date"
                 {...register("loanDate")}
@@ -263,6 +263,7 @@ export function CreateClientDialog() {
                 id="nextPaymentDate"
                 type="date"
                 {...register("nextPaymentDate")}
+                className="h-10 w-full px-3 py-0 leading-none appearance-none flex items-center cursor-pointer"
                 required
               />
             </div>
@@ -272,7 +273,7 @@ export function CreateClientDialog() {
               </Label>
               <Input
                 id="lastPaymentDate"
-                className="h-10 w-full cursor-pointer"
+                className="h-10 w-full px-3 py-0 leading-none appearance-none flex items-center cursor-pointer"
                 type="date"
                 {...register("lastPaymentDate")}
               />
