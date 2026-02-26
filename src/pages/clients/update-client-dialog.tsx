@@ -143,7 +143,10 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
   }
 
   return (
-    <DialogContent className="md:max-w-[500px] h-[75vh] w-[95vw] p-0 overflow-x-hidden flex flex-col md:max-h-[85vh] max-h-[95vh] rounded-lg">
+    <DialogContent
+      onOpenAutoFocus={(e) => e.preventDefault()}
+      className="md:max-w-[500px] h-[70vh] md:h-[85vh] w-[95vw] p-0 flex flex-col rounded-lg overflow-hidden"
+    >
       <DialogHeader className="pt-10 pb-0">
         <DialogTitle>Atualizar cliente</DialogTitle>
         <DialogDescription>
