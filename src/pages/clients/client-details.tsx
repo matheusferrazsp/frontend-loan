@@ -62,13 +62,13 @@ export function ClientDetails(props: ClientDetailsProps) {
   const whatsappLink = `https://wa.me/55${whatsappNumber}`;
 
   return (
-    <DialogContent className="w-[95vw] md:max-w-[700px] max-h-[90vh] flex flex-col p-0 overflow-hidden">
-      <DialogHeader className="p-6 pb-0">
+    <DialogContent className="md:max-w-[500px] h-[80vh] w-[100vw] p-0 overflow-x-hidden flex flex-col md:max-h-[85vh] max-h-[95vh] rounded-lg">
+      <DialogHeader className="pt-10 pb-0">
         <DialogTitle className="break-all">Cliente: {props.name}</DialogTitle>
         <DialogDescription>Detalhes financeiros e cadastrais</DialogDescription>
       </DialogHeader>
 
-      <div className="flex-1 overflow-y-auto p-6 scrollbar-thin">
+      <div className="flex-1 overflow-y-auto p-6 scrollbar-thin overflow-x-hidden">
         <Table>
           <TableBody>
             {/* STATUS VISUAL */}

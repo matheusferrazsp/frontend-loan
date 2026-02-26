@@ -119,7 +119,7 @@ export function CreateClientDialog() {
 
       <form
         onSubmit={handleSubmit(handleCreateClient)}
-        className="flex flex-col flex-1 overflow-hidden"
+        className="flex flex-col flex-1 overflow-x-hidden"
       >
         {/* ÁREA DE SCROLL */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin">
