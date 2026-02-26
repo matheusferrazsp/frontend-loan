@@ -109,11 +109,11 @@ export function CreateClientDialog() {
   }
 
   return (
-    <DialogContent className="md:max-w-[500px] w-[95vw] p-0 overflow-hidden flex flex-col md:max-h-[85vh] max-h-[95vh] rounded-lg">
-      <DialogHeader className="p-6 pb-0">
+    <DialogContent className="md:max-w-[500px] h-[75vh] w-[95vw] p-0 overflow-x-hidden flex flex-col md:max-h-[85vh] max-h-[95vh] rounded-lg">
+      <DialogHeader className="pt-10 pb-0">
         <DialogTitle>Novo cliente</DialogTitle>
         <DialogDescription>
-          Preencha os dados. No mobile os campos empilham, no desktop agrupam.
+          Preencha os dados do novo cliente.
         </DialogDescription>
       </DialogHeader>
 
