@@ -163,6 +163,7 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
               <Input
                 id="loanDate"
                 type="date"
+                className="h-10 w-full px-3 py-0 leading-none appearance-none flex items-center cursor-pointer"
                 {...register("loanDate")}
                 required
               />
@@ -287,6 +288,7 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
               <Input
                 id="nextPaymentDate"
                 type="date"
+                className="h-10 w-full px-3 py-0 leading-none appearance-none flex items-center cursor-pointer"
                 {...register("nextPaymentDate")}
                 required
               />
@@ -298,6 +300,7 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
               <Input
                 id="lastPaymentDate"
                 type="date"
+                className="h-10 w-full px-3 py-0 leading-none appearance-none flex items-center cursor-pointer"
                 {...register("lastPaymentDate")}
               />
             </div>

@@ -123,3 +123,12 @@
   filter: invert(1) !important;
   cursor: pointer;
 }
+
+input[type="date"] {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  line-height: 1 !important;
+  display: flex !important;
+  align-items: center !important;
+  min-height: 2.5rem; /* Equivalente a h-10 */
+}
