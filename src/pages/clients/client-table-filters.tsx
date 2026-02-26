@@ -54,10 +54,14 @@ export function ClientTableFilters({ onFilter }: FilterProps) {
           placeholder="Nome do cliente"
           className="order-1 text-xs  md:h-8 md:w-[320px] w-100%"
         />
+        <label className="order-2 text-sm font-medium text-muted-foreground ml-1">
+          Data de pagamento
+        </label>
         <Input
           {...register("date")}
           type="date"
-          className="order-2 text-sm w-100% md:h-8 md:w-[180px] appearance-none py-2"
+          className="order-3 block w-full bg-transparent border-muted px-3 py-2 text-sm md:text-base before:content-[attr(data-placeholder)] before:text-muted-foreground before:mr-auto invalid:before:block valid:before:hidden"
+          data-placeholder="Data de pagamento"
         />
 
         <Controller
