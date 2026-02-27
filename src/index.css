@@ -133,12 +133,3 @@ input[type="date"] {
   align-items: center !important;
   min-height: 1rem;
 }
-
-input[type="Controller"] {
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
-  line-height: 1 !important;
-  display: flex !important;
-  align-items: center !important;
-  min-height: 1rem; /* Equivalente a h-10 */
-}

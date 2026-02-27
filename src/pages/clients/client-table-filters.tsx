@@ -56,9 +56,13 @@ export function ClientTableFilters({ onFilter }: FilterProps) {
         />
         <Input
           {...register("date")}
-          type="date"
+          placeholder="Data de pagamento" // O placeholder agora vai funcionar
+          type="text"
+          onFocus={(e) => (e.target.type = "date")}
+          onBlur={(e) => {
+            if (!e.target.value) e.target.type = "text";
+          }}
           className="order-3 text-xs md:w-[150px] w-[150px]"
-          data-placeholder="Data de pagamento"
         />
 
         <Controller
