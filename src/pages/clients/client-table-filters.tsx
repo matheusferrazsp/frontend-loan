@@ -52,15 +52,12 @@ export function ClientTableFilters({ onFilter }: FilterProps) {
         <Input
           {...register("name")}
           placeholder="Nome do cliente"
-          className="order-1 text-xs  md:h-8 md:w-[320px] w-100%"
+          className="order-1 text-xs md:w-[320px] w-[150px]"
         />
-        <label className="order-2 text-sm font-medium text-muted-foreground ml-1">
-          Data de pagamento
-        </label>
         <Input
           {...register("date")}
           type="date"
-          className="order-3 block w-full bg-transparent border-muted px-3 py-2 text-sm md:text-base before:content-[attr(data-placeholder)] before:text-muted-foreground before:mr-auto invalid:before:block valid:before:hidden"
+          className="order-3 text-xs md:w-[150px] w-[150px]"
           data-placeholder="Data de pagamento"
         />
 
@@ -69,10 +66,7 @@ export function ClientTableFilters({ onFilter }: FilterProps) {
           control={control}
           render={({ field }) => (
             <Select onValueChange={field.onChange} value={field.value}>
-              <SelectTrigger
-                size="sm"
-                className="order-3 md:order-3 text-xs md:w-[150px] w-100%"
-              >
+              <SelectTrigger className="order-3 md:order-3 text-xs md:w-[150px] w-100%">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -92,9 +86,8 @@ export function ClientTableFilters({ onFilter }: FilterProps) {
 
         <Button
           onClick={() => reset()}
-          className="font-normal h-8 order-4 items-center w-100%"
+          className="font-normal  order-4 items-center w-100%"
           variant="outline"
-          size="xs"
           type="button"
         >
           <X className="h-4 w-4 " />
