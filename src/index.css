@@ -133,3 +133,10 @@ input[type="date"] {
   align-items: center !important;
   min-height: 1rem;
 }
+
+@media (max-width: 768px) {
+  input[type="date"],
+  input[type="text"] {
+    font-size: 16px !important;
+  }
+}
