@@ -1,5 +1,7 @@
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
+import { useEffect, useState } from "react";
+
 import {
   Card,
   CardContent,
@@ -30,6 +32,13 @@ const chartData = [
   { month: "Dezembro", entry: 100000, exit: 80000 },
 ];
 
+const formatCurrency = (value: number) => {
+  return new Intl.NumberFormat("pt-BR", {
+    style: "currency",
+    currency: "BRL",
+  }).format(value);
+};
+
 const chartConfig = {
   entry: {
     label: "Entrada",
@@ -40,8 +49,19 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 export function AnnualChart() {
+  const [isMobile, setIsMobile] = useState(false);
   const totalEntry = chartData.reduce((acc, curr) => acc + curr.entry, 0);
   const totalExit = chartData.reduce((acc, curr) => acc + curr.exit, 0);
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkIsMobile();
+    window.addEventListener("resize", checkIsMobile);
+    return () => {
+      window.removeEventListener("resize", checkIsMobile);
+    };
+  }, []);
   return (
     <Card>
       <CardHeader>
@@ -50,22 +70,42 @@ export function AnnualChart() {
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
-          <BarChart accessibilityLayer data={chartData}>
+          <BarChart
+            accessibilityLayer
+            data={chartData}
+            margin={{
+              left: isMobile ? -50 : 0,
+              right: 10,
+            }}
+          >
             <CartesianGrid vertical={false} />
             <XAxis
               dataKey="month"
-              tickLine={false}
+              tickLine={true}
               tickMargin={10}
-              axisLine={false}
-              tickFormatter={(value) => value.slice(0, 3)}
+              axisLine={true}
+              tickFormatter={(value) => value.slice(0, 1)}
             />
-            <YAxis tickFormatter={(value) => value.toLocaleString()} />
+            <YAxis
+              tickFormatter={(value) => value.toLocaleString()}
+              className="hidden md:block"
+            />
             <ChartTooltip
               cursor={false}
               content={<ChartTooltipContent indicator="dashed" />}
             />
-            <Bar dataKey="entry" fill="var(--color-chart-2)" radius={4} />
-            <Bar dataKey="exit" fill="var(--color-chart-5)" radius={4} />
+            <Bar
+              dataKey="entry"
+              fill="var(--color-chart-2)"
+              radius={4}
+              barSize={8}
+            />
+            <Bar
+              dataKey="exit"
+              fill="var(--color-chart-5)"
+              radius={4}
+              barSize={8}
+            />
           </BarChart>
         </ChartContainer>
       </CardContent>
@@ -73,13 +113,13 @@ export function AnnualChart() {
         <div className="flex gap-2 font-medium leading-none">
           Total de Entrada:{" "}
           <span className="dark:text-emerald-400 text-emerald-500">
-            {totalEntry.toLocaleString()}
+            {formatCurrency(totalEntry)}
           </span>
         </div>
         <div className="flex gap-2 font-medium leading-none">
           Total de Saída:{" "}
           <span className="dark:text-red-400 text-red-500">
-            {totalExit.toLocaleString()}
+            {formatCurrency(totalExit)}
           </span>
         </div>
         <div className="leading-none text-muted-foreground">
