@@ -59,7 +59,7 @@ export function ClientDetails(props: ClientDetailsProps) {
   const whatsappLink = `https://wa.me/55${whatsappNumber}`;
 
   return (
-    <DialogContent className="sm:max-w-[500px] w-[98vw] h-[95vh] p-0 flex flex-col rounded-lg ">
+    <DialogContent className="sm:max-w-[500px] w-[98vw] h-[85vh] p-0 flex flex-col rounded-lg overflow-x-hidden">
       <DialogHeader className="pt-8 px-6 pb-2">
         <DialogTitle className="break-all text-lg">
           Cliente: {props.name}
@@ -67,7 +67,7 @@ export function ClientDetails(props: ClientDetailsProps) {
         <DialogDescription>Detalhes financeiros e cadastrais</DialogDescription>
       </DialogHeader>
 
-      <div className="w-full flex-1 overflow-y-auto px-2 pb-6 scrollbar-thin">
+      <div className="w-full flex-1 overflow-y-auto px-2 pb-6 scrollbar-thin ">
         <Table>
           <TableBody>
             {/* STATUS */}
@@ -129,7 +129,7 @@ export function ClientDetails(props: ClientDetailsProps) {
               <TableCell className="text-muted-foreground text-sm pr-0">
                 E-mail
               </TableCell>
-              <TableCell className="text-right font-medium text-sm break-all max-w-[150px]">
+              <TableCell className="text-right font-medium text-sm">
                 {props.email || "---"}
               </TableCell>
             </TableRow>
