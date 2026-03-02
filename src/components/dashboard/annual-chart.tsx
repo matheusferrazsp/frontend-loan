@@ -16,21 +16,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-
-const chartData = [
-  { month: "Janeiro", entry: 5000, exit: 2000 },
-  { month: "Fevereiro", entry: 7000, exit: 3500 },
-  { month: "Março", entry: 6000, exit: 12000 },
-  { month: "Abril", entry: 15000, exit: 8000 },
-  { month: "Maio", entry: 20000, exit: 10000 },
-  { month: "Junho", entry: 30000, exit: 20000 },
-  { month: "Julho", entry: 60000, exit: 30000 },
-  { month: "Agosto", entry: 50000, exit: 20000 },
-  { month: "Setembro", entry: 80000, exit: 30000 },
-  { month: "Outubro", entry: 100000, exit: 40000 },
-  { month: "Novembro", entry: 110000, exit: 100000 },
-  { month: "Dezembro", entry: 100000, exit: 80000 },
-];
+import { api } from "@/lib/axios";
 
 const formatCurrency = (value: number) => {
   return new Intl.NumberFormat("pt-BR", {
@@ -48,20 +34,40 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
+interface ChartDataItem {
+  month: string;
+  entry: number;
+  exit: number;
+}
+
 export function AnnualChart() {
+  const [chartData, setChartData] = useState<ChartDataItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
-  const totalEntry = chartData.reduce((acc, curr) => acc + curr.entry, 0);
-  const totalExit = chartData.reduce((acc, curr) => acc + curr.exit, 0);
+
   useEffect(() => {
-    const checkIsMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    checkIsMobile();
-    window.addEventListener("resize", checkIsMobile);
-    return () => {
-      window.removeEventListener("resize", checkIsMobile);
-    };
+    async function fetchData() {
+      try {
+        const response = await api.get("/dashboard/annual-stats");
+        setChartData(response.data);
+      } catch (error) {
+        console.error("Erro ao carregar dados", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+
+    fetchData();
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
+
+  if (isLoading)
+    return <div className="p-10 text-center">Carregando gráfico...</div>;
+
   return (
     <Card>
       <CardHeader>
@@ -113,13 +119,17 @@ export function AnnualChart() {
         <div className="flex gap-2 font-medium leading-none">
           Total de Entrada:{" "}
           <span className="dark:text-emerald-400 text-emerald-500">
-            {formatCurrency(totalEntry)}
+            {formatCurrency(
+              chartData.reduce((sum, item) => sum + item.entry, 0),
+            )}
           </span>
         </div>
         <div className="flex gap-2 font-medium leading-none">
           Total de Saída:{" "}
           <span className="dark:text-red-400 text-red-500">
-            {formatCurrency(totalExit)}
+            {formatCurrency(
+              chartData.reduce((sum, item) => sum + item.exit, 0),
+            )}
           </span>
         </div>
         <div className="leading-none text-muted-foreground">

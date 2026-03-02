@@ -47,6 +47,19 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
       .substring(0, 14);
   };
 
+  // Função para calcular o valor mensal pago com base nas parcelas pagas e no valor mensal sugerido
+  const installmentsPaid = watch("installmentsPaid");
+  const monthlyPaid = watch("monthlyPaid");
+  useEffect(() => {
+    if (installmentsPaid > 0 && monthlyPaid > 0) {
+      const totalSuggested = (
+        Number(installmentsPaid) * Number(monthlyPaid)
+      ).toFixed(2);
+
+      setValue("valuePaid", totalSuggested);
+    }
+  }, [installmentsPaid, monthlyPaid, setValue]);
+
   const formatPhone = (v: string) => {
     return v
       .replace(/\D/g, "")
@@ -277,7 +290,7 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="valuePaid">Valor Total Pago (R$)</Label>
+              <Label htmlFor="valuePaid">Valor Total Retornado (R$)</Label>
               <Input
                 id="valuePaid"
                 type="text"

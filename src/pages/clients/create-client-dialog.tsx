@@ -28,6 +28,19 @@ export function CreateClientDialog() {
   const loanValue = watch("value");
   const interestPercentage = watch("loanInterest");
 
+  // Função para calcular o valor mensal pago com base nas parcelas pagas e no valor mensal sugerido
+  const installmentsPaid = watch("installmentsPaid");
+  const monthlyPaid = watch("monthlyPaid");
+  useEffect(() => {
+    if (installmentsPaid > 0 && monthlyPaid > 0) {
+      const totalSuggested = (
+        Number(installmentsPaid) * Number(monthlyPaid)
+      ).toFixed(2);
+
+      setValue("valuePaid", totalSuggested);
+    }
+  }, [installmentsPaid, monthlyPaid, setValue]);
+
   // Aplicação de Máscaras no formulário ------------------------------------
   const handleMoneyMask = (e: React.FormEvent<HTMLInputElement>) => {
     let value = e.currentTarget.value;
@@ -43,9 +56,13 @@ export function CreateClientDialog() {
     if (loanValue && interestPercentage) {
       const monthlyInterest =
         (Number(loanValue) * Number(interestPercentage)) / 100;
-      setValue("monthlyPaid", monthlyInterest.toFixed(2));
+      const value = monthlyInterest.toFixed(2);
+      setValue("monthlyPaid", value, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
     }
-  }, [loanValue, interestPercentage]);
+  }, [loanValue, interestPercentage, setValue]);
 
   const handleCPFMask = (e: React.FormEvent<HTMLInputElement>) => {
     let value = e.currentTarget.value;
@@ -251,7 +268,7 @@ export function CreateClientDialog() {
           {/* GRUPO 6: Pagamentos e Datas */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="valuePaid">Valor Total Pago (R$)</Label>
+              <Label htmlFor="valuePaid">Valor Total Retornado (R$)</Label>
               <Input
                 id="valuePaid"
                 type="text"
