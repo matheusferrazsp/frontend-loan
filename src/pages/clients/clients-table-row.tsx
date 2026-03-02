@@ -61,7 +61,7 @@ export function ClientsTableRow({ client }: ClientsTableRowProps) {
 
       <TableCell className="text-sm font-medium">{client.name}</TableCell>
       <TableCell>
-        {Number(client.value).toLocaleString("pt-BR", {
+        {Number(client.monthlyPaid).toLocaleString("pt-BR", {
           style: "currency",
           currency: "BRL",
         })}
