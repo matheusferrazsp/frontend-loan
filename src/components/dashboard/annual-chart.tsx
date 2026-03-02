@@ -74,8 +74,11 @@ export function AnnualChart() {
         <CardTitle>Desempenho Anual</CardTitle>
         <CardDescription>Janeiro - Dezembro 2025</CardDescription>
       </CardHeader>
-      <CardContent>
-        <ChartContainer config={chartConfig}>
+      <CardContent className="flex-1 flex md:pt-15">
+        <ChartContainer
+          config={chartConfig}
+          className="mx-auto aspect-square w-full "
+        >
           <BarChart
             accessibilityLayer
             data={chartData}

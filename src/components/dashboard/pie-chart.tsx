@@ -79,10 +79,10 @@ export function PieData() {
         <CardTitle>Gráfico de clientes</CardTitle>
         <CardDescription>Em dívida - Em dia</CardDescription>
       </CardHeader>
-      <CardContent className="flex-1 flex md:pt-15">
+      <CardContent className="flex-1 flex pt-15 md:pt-15">
         <ChartContainer
           config={pieChartConfig}
-          className="mx-auto w-full max-h-[250px]"
+          className="mx-auto aspect-square w-full"
         >
           <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
             <ChartTooltip
@@ -93,7 +93,7 @@ export function PieData() {
               data={pieData}
               dataKey="value"
               nameKey="status"
-              innerRadius={60}
+              innerRadius={70}
               strokeWidth={5}
             >
               <Label
@@ -134,18 +134,19 @@ export function PieData() {
           {percentageLate}% em dívida <TrendingUp className="h-4 w-4" />
         </div>
         <div className="text-muted-foreground gap-1 flex items-center flex-col">
-          <span className="text-emerald-500">
+          <span className="dark:text-emerald-400 text-emerald-500">
             Em dia:{"  "}
             {pieData
               .find((d) => d.status === "em-dia")
               ?.value.toLocaleString() || 0}
           </span>
-          <span className="text-rose-500">
+          <span className="dark:text-red-400 text-red-500">
             Atrasados:{" "}
             {pieData
               .find((d) => d.status === "pendente")
               ?.value.toLocaleString() || 0}
           </span>
+          Mostrando todos os clientes.
         </div>
       </CardFooter>
     </Card>
