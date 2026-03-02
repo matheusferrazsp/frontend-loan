@@ -1,6 +1,6 @@
 "use client";
 
-import { TrendingUp } from "lucide-react";
+import { Loader2, TrendingUp } from "lucide-react";
 import { Label, Pie, PieChart } from "recharts";
 
 import * as React from "react";
@@ -19,11 +19,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-
-const pieChartData = [
-  { status: "pendente", value: 20, fill: "var(--color-chart-5)" },
-  { status: "em-dia", value: 100, fill: "var(--color-chart-2)" },
-];
+import { api } from "@/lib/axios";
 
 const pieChartConfig = {
   clients: {
@@ -40,9 +36,42 @@ const pieChartConfig = {
 } satisfies ChartConfig;
 
 export function PieData() {
-  const totalClients = React.useMemo(() => {
-    return pieChartData.reduce((acc, curr) => acc + (curr.value || 0), 0);
+  const [pieData, setPieData] = React.useState<
+    { status: string; value: number; fill: string }[]
+  >([]);
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    async function loadStats() {
+      try {
+        const response = await api.get("/stats/status");
+        setPieData(response.data);
+      } catch (error) {
+        console.error("Erro ao carregar pizza:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    loadStats();
   }, []);
+
+  const totalClients = React.useMemo(() => {
+    return pieData.reduce((acc, curr) => acc + (curr.value || 0), 0);
+  }, [pieData]);
+
+  const percentageLate = React.useMemo(() => {
+    if (totalClients === 0) return 0;
+    const late = pieData.find((d) => d.status === "pendente")?.value || 0;
+    return Math.round((late / totalClients) * 100);
+  }, [pieData, totalClients]);
+
+  if (isLoading) {
+    return (
+      <Card className="flex h-[350px] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </Card>
+    );
+  }
 
   return (
     <Card className="flex flex-col">
@@ -53,15 +82,15 @@ export function PieData() {
       <CardContent className="flex-1 flex md:pt-15">
         <ChartContainer
           config={pieChartConfig}
-          className="mx-auto aspect-square max-h-[250px]"
+          className="mx-auto w-full max-h-[250px]"
         >
-          <PieChart>
+          <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
             <ChartTooltip
               cursor={false}
               content={<ChartTooltipContent hideLabel />}
             />
             <Pie
-              data={pieChartData}
+              data={pieData}
               dataKey="value"
               nameKey="status"
               innerRadius={60}
@@ -102,10 +131,21 @@ export function PieData() {
       </CardContent>
       <CardFooter className="flex-col gap-2 text-sm">
         <div className="flex items-center gap-2 font-medium leading-none">
-          20% em dívida <TrendingUp className="h-4 w-4" />
+          {percentageLate}% em dívida <TrendingUp className="h-4 w-4" />
         </div>
-        <div className="leading-none text-muted-foreground">
-          Mostrando o total de clientes ativos
+        <div className="text-muted-foreground gap-1 flex items-center flex-col">
+          <span className="text-emerald-500">
+            Em dia:{"  "}
+            {pieData
+              .find((d) => d.status === "em-dia")
+              ?.value.toLocaleString() || 0}
+          </span>
+          <span className="text-rose-500">
+            Atrasados:{" "}
+            {pieData
+              .find((d) => d.status === "pendente")
+              ?.value.toLocaleString() || 0}
+          </span>
         </div>
       </CardFooter>
     </Card>
