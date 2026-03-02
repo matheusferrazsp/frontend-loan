@@ -79,10 +79,10 @@ export function PieData() {
         <CardTitle>Gráfico de clientes</CardTitle>
         <CardDescription>Em dívida - Em dia</CardDescription>
       </CardHeader>
-      <CardContent className="flex-1 flex pt-15 md:pt-15">
+      <CardContent className="flex-1 flex md:pt-15">
         <ChartContainer
           config={pieChartConfig}
-          className="mx-auto aspect-square w-full"
+          className="mx-auto md:max-h-[250px] aspect-square w-full"
         >
           <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
             <ChartTooltip

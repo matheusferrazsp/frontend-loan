@@ -20,8 +20,6 @@ import {
 } from "@/components/ui/chart";
 import { api } from "@/lib/axios";
 
-import { Dashboard } from "./../../pages/app/dashboard";
-
 export function FinancialSummaryPie() {
   const [data, setData] = React.useState<{
     totalIn: number;
@@ -33,12 +31,11 @@ export function FinancialSummaryPie() {
     async function fetchSummary() {
       try {
         const response = await api.get("/dashboard/monthly-summary");
-        // O Prisma aggregate retorna os dados dentro de _sum
         const { _sum } = response.data;
 
         setData({
-          totalIn: Number(_sum.valuePaid) || 0, // Entradas (O que já te pagaram)
-          totalOut: Number(_sum.value) || 0, // Saídas (O que você emprestou)
+          totalIn: Number(_sum.valuePaid) || 0,
+          totalOut: Number(_sum.value) || 0,
         });
       } catch (error) {
         console.error("Erro ao buscar resumo financeiro:", error);
@@ -49,7 +46,6 @@ export function FinancialSummaryPie() {
     fetchSummary();
   }, []);
 
-  // Lógica de cálculo baseada nos dados do banco
   const saldoFinal = (data?.totalIn || 0) - (data?.totalOut || 0);
   const isLucro = saldoFinal >= 0;
 
@@ -81,7 +77,10 @@ export function FinancialSummaryPie() {
         <CardDescription>Entradas vs Empréstimos (Mês Atual)</CardDescription>
       </CardHeader>
       <CardContent className="flex-1 flex md:pt-15">
-        <ChartContainer className="mx-auto aspect-square w-full" config={{}}>
+        <ChartContainer
+          className="mx-auto md:max-h-[250px] aspect-square w-full"
+          config={{}}
+        >
           <PieChart>
             <ChartTooltip content={<ChartTooltipContent />} />
             <Pie

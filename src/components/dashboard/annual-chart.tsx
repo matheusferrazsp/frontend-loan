@@ -77,7 +77,7 @@ export function AnnualChart() {
       <CardContent className="flex-1 flex md:pt-15">
         <ChartContainer
           config={chartConfig}
-          className="mx-auto aspect-square w-full "
+          className="mx-auto md:max-h-[250px] aspect-square w-full "
         >
           <BarChart
             accessibilityLayer
