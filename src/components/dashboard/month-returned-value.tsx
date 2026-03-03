@@ -1,20 +1,70 @@
-import { DollarSign } from "lucide-react";
+"use client";
+
+import { DollarSign, Loader2, TrendingDown, TrendingUp } from "lucide-react";
+
+import { useEffect, useState } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { api } from "@/lib/axios";
 
 export function TotalValueReturned() {
+  const [data, setData] = useState<{
+    totalReturned: number;
+    diffPercentage: number;
+  } | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const response = await api.get("/dashboard/total-returned");
+        setData(response.data);
+      } catch (error) {
+        console.error("Erro ao carregar total devolvido:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
+
+  if (loading) {
+    return (
+      <Card className="h-32 flex items-center justify-center">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </Card>
+    );
+  }
+
+  const isPositive = (data?.diffPercentage ?? 0) >= 0;
+
   return (
     <Card>
       <CardHeader className="flex flex-row space-y-0 items-center justify-between pb-2">
-        <CardTitle className="text-base font-semibold">
-          Total Devolvido(mês)
+        <CardTitle className="text-sm font-medium">
+          Total Devolvido (Mês)
         </CardTitle>
-        <DollarSign className="h-4 w-4 text-emerald-500 dark:text-emerald-400" />
+        <DollarSign className="h-4 w-4 dark:text-emerald-400 text-emerald-500" />
       </CardHeader>
-      <CardContent className="space-y-1">
-        <span className="text-2xl font-bold tracking-tight">R$ 5.000,00</span>
-        <p className="text-xs text-muted-foreground pt-2">
-          <span className="text-emerald-500 dark:text-emerald-400">+10%</span>{" "}
+      <CardContent>
+        <div className="text-2xl font-bold tracking-tight">
+          {data?.totalReturned.toLocaleString("pt-BR", {
+            style: "currency",
+            currency: "BRL",
+          })}
+        </div>
+        <p className="text-xs text-muted-foreground pt-1 flex items-center gap-1">
+          <span
+            className={`flex items-center font-bold ${isPositive ? "dark:text-emerald-400 text-emerald-500" : "dark:text-rose-400 text-rose-500"}`}
+          >
+            {isPositive ? (
+              <TrendingUp className="h-3 w-3 mr-1" />
+            ) : (
+              <TrendingDown className="h-3 w-3 mr-1" />
+            )}
+            {isPositive ? "+" : ""}
+            {data?.diffPercentage}%
+          </span>
           em relação ao mês passado
         </p>
       </CardContent>

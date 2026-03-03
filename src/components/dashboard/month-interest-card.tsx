@@ -7,7 +7,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { api } from "@/lib/axios";
@@ -48,7 +48,7 @@ export function MonthInterestCard() {
         <CardTitle className="text-sm font-medium">
           Total de Juros(Mês)
         </CardTitle>
-        <BanknoteArrowUp className="h-4 w-4 text-muted-foreground" />
+        <BanknoteArrowUp className="h-4 w-4 t dark:text-emerald-400 text-emerald-500" />
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold">
