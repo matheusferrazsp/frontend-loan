@@ -1,6 +1,6 @@
 import { Plus } from "lucide-react";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Helmet } from "react-helmet-async";
 
 import { Button } from "@/components/ui/button";
@@ -29,15 +29,14 @@ export function Clients() {
     [],
   );
 
+  const [pageIndex, setPageIndex] = useState(0);
+
   // 1. Função para buscar dados do Back-end
   async function fetchClients() {
     try {
       setIsLoading(true);
       const response = await api.get("/clients");
-
-      // Força a garantia de que estamos lidando com um Array
       const data = Array.isArray(response.data) ? response.data : [];
-
       setClients(data);
       setFilteredClients(data);
     } catch (error) {
@@ -53,9 +52,16 @@ export function Clients() {
     fetchClients();
   }, []);
 
+  const paginatedClients = useMemo(() => {
+    const start = pageIndex * 10;
+    const end = start + 10;
+    return filteredClients.slice(start, end);
+  }, [filteredClients, pageIndex]);
+
   // 2. Lógica de filtragem em tempo real
   const handleFilter = useCallback(
     (data: FilterData) => {
+      setPageIndex(0);
       setFilteredClients((prevFiltered) => {
         const filtered = clients.filter((client) => {
           const matchName = client.name
@@ -133,11 +139,12 @@ export function Clients() {
             {isLoading ? (
               <TableRow>
                 <TableCell colSpan={7} className="text-center py-10">
-                  Carregando clientes...
+                  Carregando...
                 </TableCell>
               </TableRow>
-            ) : filteredClients.length > 0 ? (
-              filteredClients.map((client) => (
+            ) : paginatedClients.length > 0 ? (
+              // USAMOS O ARRAY PAGINADO AQUI:
+              paginatedClients.map((client) => (
                 <ClientsTableRow
                   key={client.id}
                   client={client}
@@ -146,11 +153,8 @@ export function Clients() {
               ))
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={7}
-                  className="text-center py-10 text-muted-foreground"
-                >
-                  Nenhum cliente encontrado.
+                <TableCell colSpan={7} className="text-center py-10">
+                  Nenhum cliente.
                 </TableCell>
               </TableRow>
             )}
@@ -160,9 +164,17 @@ export function Clients() {
 
       {/* Paginação baseada na lista filtrada */}
       <Pagination
-        pageIndex={0}
+        pageIndex={pageIndex}
         totalCount={filteredClients.length}
         perPage={10}
+        onPageChange={(page) => {
+          // Adicione um log para testar no console
+          console.log("Indo para a página:", page);
+          setPageIndex(page);
+
+          // Opcional: faz a tela voltar ao topo da TABELA suavemente
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }}
       />
     </>
   );

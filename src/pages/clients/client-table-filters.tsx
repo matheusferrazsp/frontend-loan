@@ -33,11 +33,14 @@ export function ClientTableFilters({ onFilter }: FilterProps) {
   });
 
   // "Assiste" todos os campos em tempo real
-  const filters = watch();
 
   useEffect(() => {
-    onFilter(filters);
-  }, [filters, onFilter]);
+    const subscription = watch((value) => {
+      // Só dispara o onFilter quando o usuário digita ou muda o select
+      onFilter(value as FilterData);
+    });
+    return () => subscription.unsubscribe();
+  }, [watch, onFilter]);
 
   return (
     <>
