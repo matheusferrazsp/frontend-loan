@@ -83,10 +83,12 @@ export function Clients() {
         });
 
         // Só atualiza se o resultado for diferente para evitar renders desnecessários
-        if (JSON.stringify(prevFiltered) === JSON.stringify(filtered)) {
-          return prevFiltered;
+        if (JSON.stringify(prevFiltered) !== JSON.stringify(filtered)) {
+          setPageIndex(0);
+          return filtered;
         }
-        return filtered;
+
+        return prevFiltered;
       });
     },
     [clients],
