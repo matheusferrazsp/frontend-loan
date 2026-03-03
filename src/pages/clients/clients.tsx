@@ -86,6 +86,12 @@ export function Clients() {
     [clients],
   );
 
+  // 3. Lógica de exclusão de cliente
+
+  function onDeleteSuccess(clientId: string) {
+    setClients((prev) => prev.filter((client) => client.id !== clientId));
+  }
+
   return (
     <>
       <Helmet title="Clientes" />
@@ -132,7 +138,11 @@ export function Clients() {
               </TableRow>
             ) : filteredClients.length > 0 ? (
               filteredClients.map((client) => (
-                <ClientsTableRow key={client.id} client={client} />
+                <ClientsTableRow
+                  key={client.id}
+                  client={client}
+                  onDelete={onDeleteSuccess}
+                />
               ))
             ) : (
               <TableRow>

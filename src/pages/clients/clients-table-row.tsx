@@ -24,9 +24,10 @@ import { UpdateClientDialog } from "./update-client-dialog";
 
 interface ClientsTableRowProps {
   client: ClientDetailsProps;
+  onDelete: (clientId: string) => void;
 }
 
-export function ClientsTableRow({ client }: ClientsTableRowProps) {
+export function ClientsTableRow({ client, onDelete }: ClientsTableRowProps) {
   const [isDeleting, setIsDeleting] = useState(false);
 
   async function handleDeleteClient() {
@@ -37,7 +38,7 @@ export function ClientsTableRow({ client }: ClientsTableRowProps) {
 
       toast.success("Cliente removido com sucesso!");
 
-      window.location.reload();
+      onDelete(client.id);
     } catch (error) {
       toast.error("Não foi possível excluir o cliente.");
       console.error(error);
