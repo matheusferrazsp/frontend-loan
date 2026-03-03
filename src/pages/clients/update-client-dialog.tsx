@@ -1,3 +1,5 @@
+"use-client";
+
 import { toast } from "sonner";
 
 import { useEffect } from "react";

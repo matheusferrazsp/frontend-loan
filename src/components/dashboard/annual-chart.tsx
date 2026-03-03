@@ -1,3 +1,4 @@
+import { Loader2 } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
 import { useEffect, useState } from "react";
@@ -65,8 +66,13 @@ export function AnnualChart() {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  if (isLoading)
-    return <div className="p-10 text-center">Carregando gráfico...</div>;
+  if (isLoading) {
+    return (
+      <Card className="flex h-[350px] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </Card>
+    );
+  }
 
   return (
     <Card>
