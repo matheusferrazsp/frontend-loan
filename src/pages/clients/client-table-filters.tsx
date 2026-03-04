@@ -36,7 +36,6 @@ export function ClientTableFilters({ onFilter }: FilterProps) {
 
   useEffect(() => {
     const subscription = watch((value) => {
-      // Só dispara o onFilter quando o usuário digita ou muda o select
       onFilter(value as FilterData);
     });
     return () => subscription.unsubscribe();

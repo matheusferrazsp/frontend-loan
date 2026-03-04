@@ -24,7 +24,7 @@ import { UpdateClientDialog } from "./update-client-dialog";
 
 interface ClientsTableRowProps {
   client: ClientDetailsProps;
-  onDelete: (clientId: string) => void;
+  onDelete: (id: string) => void;
 }
 
 export function ClientsTableRow({ client, onDelete }: ClientsTableRowProps) {
@@ -53,15 +53,25 @@ export function ClientsTableRow({ client, onDelete }: ClientsTableRowProps) {
         <Dialog>
           <DialogTrigger asChild>
             <Button variant="outline" size="xs">
-              <Search className="h-3 w-3" />
+              <Search className="h-3 w-3 md:size-4" />
             </Button>
           </DialogTrigger>
           <ClientDetails {...client} />
         </Dialog>
       </TableCell>
 
-      <TableCell className="text-sm font-medium">{client.name}</TableCell>
-      <TableCell>
+      <TableCell className="text-sm font-medium">
+        <div className="flex flex-col">
+          {client.name}
+          <span className="text-muted-foreground md:hidden">
+            {Number(client.monthlyPaid).toLocaleString("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            })}
+          </span>
+        </div>
+      </TableCell>
+      <TableCell className="hidden md:table-cell">
         {Number(client.monthlyPaid).toLocaleString("pt-BR", {
           style: "currency",
           currency: "BRL",
@@ -69,11 +79,10 @@ export function ClientsTableRow({ client, onDelete }: ClientsTableRowProps) {
       </TableCell>
 
       <TableCell>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col md:table-cell items-center gap-1">
           <span
-            className={`h-2 w-2 rounded-full ${client.lateInstallments > 0 ? "bg-rose-500" : "bg-emerald-500"}`}
-          />
-          <span className="flex items-center gap-2 whitespace-nowrapfont-medium text-muted-foreground">
+            className={`flex items-center gap-2 whitespace-nowrap font-medium text-xs md:text-sm  ${client.lateInstallments > 0 ? "text-rose-500" : "text-emerald-500"}`}
+          >
             {client.lateInstallments > 0 ? "Atrasado" : "Em dia"}
           </span>
         </div>

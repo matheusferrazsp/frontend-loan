@@ -23,6 +23,7 @@ export interface ClientDetailsProps {
   installmentsPaid: number;
   lateInstallments: number;
   valuePaid: number;
+  lastPaymentAmount: number;
   monthlyPaid: number;
   loanDate: string;
   nextPaymentDate: string;
@@ -181,6 +182,15 @@ export function ClientDetails(props: ClientDetailsProps) {
               </TableCell>
             </TableRow>
 
+            <TableRow>
+              <TableCell className="text-muted-foreground text-sm">
+                Último valor pago
+              </TableCell>
+              <TableCell className="text-right font-medium text-sm text-emerald-600">
+                {formatCurrency(props.lastPaymentAmount)}
+              </TableCell>
+            </TableRow>
+
             {/* PARCELAS */}
             <TableRow>
               <TableCell className="text-muted-foreground text-sm">
@@ -216,6 +226,15 @@ export function ClientDetails(props: ClientDetailsProps) {
               </TableCell>
               <TableCell className="text-right text-sm font-bold">
                 {formatDate(props.nextPaymentDate)}
+              </TableCell>
+            </TableRow>
+
+            <TableRow>
+              <TableCell className="text-muted-foreground text-sm leading-tight">
+                Último Pagamento
+              </TableCell>
+              <TableCell className="text-right text-sm font-bold">
+                {formatDate(props.lastPaymentDate)}
               </TableCell>
             </TableRow>
 

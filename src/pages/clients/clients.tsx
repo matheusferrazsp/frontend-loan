@@ -128,9 +128,11 @@ export function Clients() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="md:w-[64px]"></TableHead>
+              <TableHead className="md:w-[64px] "></TableHead>
               <TableHead>Cliente</TableHead>
-              <TableHead>Mensalidade</TableHead>
+              <TableHead className="hidden md:table-cell">
+                Mensalidade
+              </TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Pagamento</TableHead>
               <TableHead className="w-[164px]">Editar</TableHead>

@@ -31,11 +31,14 @@ export function FinancialSummaryPie() {
     async function fetchSummary() {
       try {
         const response = await api.get("/dashboard/monthly-summary");
-        const { _sum } = response.data;
+
+        // Ajuste aqui para bater com o novo retorno do Backend
+        // Supondo que seu backend retorne { totalReceived: X, totalLoaned: Y }
+        const { totalReceived, totalLoaned } = response.data;
 
         setData({
-          totalIn: Number(_sum.valuePaid) || 0,
-          totalOut: Number(_sum.value) || 0,
+          totalIn: Number(totalReceived) || 0, // O que entrou (lastPaymentAmount)
+          totalOut: Number(totalLoaned) || 0, // O total que você emprestou no mês
         });
       } catch (error) {
         console.error("Erro ao buscar resumo financeiro:", error);

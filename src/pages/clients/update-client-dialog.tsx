@@ -96,6 +96,7 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
         value: formatToMoney(client.value),
         monthlyPaid: formatToMoney(client.monthlyPaid),
         valuePaid: formatToMoney(client.valuePaid),
+        lastPaymentAmount: formatToMoney(client.lastPaymentAmount),
       });
     }
   }, [client, reset]);
@@ -144,6 +145,7 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
         lastPaymentDate: data.lastPaymentDate
           ? new Date(data.lastPaymentDate).toISOString()
           : null,
+        lastPaymentAmount: Number(data.lastPaymentAmount) || 0,
         monthlyFeePaid: data.monthlyFeePaid === "true",
         totalDebtPaid: data.totalDebtPaid === "true",
       };
@@ -320,6 +322,20 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
                 type="date"
                 className="h-10 w-full px-3 py-0 leading-none appearance-none flex items-center cursor-pointer"
                 {...register("lastPaymentDate")}
+              />
+            </div>
+          </div>
+
+          <div className="space-y-2 grid md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="lastPaymentAmount">Último valor Pago (R$)</Label>
+              <Input
+                id="lastPaymentAmount"
+                className="h-10 w-full px-3 py-0 leading-none appearance-none flex items-center cursor-pointer"
+                type="text"
+                placeholder="0,00"
+                {...register("lastPaymentAmount")}
+                onInput={handleMoneyMask}
               />
             </div>
           </div>

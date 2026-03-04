@@ -115,6 +115,9 @@ export function CreateClientDialog() {
           : null,
         monthlyFeePaid: data.monthlyFeePaid === "true",
         totalDebtPaid: data.totalDebtPaid === "true",
+        lastpaymentAmount: data.lastpaymentAmount
+          ? Number(data.lastpaymentAmount)
+          : 0,
       };
 
       await api.post("/clients", formattedData);
@@ -303,28 +306,39 @@ export function CreateClientDialog() {
           </div>
 
           {/* GRUPO 7: Selects e Observações */}
-          <div className="space-y-2">
-            <Label>Status Mensalidade</Label>
-            <Controller
-              name="monthlyFeePaid"
-              control={control}
-              defaultValue="false"
-              render={({ field }) => (
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <SelectTrigger className="cursor-pointer">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="false">Em Aberto</SelectItem>
-                    <SelectItem value="true">Paga</SelectItem>
-                  </SelectContent>
-                </Select>
-              )}
-            />
+          <div className="space-y-2 grid md:grid-cols-3 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="lastPaymentAmount">Último valor Pago (R$)</Label>
+              <Input
+                id="lastPaymentAmount"
+                className="h-10 w-full px-3 py-0 leading-none appearance-none flex items-center cursor-pointer"
+                type="text"
+                placeholder="0,00"
+                {...register("lastPaymentAmount")}
+                onInput={handleMoneyMask}
+              />
+            </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
+              <Label>Status Mensalidade</Label>
+              <Controller
+                name="monthlyFeePaid"
+                control={control}
+                defaultValue="false"
+                render={({ field }) => (
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <SelectTrigger className="cursor-pointer">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="false">Em Aberto</SelectItem>
+                      <SelectItem value="true">Paga</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
               <Label>Dívida Quitada?</Label>
               <Controller
                 name="totalDebtPaid"
