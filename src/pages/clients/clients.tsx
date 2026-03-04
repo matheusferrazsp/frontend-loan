@@ -98,6 +98,14 @@ export function Clients() {
 
   function onDeleteSuccess(clientId: string) {
     setClients((prev) => prev.filter((client) => client.id !== clientId));
+
+    setFilteredClients((prev) =>
+      prev.filter((client) => client.id !== clientId),
+    );
+
+    if (paginatedClients.length === 1 && pageIndex > 0) {
+      setPageIndex((prev) => prev - 1);
+    }
   }
 
   return (
