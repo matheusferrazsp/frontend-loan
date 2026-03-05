@@ -97,7 +97,7 @@ export function ClientsTableRow({ client, onDelete }: ClientsTableRowProps) {
       <TableCell>
         <Dialog>
           <DialogTrigger asChild>
-            <Button variant="outline" size="xs">
+            <Button variant="outline" size="xs" className="-ml-2">
               <Search className="h-3 w-3 md:size-4" />
             </Button>
           </DialogTrigger>
@@ -134,11 +134,13 @@ export function ClientsTableRow({ client, onDelete }: ClientsTableRowProps) {
       </TableCell>
 
       <TableCell>
-        {client.nextPaymentDate
-          ? new Date(client.nextPaymentDate).toLocaleDateString("pt-BR", {
-              timeZone: "UTC",
-            })
-          : "---"}
+        <Button variant="ghost" size="xs" className="w-full">
+          {client.nextPaymentDate
+            ? new Date(client.nextPaymentDate).toLocaleDateString("pt-BR", {
+                timeZone: "UTC",
+              })
+            : "---"}
+        </Button>
       </TableCell>
 
       <TableCell>
