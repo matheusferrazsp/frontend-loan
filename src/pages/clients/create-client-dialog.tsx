@@ -345,7 +345,7 @@ export function CreateClientDialog({ client }: CreateClientDialogProps) {
               <Controller
                 name="monthlyFeePaid"
                 control={control}
-                defaultValue="false"
+                defaultValue="true"
                 render={({ field }) => (
                   <Select onValueChange={field.onChange} value={field.value}>
                     <SelectTrigger>
