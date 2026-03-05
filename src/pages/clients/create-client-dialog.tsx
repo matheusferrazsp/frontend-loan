@@ -25,7 +25,31 @@ import {
 } from "@/components/ui/select";
 import { api } from "@/lib/axios";
 
-export function CreateClientDialog() {
+interface CreateClientDialogProps {
+  client?: {
+    name?: string;
+    email?: string;
+    cpf?: string;
+    phone?: string;
+    address?: string;
+    value?: number;
+    loanInterest?: number;
+    monthlyPaid?: number;
+    installments?: number;
+    installmentsPaid?: number;
+    lateInstallments?: number;
+    valuePaid?: number;
+    loanDate?: string;
+    nextPaymentDate?: string;
+    lastPaymentDate?: string;
+    monthlyFeePaid?: boolean;
+    totalDebtPaid?: boolean;
+    lastpaymentAmount?: number;
+    observations?: string;
+  };
+}
+
+export function CreateClientDialog({ client }: CreateClientDialogProps) {
   const { register, handleSubmit, reset, control, watch, setValue } = useForm();
   const loanValue = watch("value");
   const interestPercentage = watch("loanInterest");
@@ -44,15 +68,44 @@ export function CreateClientDialog() {
   }, [installmentsPaid, monthlyPaid, setValue]);
 
   // Aplicação de Máscaras no formulário ------------------------------------
-  const handleMoneyMask = (e: React.FormEvent<HTMLInputElement>) => {
-    let value = e.currentTarget.value;
-    value = value.replace(/\D/g, "");
+  const handleMoneyMask = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // 1. Remove tudo que não é número
+    let value = e.target.value.replace(/\D/g, "");
 
-    const result = (Number(value) / 100).toFixed(2);
+    // 2. Transforma em decimal (ex: de "100050" para 1000.50)
+    const numericValue = Number(value) / 100;
 
-    const fieldName = e.currentTarget.name;
-    setValue(fieldName, result);
+    // 3. Formata o que o usuário vê (Mascara Brasileira)
+    const visualValue = new Intl.NumberFormat("pt-BR", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(numericValue);
+
+    // 4. Atualiza o valor visual do Input
+    e.target.value = visualValue;
+
+    // 5. ATUALIZA O REACT HOOK FORM COM O VALOR DECIMAL
+    // Isso garante que o valor enviado para a API/Prisma seja 1000.50
+    setValue(e.target.name, numericValue.toFixed(2));
+    
   };
+
+  useEffect(() => {
+  if (client) {
+    // Formata o valor que vem do banco para a máscara brasileira antes de mostrar
+    const formattedInitialValue = new Intl.NumberFormat("pt-BR", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(Number(client.monthlyPaid));
+
+    reset({
+      ...client,
+      monthlyPaid: formattedInitialValue,
+    });
+  }
+}, [client, reset]);
+
+  
 
   useEffect(() => {
     if (loanValue && interestPercentage) {
