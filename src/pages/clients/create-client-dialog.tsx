@@ -133,12 +133,12 @@ export function CreateClientDialog() {
   return (
     <DialogContent
       onOpenAutoFocus={(e) => e.preventDefault()}
-      className="md:max-w-[500px] h-[70vh] md:h-[85vh] w-[95vw] p-0 flex flex-col rounded-lg overflow-hidden"
+      className="md:max-w-[500px] h-[80vh] md:h-[85vh] w-[95vw] p-0 flex flex-col rounded-lg overflow-hidden"
     >
-      <DialogHeader className="pt-8 px-6 pb-0">
-        <DialogTitle>Novo cliente</DialogTitle>
+      <DialogHeader className="pt-10 px-6 pb-0">
+        <DialogTitle>Novo Empréstimo</DialogTitle>
         <DialogDescription>
-          Preencha os dados do novo cliente.
+          Preencha os dados do novo Empréstimo.
         </DialogDescription>
       </DialogHeader>
 

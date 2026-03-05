@@ -162,14 +162,11 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
   return (
     <DialogContent
       onOpenAutoFocus={(e) => e.preventDefault()}
-      className="md:max-w-[500px] h-[70vh] md:h-[85vh] w-[95vw] p-0 flex flex-col rounded-lg overflow-hidden"
+      className="md:max-w-[500px] h-[80vh] md:h-[85vh] w-[95vw] p-0 flex flex-col rounded-lg overflow-hidden"
     >
       <DialogHeader className="pt-10 pb-0">
-        <DialogTitle>Atualizar cliente</DialogTitle>
-        <DialogDescription>
-          Altere os dados necessários. No mobile os campos empilham, no desktop
-          agrupam.
-        </DialogDescription>
+        <DialogTitle>Atualizar empréstimo</DialogTitle>
+        <DialogDescription>Altere os dados necessários.</DialogDescription>
       </DialogHeader>
 
       <form

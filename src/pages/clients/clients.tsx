@@ -132,7 +132,7 @@ export function Clients() {
         </Dialog>
       </div>
 
-      <div className="-mx-8 md:mx-0 border-y md:border-x rounded-md overflow-hidden">
+      <div className="-mx-5 md:mx-0 border-y md:border-x md:rounded-md overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
