@@ -100,8 +100,8 @@ export function ClientsTableRow({ client, onDelete }: ClientsTableRowProps) {
         <Dialog>
           <DialogTrigger asChild>
             <Button variant="outline" size="sm">
-              <UserCog className="mr-1 h-3 w-3" />
-              Editar
+              <UserCog className="md:mr-1 h-3 w-3" />
+              <span className="hidden md:inline">Editar</span>
             </Button>
           </DialogTrigger>
           <UpdateClientDialog client={client} />
@@ -118,7 +118,7 @@ export function ClientsTableRow({ client, onDelete }: ClientsTableRowProps) {
               className="text-rose-500 hover:text-rose-600"
             >
               <Trash2 className="mr-1 h-3 w-3" />
-              Excluir
+              <span className="hidden md:inline">Excluir</span>
             </Button>
           </AlertDialogTrigger>
 

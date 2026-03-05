@@ -109,7 +109,7 @@ export function Clients() {
   }
 
   return (
-    <>
+    <div className="p-0 md:p-8 flex flex-col gap-4">
       <Helmet title="Clientes" />
 
       <div className="flex flex-col gap-4">
@@ -132,17 +132,17 @@ export function Clients() {
         </Dialog>
       </div>
 
-      <div className="border rounded-md">
+      <div className="-mx-8 md:mx-0 border-y md:border-x rounded-md overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="md:w-[64px] "></TableHead>
+              <TableHead className="md:w-[64px] w-[32px]"></TableHead>
               <TableHead>Cliente</TableHead>
               <TableHead className="hidden md:table-cell">
                 Mensalidade
               </TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Pagamento</TableHead>
+              <TableHead>Vence</TableHead>
               <TableHead className="w-[164px]">Editar</TableHead>
               <TableHead className="w-[132px]">Excluir</TableHead>
             </TableRow>
@@ -188,6 +188,6 @@ export function Clients() {
           window.scrollTo({ top: 0, behavior: "smooth" });
         }}
       />
-    </>
+    </div>
   );
 }
