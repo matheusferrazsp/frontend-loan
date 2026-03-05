@@ -333,8 +333,8 @@ export function CreateClientDialog() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="false">Em Aberto</SelectItem>
-                      <SelectItem value="true">Paga</SelectItem>
+                      <SelectItem value="false">Atrasada</SelectItem>
+                      <SelectItem value="true">Em dia</SelectItem>
                     </SelectContent>
                   </Select>
                 )}
