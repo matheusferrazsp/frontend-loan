@@ -89,7 +89,7 @@ export function Clients() {
                   })()
                 : data.status === "debtor"
                   ? client.lateInstallments > 0
-                  : client.lateInstallments <= 1;
+                  : client.lateInstallments === 0;
 
           const matchDate = data.date
             ? client.nextPaymentDate?.includes(data.date)

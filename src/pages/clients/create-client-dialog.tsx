@@ -170,7 +170,7 @@ export function CreateClientDialog({ client }: CreateClientDialogProps) {
 
       <form
         onSubmit={handleSubmit(handleCreateClient)}
-        className="flex w-full flex-col flex-1 overflow-x-hidden"
+        className="flex  flex-col flex-1 overflow-hidden"
       >
         <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin">
           {/* GRUPO 1: Datas e Nome */}
