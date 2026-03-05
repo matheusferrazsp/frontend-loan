@@ -3,6 +3,7 @@
 import { toast } from "sonner";
 
 import { useEffect } from "react";
+import React from "react";
 import { Controller, useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
@@ -29,8 +30,8 @@ interface CreateClientDialogProps {
   client?: any;
 }
 
-export function CreateClientDialog({ client }: CreateClientDialogProps) {
-  const { register, handleSubmit, reset, control, watch, setValue } = useForm();
+export function CreateClientDialog({}: CreateClientDialogProps) {
+  const { register, handleSubmit, control, watch, setValue } = useForm();
 
   const loanValue = watch("value");
   const interestPercentage = watch("loanInterest");
@@ -50,9 +51,23 @@ export function CreateClientDialog({ client }: CreateClientDialogProps) {
   const parseMoney = (val: any) => {
     if (!val) return 0;
     if (typeof val === "number") return val;
-    // Remove pontos de milhar e troca vírgula por ponto
     const cleanValue = val.replace(/\./g, "").replace(",", ".");
     return Number(cleanValue) || 0;
+  };
+
+  const parseDateToISO = (dateStr: string) => {
+    if (!dateStr || !dateStr.includes("/")) return null;
+    const [day, month, year] = dateStr.split("/");
+    // Usamos o meio do dia (12:00) para evitar que o fuso horário mude o dia
+    const date = new Date(
+      Number(year),
+      Number(month) - 1,
+      Number(day),
+      12,
+      0,
+      0,
+    );
+    return date.toISOString();
   };
 
   // --- MÁSCARAS ---
@@ -66,21 +81,35 @@ export function CreateClientDialog({ client }: CreateClientDialogProps) {
     setValue(name, e.target.value);
   };
 
+  const handleDateMask = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.replace(/\D/g, "");
+    if (value.length > 8) value = value.slice(0, 8);
+
+    const formattedDate = value
+      .replace(/(\d{2})(\d)/, "$1/$2")
+      .replace(/(\d{2})(\d)/, "$1/$2")
+      .replace(/(\d{4})(\d)/, "$1");
+
+    e.target.value = formattedDate;
+    setValue(e.target.name, formattedDate);
+  };
+
   const handleCPFMask = (e: React.FormEvent<HTMLInputElement>) => {
     let value = e.currentTarget.value.replace(/\D/g, "");
     value = value
       .replace(/(\d{3})(\d)/, "$1.$2")
       .replace(/(\d{3})(\d)/, "$1.$2")
       .replace(/(\d{3})(\d{1,2})/, "$1-$2")
-      .replace(/(-\d{2})\d+?$/, "$1");
+      .substring(0, 14);
     setValue("cpf", value);
   };
 
   const handlePhoneMask = (e: React.FormEvent<HTMLInputElement>) => {
     let value = e.currentTarget.value.replace(/\D/g, "");
     value = value
-      .replace(/^(\d{2})(\d)/g, "($1) $2")
-      .replace(/(\d)(\d{4})$/, "$1-$2");
+      .replace(/^(\d{2})(\d)/, "($1) $2")
+      .replace(/(\d)(\d{4})$/, "$1-$2")
+      .substring(0, 15);
     setValue("phone", value);
   };
 
@@ -89,8 +118,7 @@ export function CreateClientDialog({ client }: CreateClientDialogProps) {
   useEffect(() => {
     if (installmentsPaid > 0 && monthlyPaid) {
       const val = parseMoney(monthlyPaid);
-      const total = (Number(installmentsPaid) * val).toFixed(2);
-      setValue("valuePaid", formatToBRL(total));
+      setValue("valuePaid", formatToBRL(Number(installmentsPaid) * val));
     }
   }, [installmentsPaid, monthlyPaid, setValue]);
 
@@ -102,20 +130,6 @@ export function CreateClientDialog({ client }: CreateClientDialogProps) {
     }
   }, [loanValue, interestPercentage, setValue]);
 
-  useEffect(() => {
-    if (client) {
-      reset({
-        ...client,
-        value: formatToBRL(client.value),
-        monthlyPaid: formatToBRL(client.monthlyPaid),
-        valuePaid: formatToBRL(client.valuePaid),
-        lastPaymentAmount: formatToBRL(client.lastPaymentAmount),
-        monthlyFeePaid: String(client.monthlyFeePaid),
-        totalDebtPaid: String(client.totalDebtPaid),
-      });
-    }
-  }, [client, reset]);
-
   // --- ENVIO ---
 
   async function handleCreateClient(data: any) {
@@ -123,6 +137,7 @@ export function CreateClientDialog({ client }: CreateClientDialogProps) {
       const formattedData = {
         ...data,
         cpf: data.cpf?.replace(/\D/g, ""),
+        phone: data.phone?.replace(/\D/g, ""),
         value: parseMoney(data.value),
         loanInterest: Number(data.loanInterest),
         installments: parseInt(data.installments) || 0,
@@ -131,22 +146,16 @@ export function CreateClientDialog({ client }: CreateClientDialogProps) {
         valuePaid: parseMoney(data.valuePaid),
         monthlyPaid: parseMoney(data.monthlyPaid),
         lastPaymentAmount: parseMoney(data.lastPaymentAmount),
-        loanDate: data.loanDate
-          ? new Date(data.loanDate).toISOString()
-          : new Date().toISOString(),
-        nextPaymentDate: data.nextPaymentDate
-          ? new Date(data.nextPaymentDate).toISOString()
-          : null,
-        lastPaymentDate: data.lastPaymentDate
-          ? new Date(data.lastPaymentDate).toISOString()
-          : null,
+        loanDate: parseDateToISO(data.loanDate) || new Date().toISOString(),
+        nextPaymentDate: parseDateToISO(data.nextPaymentDate),
+        lastPaymentDate: parseDateToISO(data.lastPaymentDate),
         monthlyFeePaid: data.monthlyFeePaid === "true",
         totalDebtPaid: data.totalDebtPaid === "true",
       };
 
       await api.post("/clients", formattedData);
-      toast.success("Cliente salvo com sucesso!");
-      reset();
+      toast.success("Cliente cadastrado com sucesso!");
+
       window.location.reload();
     } catch (error: any) {
       console.error("ERRO:", error.response?.data);
@@ -160,9 +169,7 @@ export function CreateClientDialog({ client }: CreateClientDialogProps) {
       className="md:max-w-[500px] h-[80vh] md:h-[85vh] w-[95vw] p-0 flex flex-col rounded-lg overflow-hidden"
     >
       <DialogHeader className="pt-10 px-6 pb-0">
-        <DialogTitle>
-          {client ? "Editar Empréstimo" : "Novo Empréstimo"}
-        </DialogTitle>
+        <DialogTitle>Novo Empréstimo</DialogTitle>
         <DialogDescription>
           Preencha os dados do Empréstimo abaixo.
         </DialogDescription>
@@ -170,18 +177,17 @@ export function CreateClientDialog({ client }: CreateClientDialogProps) {
 
       <form
         onSubmit={handleSubmit(handleCreateClient)}
-        className="flex  flex-col flex-1 overflow-hidden"
+        className="flex flex-col flex-1 overflow-hidden"
       >
         <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin">
-          {/* GRUPO 1: Datas e Nome */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="loanDate">Data do Empréstimo</Label>
+              <Label>Data do Empréstimo</Label>
               <Input
-                id="loanDate"
-                type="date"
-                {...register("loanDate")}
-                className="h-10 w-full px-3 py-0 leading-none appearance-none flex items-center cursor-pointer"
+                type="text"
+                inputMode="numeric"
+                placeholder="DD/MM/AAAA"
+                {...register("loanDate", { onChange: handleDateMask })}
                 required
               />
             </div>
@@ -191,7 +197,6 @@ export function CreateClientDialog({ client }: CreateClientDialogProps) {
             </div>
           </div>
 
-          {/* GRUPO 2: Email e CPF */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="email">E-mail</Label>
@@ -200,8 +205,7 @@ export function CreateClientDialog({ client }: CreateClientDialogProps) {
             <div className="space-y-2">
               <Label htmlFor="cpf">CPF</Label>
               <Input
-                id="cpf"
-                placeholder="000.000.000-00"
+                inputMode="numeric"
                 maxLength={14}
                 {...register("cpf")}
                 onInput={handleCPFMask}
@@ -209,13 +213,11 @@ export function CreateClientDialog({ client }: CreateClientDialogProps) {
             </div>
           </div>
 
-          {/* GRUPO 3: Telefone e Endereço */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="phone">Telefone</Label>
               <Input
-                id="phone"
-                placeholder="(00) 00000-0000"
+                inputMode="numeric"
                 maxLength={15}
                 {...register("phone")}
                 onInput={handlePhoneMask}
@@ -229,12 +231,10 @@ export function CreateClientDialog({ client }: CreateClientDialogProps) {
 
           <hr className="border-muted" />
 
-          {/* GRUPO 4: Financeiro Principal */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="value">Valor Empréstimo (R$)</Label>
+              <Label>Valor Empréstimo (R$)</Label>
               <Input
-                id="value"
                 type="text"
                 inputMode="numeric"
                 placeholder="0,00"
@@ -243,9 +243,8 @@ export function CreateClientDialog({ client }: CreateClientDialogProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="loanInterest">Juros (%)</Label>
+              <Label>Juros (%)</Label>
               <Input
-                id="loanInterest"
                 type="number"
                 step="0.01"
                 {...register("loanInterest")}
@@ -253,9 +252,8 @@ export function CreateClientDialog({ client }: CreateClientDialogProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="monthlyPaid">Juros Mensal (R$)</Label>
+              <Label>Juros Mensal (R$)</Label>
               <Input
-                id="monthlyPaid"
                 type="text"
                 inputMode="numeric"
                 placeholder="0,00"
@@ -265,40 +263,25 @@ export function CreateClientDialog({ client }: CreateClientDialogProps) {
             </div>
           </div>
 
-          {/* GRUPO 5: Parcelas */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="installments">Total Parcelas</Label>
-              <Input
-                id="installments"
-                type="number"
-                {...register("installments")}
-              />
+              <Label>Total Parcelas</Label>
+              <Input type="number" {...register("installments")} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="installmentsPaid">Mensalidades Pagas</Label>
-              <Input
-                id="installmentsPaid"
-                type="number"
-                {...register("installmentsPaid")}
-              />
+              <Label>Pagas</Label>
+              <Input type="number" {...register("installmentsPaid")} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="lateInstallments">Mensalidades Atrasadas</Label>
-              <Input
-                id="lateInstallments"
-                type="number"
-                {...register("lateInstallments")}
-              />
+              <Label>Atrasadas</Label>
+              <Input type="number" {...register("lateInstallments")} />
             </div>
           </div>
 
-          {/* GRUPO 6: Pagamentos e Datas */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="valuePaid">Total Retornado (R$)</Label>
+              <Label>Total Retornado (R$)</Label>
               <Input
-                id="valuePaid"
                 type="text"
                 inputMode="numeric"
                 placeholder="0,00"
@@ -306,31 +289,30 @@ export function CreateClientDialog({ client }: CreateClientDialogProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="nextPaymentDate">Próx. Mensalidade (Data)</Label>
+              <Label>Próx. Mensalidade</Label>
               <Input
-                className="h-10 w-full px-3 py-0 leading-none appearance-none flex items-center cursor-pointer"
-                id="nextPaymentDate"
-                type="date"
-                {...register("nextPaymentDate")}
+                type="text"
+                inputMode="numeric"
+                placeholder="DD/MM/AAAA"
+                {...register("nextPaymentDate", { onChange: handleDateMask })}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="lastPaymentDate">Última Paga (Data)</Label>
+              <Label>Última Paga</Label>
               <Input
-                className="h-10 w-full px-3 py-0 leading-none appearance-none flex items-center cursor-pointer"
-                id="lastPaymentDate"
-                type="date"
-                {...register("lastPaymentDate")}
+                type="text"
+                inputMode="numeric"
+                placeholder="DD/MM/AAAA"
+                {...register("lastPaymentDate", { onChange: handleDateMask })}
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="lastPaymentAmount">Último Valor Pago (R$)</Label>
+              <Label>Último Valor Pago (R$)</Label>
               <Input
-                id="lastPaymentAmount"
                 type="text"
                 inputMode="numeric"
                 placeholder="0,00"
@@ -339,10 +321,6 @@ export function CreateClientDialog({ client }: CreateClientDialogProps) {
                 })}
               />
             </div>
-          </div>
-
-          {/* GRUPO 7: Último Pagamento e Status */}
-          <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
             <div className="space-y-2">
               <Label>Status Mensalidade</Label>
               <Controller
@@ -350,7 +328,10 @@ export function CreateClientDialog({ client }: CreateClientDialogProps) {
                 control={control}
                 defaultValue="true"
                 render={({ field }) => (
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={String(field.value)}
+                  >
                     <SelectTrigger
                       className={
                         field.value === false || field.value === "false"
@@ -375,7 +356,10 @@ export function CreateClientDialog({ client }: CreateClientDialogProps) {
                 control={control}
                 defaultValue="false"
                 render={({ field }) => (
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={String(field.value)}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>

@@ -58,15 +58,48 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
     return Number(cleanValue) || 0;
   };
 
+  const formatDateToBR = (dateISO: string) => {
+    if (!dateISO) return "";
+    const date = new Date(dateISO);
+    const day = String(date.getUTCDate()).padStart(2, "0");
+    const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+    const year = date.getUTCFullYear();
+    return `${day}/${month}/${year}`;
+  };
+
+  const parseDateToISO = (dateStr: string) => {
+    if (!dateStr || !dateStr.includes("/")) return null;
+    const [day, month, year] = dateStr.split("/");
+    const date = new Date(
+      Number(year),
+      Number(month) - 1,
+      Number(day),
+      12,
+      0,
+      0,
+    );
+    return date.toISOString();
+  };
+
   // --- MÁSCARAS ---
 
   const handleMoneyMask = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     let cleanValue = value.replace(/\D/g, "");
     const numericValue = Number(cleanValue) / 100;
-
     e.target.value = formatToBRL(numericValue);
     setValue(name, e.target.value);
+  };
+
+  const handleDateMask = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.replace(/\D/g, "");
+    if (value.length > 8) value = value.slice(0, 8);
+    const formattedDate = value
+      .replace(/(\d{2})(\d)/, "$1/$2")
+      .replace(/(\d{2})(\d)/, "$1/$2")
+      .replace(/(\d{4})(\d)/, "$1");
+    e.target.value = formattedDate;
+    setValue(e.target.name, formattedDate);
   };
 
   const handleCPFMask = (e: React.FormEvent<HTMLInputElement>) => {
@@ -88,60 +121,18 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
     setValue("phone", value);
   };
 
-  // --- EFEITOS DE CÁLCULO ---
+  // --- EFEITOS ---
 
-  useEffect(() => {
-    // Se o status mudar para "true" (Em dia)
-    if (monthlyFeeStatus === "true" || monthlyFeeStatus === true) {
-      const currentLateInstallmentsValue = watch("lateInstallments");
-
-      if (currentLateInstallmentsValue > 0) {
-        const installmentsValueNew = new Text(currentLateInstallmentsValue);
-
-        setValue("lateInstallments", installmentsValueNew);
-
-        toast.info("Mensalidades atrasadas zeradas.");
-      }
-    }
-  }, [monthlyFeeStatus, setValue]);
-
-  useEffect(() => {
-    if (installmentsPaid > 0 && monthlyPaid) {
-      const val = parseMoney(monthlyPaid);
-      const total = (Number(installmentsPaid) * val).toFixed(2);
-      setValue("valuePaid", formatToBRL(total));
-    }
-  }, [installmentsPaid, monthlyPaid, setValue]);
-
-  useEffect(() => {
-    if (loanValue && interestPercentage) {
-      const val = parseMoney(loanValue);
-      const monthlyInterest = (val * Number(interestPercentage)) / 100;
-      setValue("monthlyPaid", formatToBRL(monthlyInterest.toFixed(2)));
-    }
-  }, [loanValue, interestPercentage, setValue]);
-
-  // Efeito para carregar os dados do cliente no formulário
+  // Reset único e consolidado
   useEffect(() => {
     if (client) {
       reset({
         ...client,
-        // Datas formatadas para o input date (YYYY-MM-DD)
-        loanDate: client.loanDate
-          ? new Date(client.loanDate).toISOString().split("T")[0]
-          : "",
-        nextPaymentDate: client.nextPaymentDate
-          ? new Date(client.nextPaymentDate).toISOString().split("T")[0]
-          : "",
-        lastPaymentDate: client.lastPaymentDate
-          ? new Date(client.lastPaymentDate).toISOString().split("T")[0]
-          : "",
-
-        // Booleans para String (Select)
+        loanDate: formatDateToBR(client.loanDate),
+        nextPaymentDate: formatDateToBR(client.nextPaymentDate),
+        lastPaymentDate: formatDateToBR(client.lastPaymentDate),
         monthlyFeePaid: String(client.monthlyFeePaid),
         totalDebtPaid: String(client.totalDebtPaid),
-
-        // Aplicação de máscaras iniciais
         value: formatToBRL(client.value),
         monthlyPaid: formatToBRL(client.monthlyPaid),
         valuePaid: formatToBRL(client.valuePaid),
@@ -149,6 +140,33 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
       });
     }
   }, [client, reset]);
+
+  // Zerar mensalidades se mudar para Em Dia
+  useEffect(() => {
+    if (monthlyFeeStatus === "true" || monthlyFeeStatus === true) {
+      const currentLate = watch("lateInstallments");
+      if (currentLate > 0) {
+        setValue("lateInstallments", 0);
+        toast.info("Mensalidades atrasadas zeradas.");
+      }
+    }
+  }, [monthlyFeeStatus, setValue, watch]);
+
+  // Cálculos automáticos
+  useEffect(() => {
+    if (installmentsPaid > 0 && monthlyPaid) {
+      const val = parseMoney(monthlyPaid);
+      setValue("valuePaid", formatToBRL(Number(installmentsPaid) * val));
+    }
+  }, [installmentsPaid, monthlyPaid, setValue]);
+
+  useEffect(() => {
+    if (loanValue && interestPercentage) {
+      const val = parseMoney(loanValue);
+      const interest = (val * Number(interestPercentage)) / 100;
+      setValue("monthlyPaid", formatToBRL(interest));
+    }
+  }, [loanValue, interestPercentage, setValue]);
 
   // --- ENVIO ---
 
@@ -166,13 +184,9 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
         valuePaid: parseMoney(data.valuePaid),
         monthlyPaid: parseMoney(data.monthlyPaid),
         lastPaymentAmount: parseMoney(data.lastPaymentAmount),
-        loanDate: new Date(data.loanDate).toISOString(),
-        nextPaymentDate: data.nextPaymentDate
-          ? new Date(data.nextPaymentDate).toISOString()
-          : null,
-        lastPaymentDate: data.lastPaymentDate
-          ? new Date(data.lastPaymentDate).toISOString()
-          : null,
+        loanDate: parseDateToISO(data.loanDate),
+        nextPaymentDate: parseDateToISO(data.nextPaymentDate),
+        lastPaymentDate: parseDateToISO(data.lastPaymentDate),
         monthlyFeePaid: data.monthlyFeePaid === "true",
         totalDebtPaid: data.totalDebtPaid === "true",
       };
@@ -203,32 +217,30 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
         <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="loanDate">Data do Empréstimo (Data)</Label>
+              <Label>Data do Empréstimo</Label>
               <Input
-                id="loanDate"
-                type="date"
-                className="h-10 w-full px-3 py-0 leading-none appearance-none flex items-center cursor-pointer"
-                {...register("loanDate")}
+                type="text"
+                inputMode="numeric"
+                placeholder="DD/MM/AAAA"
+                {...register("loanDate", { onChange: handleDateMask })}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="name">Nome</Label>
-              <Input id="name" {...register("name")} required />
+              <Label>Nome</Label>
+              <Input {...register("name")} required />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="email">E-mail</Label>
-              <Input id="email" type="email" {...register("email")} />
+              <Label>E-mail</Label>
+              <Input type="email" {...register("email")} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="cpf">CPF</Label>
+              <Label>CPF</Label>
               <Input
                 inputMode="numeric"
-                id="cpf"
-                placeholder="000.000.000-00"
                 maxLength={14}
                 {...register("cpf")}
                 onInput={handleCPFMask}
@@ -238,19 +250,17 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="phone">Telefone</Label>
+              <Label>Telefone</Label>
               <Input
                 inputMode="numeric"
-                id="phone"
-                placeholder="(00) 00000-0000"
                 maxLength={15}
                 {...register("phone")}
                 onInput={handlePhoneMask}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="address">Endereço</Label>
-              <Input id="address" {...register("address")} />
+              <Label>Endereço</Label>
+              <Input {...register("address")} />
             </div>
           </div>
 
@@ -258,20 +268,17 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="value">Valor Empréstimo (R$)</Label>
+              <Label>Valor Empréstimo (R$)</Label>
               <Input
-                id="value"
                 type="text"
                 inputMode="numeric"
-                placeholder="0,00"
                 {...register("value", { onChange: handleMoneyMask })}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="loanInterest">Juros (%)</Label>
+              <Label>Juros (%)</Label>
               <Input
-                id="loanInterest"
                 type="number"
                 step="0.01"
                 {...register("loanInterest")}
@@ -279,12 +286,10 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="monthlyPaid">Juros Mensal (R$)</Label>
+              <Label>Juros Mensal (R$)</Label>
               <Input
-                id="monthlyPaid"
                 type="text"
                 inputMode="numeric"
-                placeholder="0,00"
                 {...register("monthlyPaid", { onChange: handleMoneyMask })}
                 required
               />
@@ -293,81 +298,60 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="installments">Total Parcelas</Label>
-              <Input
-                id="installments"
-                type="number"
-                {...register("installments")}
-              />
+              <Label>Total Parcelas</Label>
+              <Input type="number" {...register("installments")} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="installmentsPaid">Mensalidades Pagas</Label>
-              <Input
-                id="installmentsPaid"
-                type="number"
-                {...register("installmentsPaid")}
-              />
+              <Label>Pagas</Label>
+              <Input type="number" {...register("installmentsPaid")} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="lateInstallments">Mensalidades Atrasadas</Label>
-              <Input
-                id="lateInstallments"
-                type="number"
-                {...register("lateInstallments")}
-              />
+              <Label>Atrasadas</Label>
+              <Input type="number" {...register("lateInstallments")} />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="valuePaid">Total Retornado (R$)</Label>
+              <Label>Total Retornado (R$)</Label>
               <Input
-                id="valuePaid"
                 type="text"
                 inputMode="numeric"
-                placeholder="0,00"
                 {...register("valuePaid", { onChange: handleMoneyMask })}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="nextPaymentDate">Próx. Mensalidade (Data)</Label>
+              <Label>Próx. Mensalidade</Label>
               <Input
-                id="nextPaymentDate"
-                type="date"
-                className="h-10 w-full px-3 py-0 leading-none appearance-none flex items-center cursor-pointer"
-                {...register("nextPaymentDate")}
+                type="text"
+                inputMode="numeric"
+                placeholder="DD/MM/AAAA"
+                {...register("nextPaymentDate", { onChange: handleDateMask })}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="lastPaymentDate">
-                Última Data Pagamento (Data)
-              </Label>
+              <Label>Última Data Paga</Label>
               <Input
-                id="lastPaymentDate"
-                type="date"
-                className="h-10 w-full px-3 py-0 leading-none appearance-none flex items-center cursor-pointer"
-                {...register("lastPaymentDate")}
+                type="text"
+                inputMode="numeric"
+                placeholder="DD/MM/AAAA"
+                {...register("lastPaymentDate", { onChange: handleDateMask })}
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="lastPaymentAmount">Último Valor Pago (R$)</Label>
+              <Label>Último Valor Pago (R$)</Label>
               <Input
-                id="lastPaymentAmount"
                 type="text"
                 inputMode="numeric"
-                placeholder="0,00"
                 {...register("lastPaymentAmount", {
                   onChange: handleMoneyMask,
                 })}
               />
             </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Status Mensalidade</Label>
               <Controller
@@ -419,9 +403,8 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="observations">Observações</Label>
+            <Label>Observações</Label>
             <Input
-              id="observations"
               {...register("observations")}
               placeholder="Notas extras..."
             />

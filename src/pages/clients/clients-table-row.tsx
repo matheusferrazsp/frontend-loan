@@ -97,7 +97,7 @@ export function ClientsTableRow({ client, onDelete }: ClientsTableRowProps) {
       <TableCell>
         <Dialog>
           <DialogTrigger asChild>
-            <Button variant="outline" size="xs" className="-ml-2">
+            <Button variant="outline" size="xs" className="-ml-2 md:ml-0">
               <Search className="h-3 w-3 md:size-4" />
             </Button>
           </DialogTrigger>
@@ -105,7 +105,7 @@ export function ClientsTableRow({ client, onDelete }: ClientsTableRowProps) {
         </Dialog>
       </TableCell>
 
-      <TableCell className="text-sm font-medium">
+      <TableCell className="text-sm font-medium ">
         <div className="flex flex-col">
           {client.name}
           <span className="text-muted-foreground md:hidden">
@@ -126,7 +126,7 @@ export function ClientsTableRow({ client, onDelete }: ClientsTableRowProps) {
       <TableCell>
         <div className="flex items-center gap-2">
           <span
-            className={`whitespace-nowrap font-medium text-xs md:text-sm ${status.textColor}`}
+            className={`whitespace-nowrap font-medium text-xs md:text-sm  ${status.textColor}`}
           >
             {status.text}
           </span>
@@ -134,7 +134,7 @@ export function ClientsTableRow({ client, onDelete }: ClientsTableRowProps) {
       </TableCell>
 
       <TableCell>
-        <Button variant="ghost" size="xs" className="w-full">
+        <Button variant="ghost" size="xs" className="w-full md:w-fit ">
           {client.nextPaymentDate
             ? new Date(client.nextPaymentDate).toLocaleDateString("pt-BR", {
                 timeZone: "UTC",
