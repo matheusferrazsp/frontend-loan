@@ -71,9 +71,25 @@ export function Clients() {
           const matchStatus =
             data.status === "all"
               ? true
-              : data.status === "debtor"
-                ? client.lateInstallments > 0
-                : client.lateInstallments === 0;
+              : data.status === "due"
+                ? (() => {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+
+                    if (!client.nextPaymentDate) return false;
+
+                    const dueDate = new Date(client.nextPaymentDate);
+                    const dueDateZero = new Date(
+                      dueDate.getUTCFullYear(),
+                      dueDate.getUTCMonth(),
+                      dueDate.getUTCDate(),
+                    );
+
+                    return dueDateZero.getTime() === today.getTime();
+                  })()
+                : data.status === "debtor"
+                  ? client.lateInstallments > 0
+                  : client.lateInstallments <= 1;
 
           const matchDate = data.date
             ? client.nextPaymentDate?.includes(data.date)
@@ -142,7 +158,7 @@ export function Clients() {
                 Mensalidade
               </TableHead>
               <TableHead>Status</TableHead>
-              <TableHead>Vence</TableHead>
+              <TableHead>Vencimento</TableHead>
               <TableHead className="w-[164px]">Editar</TableHead>
               <TableHead className="w-[132px]">Excluir</TableHead>
             </TableRow>

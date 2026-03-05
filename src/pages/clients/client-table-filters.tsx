@@ -90,6 +90,9 @@ export function ClientTableFilters({ onFilter }: FilterProps) {
                 <SelectItem className="text-xs" value="debtor">
                   Atrasado
                 </SelectItem>
+                <SelectItem className="text-xs" value="due">
+                  Vence Hoje
+                </SelectItem>
                 <SelectItem className="text-xs" value="paid">
                   Em dia
                 </SelectItem>
