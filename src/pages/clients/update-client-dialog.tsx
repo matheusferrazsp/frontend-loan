@@ -35,6 +35,7 @@ interface UpdateClientDialogProps {
 export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
   const { register, handleSubmit, reset, control, watch, setValue } = useForm();
 
+  const monthlyFeeStatus = watch("monthlyFeePaid");
   const loanValue = watch("value");
   const interestPercentage = watch("loanInterest");
   const installmentsPaid = watch("installmentsPaid");
@@ -88,6 +89,21 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
   };
 
   // --- EFEITOS DE CÁLCULO ---
+
+  useEffect(() => {
+    // Se o status mudar para "true" (Em dia)
+    if (monthlyFeeStatus === "true" || monthlyFeeStatus === true) {
+      const currentLateInstallmentsValue = watch("lateInstallments");
+
+      if (currentLateInstallmentsValue > 0) {
+        const installmentsValueNew = new Text(currentLateInstallmentsValue);
+
+        setValue("lateInstallments", installmentsValueNew);
+
+        toast.info("Mensalidades atrasadas zeradas.");
+      }
+    }
+  }, [monthlyFeeStatus, setValue]);
 
   useEffect(() => {
     if (installmentsPaid > 0 && monthlyPaid) {
