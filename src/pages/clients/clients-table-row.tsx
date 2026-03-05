@@ -30,6 +30,51 @@ interface ClientsTableRowProps {
 export function ClientsTableRow({ client, onDelete }: ClientsTableRowProps) {
   const [isDeleting, setIsDeleting] = useState(false);
 
+  const getStatusDisplay = () => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const dueDate = client.nextPaymentDate
+      ? new Date(client.nextPaymentDate)
+      : null;
+
+    if (dueDate) {
+      const dueDateZero = new Date(
+        dueDate.getUTCFullYear(),
+        dueDate.getUTCMonth(),
+        dueDate.getUTCDate(),
+      );
+
+      const isToday = dueDateZero.getTime() === today.getTime();
+      const isPast = dueDateZero < today;
+      // Prioridade 1: Vence HOJE (Amarelo)
+      if (isToday) {
+        return {
+          text: "Aguardando",
+          textColor: "text-amber-500",
+          dotColor: "bg-amber-500",
+        };
+      }
+
+      // Prioridade 2: Venceu e tem parcelas em atraso (Vermelho)
+      if (isPast || client.lateInstallments > 0) {
+        return {
+          text: "Atrasado",
+          textColor: "text-rose-500",
+          dotColor: "bg-rose-500",
+        };
+      }
+    }
+
+    // Padrão: Em dia (Verde)
+    return {
+      text: "Em dia",
+      textColor: "text-emerald-500",
+      dotColor: "bg-emerald-500",
+    };
+  };
+
+  const status = getStatusDisplay();
+
   async function handleDeleteClient() {
     try {
       setIsDeleting(true);
@@ -79,11 +124,11 @@ export function ClientsTableRow({ client, onDelete }: ClientsTableRowProps) {
       </TableCell>
 
       <TableCell>
-        <div className="flex flex-col md:table-cell items-center gap-1">
+        <div className="flex items-center gap-2">
           <span
-            className={`flex items-center gap-2 whitespace-nowrap font-medium text-xs md:text-sm  ${client.lateInstallments > 0 ? "text-rose-500" : "text-emerald-500"}`}
+            className={`whitespace-nowrap font-medium text-xs md:text-sm ${status.textColor}`}
           >
-            {client.lateInstallments > 0 ? "Atrasado" : "Em dia"}
+            {status.text}
           </span>
         </div>
       </TableCell>
