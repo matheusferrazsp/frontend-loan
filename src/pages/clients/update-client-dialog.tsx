@@ -3,6 +3,7 @@
 import { toast } from "sonner";
 
 import { useEffect } from "react";
+import React from "react";
 import { Controller, useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
@@ -37,7 +38,6 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
   const loanValue = watch("value");
   const interestPercentage = watch("loanInterest");
 
-  // Funções Auxiliares de Formatação (Para inicialização)
   const formatToMoney = (v: number | string) => Number(v).toFixed(2);
 
   const formatCPF = (v: string) => {
@@ -275,7 +275,7 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="installmentsPaid">Parcelas Pagas</Label>
+              <Label htmlFor="installmentsPaid">Mensalidades Pagas</Label>
               <Input
                 id="installmentsPaid"
                 type="number"
@@ -283,7 +283,7 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="lateInstallments">Parcelas Atrasadas</Label>
+              <Label htmlFor="lateInstallments">Mensalidades Atrasadas</Label>
               <Input
                 id="lateInstallments"
                 type="number"
@@ -304,7 +304,9 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="nextPaymentDate">Próxima Parcela (Data)</Label>
+              <Label htmlFor="nextPaymentDate">
+                Próxima Mensalidade (Data)
+              </Label>
               <Input
                 id="nextPaymentDate"
                 type="date"
@@ -315,7 +317,7 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
             </div>
             <div className="space-y-2">
               <Label htmlFor="lastPaymentDate">
-                Última Parcela Paga (Data)
+                Última Mensalidade Paga (Data)
               </Label>
               <Input
                 id="lastPaymentDate"
@@ -346,8 +348,17 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
               name="monthlyFeePaid"
               control={control}
               render={({ field }) => (
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <SelectTrigger>
+                <Select
+                  onValueChange={field.onChange}
+                  value={String(field.value)}
+                >
+                  <SelectTrigger
+                    className={
+                      field.value === false || field.value === "false"
+                        ? "text-rose-500"
+                        : "text-emerald-500"
+                    }
+                  >
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>

@@ -253,7 +253,7 @@ export function CreateClientDialog() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="installmentsPaid">Parcelas Pagas</Label>
+              <Label htmlFor="installmentsPaid">Mensalidades Pagas</Label>
               <Input
                 id="installmentsPaid"
                 type="number"
@@ -261,7 +261,7 @@ export function CreateClientDialog() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="lateInstallments">Parcelas Atrasadas</Label>
+              <Label htmlFor="lateInstallments">Mensalidades Atrasadas</Label>
               <Input
                 id="lateInstallments"
                 type="number"
@@ -283,7 +283,9 @@ export function CreateClientDialog() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="nextPaymentDate">Próxima Parcela (Data)</Label>
+              <Label htmlFor="nextPaymentDate">
+                Próxima Mensalidade (Data)
+              </Label>
               <Input
                 id="nextPaymentDate"
                 type="date"
@@ -294,7 +296,7 @@ export function CreateClientDialog() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="lastPaymentDate">
-                Última Parcela Paga (Data)
+                Última Mensalidade Paga (Data)
               </Label>
               <Input
                 id="lastPaymentDate"
