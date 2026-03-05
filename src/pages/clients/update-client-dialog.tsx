@@ -37,38 +37,73 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
 
   const loanValue = watch("value");
   const interestPercentage = watch("loanInterest");
+  const installmentsPaid = watch("installmentsPaid");
+  const monthlyPaid = watch("monthlyPaid");
 
-  const formatToMoney = (v: number | string) => Number(v).toFixed(2);
+  // --- FUNÇÕES DE UTILIDADE ---
 
-  const formatCPF = (v: string) => {
-    return v
-      .replace(/\D/g, "")
+  const formatToBRL = (value: any) => {
+    const number = Number(value) || 0;
+    return new Intl.NumberFormat("pt-BR", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(number);
+  };
+
+  const parseMoney = (val: any) => {
+    if (!val) return 0;
+    if (typeof val === "number") return val;
+    const cleanValue = val.replace(/\./g, "").replace(",", ".");
+    return Number(cleanValue) || 0;
+  };
+
+  // --- MÁSCARAS ---
+
+  const handleMoneyMask = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    let cleanValue = value.replace(/\D/g, "");
+    const numericValue = Number(cleanValue) / 100;
+
+    e.target.value = formatToBRL(numericValue);
+    setValue(name, e.target.value);
+  };
+
+  const handleCPFMask = (e: React.FormEvent<HTMLInputElement>) => {
+    let value = e.currentTarget.value.replace(/\D/g, "");
+    value = value
       .replace(/(\d{3})(\d)/, "$1.$2")
       .replace(/(\d{3})(\d)/, "$1.$2")
       .replace(/(\d{3})(\d{1,2})/, "$1-$2")
       .substring(0, 14);
+    setValue("cpf", value);
   };
 
-  // Função para calcular o valor mensal pago com base nas parcelas pagas e no valor mensal sugerido
-  const installmentsPaid = watch("installmentsPaid");
-  const monthlyPaid = watch("monthlyPaid");
-  useEffect(() => {
-    if (installmentsPaid > 0 && monthlyPaid > 0) {
-      const totalSuggested = (
-        Number(installmentsPaid) * Number(monthlyPaid)
-      ).toFixed(2);
-
-      setValue("valuePaid", totalSuggested);
-    }
-  }, [installmentsPaid, monthlyPaid, setValue]);
-
-  const formatPhone = (v: string) => {
-    return v
-      .replace(/\D/g, "")
+  const handlePhoneMask = (e: React.FormEvent<HTMLInputElement>) => {
+    let value = e.currentTarget.value.replace(/\D/g, "");
+    value = value
       .replace(/^(\d{2})(\d)/g, "($1) $2")
       .replace(/(\d)(\d{4})$/, "$1-$2")
       .substring(0, 15);
+    setValue("phone", value);
   };
+
+  // --- EFEITOS DE CÁLCULO ---
+
+  useEffect(() => {
+    if (installmentsPaid > 0 && monthlyPaid) {
+      const val = parseMoney(monthlyPaid);
+      const total = (Number(installmentsPaid) * val).toFixed(2);
+      setValue("valuePaid", formatToBRL(total));
+    }
+  }, [installmentsPaid, monthlyPaid, setValue]);
+
+  useEffect(() => {
+    if (loanValue && interestPercentage) {
+      const val = parseMoney(loanValue);
+      const monthlyInterest = (val * Number(interestPercentage)) / 100;
+      setValue("monthlyPaid", formatToBRL(monthlyInterest.toFixed(2)));
+    }
+  }, [loanValue, interestPercentage, setValue]);
 
   // Efeito para carregar os dados do cliente no formulário
   useEffect(() => {
@@ -86,44 +121,20 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
           ? new Date(client.lastPaymentDate).toISOString().split("T")[0]
           : "",
 
-        // Booleans para String (necessário para o Select)
+        // Booleans para String (Select)
         monthlyFeePaid: String(client.monthlyFeePaid),
         totalDebtPaid: String(client.totalDebtPaid),
 
         // Aplicação de máscaras iniciais
-        cpf: formatCPF(client.cpf || ""),
-        phone: formatPhone(client.phone || ""),
-        value: formatToMoney(client.value),
-        monthlyPaid: formatToMoney(client.monthlyPaid),
-        valuePaid: formatToMoney(client.valuePaid),
-        lastPaymentAmount: formatToMoney(client.lastPaymentAmount),
+        value: formatToBRL(client.value),
+        monthlyPaid: formatToBRL(client.monthlyPaid),
+        valuePaid: formatToBRL(client.valuePaid),
+        lastPaymentAmount: formatToBRL(client.lastPaymentAmount),
       });
     }
   }, [client, reset]);
 
-  // Lógica de Máscaras idêntica ao Create ------------------------------------
-  const handleMoneyMask = (e: React.FormEvent<HTMLInputElement>) => {
-    let value = e.currentTarget.value.replace(/\D/g, "");
-    const result = (Number(value) / 100).toFixed(2);
-    setValue(e.currentTarget.name as any, result);
-  };
-
-  useEffect(() => {
-    if (loanValue && interestPercentage) {
-      const monthlyInterest =
-        (Number(loanValue) * Number(interestPercentage)) / 100;
-      setValue("monthlyPaid", monthlyInterest.toFixed(2));
-    }
-  }, [loanValue, interestPercentage, setValue]);
-
-  const handleCPFMask = (e: React.FormEvent<HTMLInputElement>) => {
-    setValue("cpf", formatCPF(e.currentTarget.value));
-  };
-
-  const handlePhoneMask = (e: React.FormEvent<HTMLInputElement>) => {
-    setValue("phone", formatPhone(e.currentTarget.value));
-  };
-  //----------------------------------------------------------------------------
+  // --- ENVIO ---
 
   async function handleUpdateClient(data: any) {
     try {
@@ -131,13 +142,14 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
         ...data,
         cpf: data.cpf.replace(/\D/g, ""),
         phone: data.phone.replace(/\D/g, ""),
-        value: Number(data.value),
+        value: parseMoney(data.value),
         loanInterest: Number(data.loanInterest),
         installments: parseInt(data.installments) || 0,
         installmentsPaid: parseInt(data.installmentsPaid) || 0,
         lateInstallments: parseInt(data.lateInstallments) || 0,
-        valuePaid: Number(data.valuePaid) || 0,
-        monthlyPaid: Number(data.monthlyPaid) || 0,
+        valuePaid: parseMoney(data.valuePaid),
+        monthlyPaid: parseMoney(data.monthlyPaid),
+        lastPaymentAmount: parseMoney(data.lastPaymentAmount),
         loanDate: new Date(data.loanDate).toISOString(),
         nextPaymentDate: data.nextPaymentDate
           ? new Date(data.nextPaymentDate).toISOString()
@@ -145,7 +157,6 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
         lastPaymentDate: data.lastPaymentDate
           ? new Date(data.lastPaymentDate).toISOString()
           : null,
-        lastPaymentAmount: Number(data.lastPaymentAmount) || 0,
         monthlyFeePaid: data.monthlyFeePaid === "true",
         totalDebtPaid: data.totalDebtPaid === "true",
       };
@@ -164,7 +175,7 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
       onOpenAutoFocus={(e) => e.preventDefault()}
       className="md:max-w-[500px] h-[80vh] md:h-[85vh] w-[95vw] p-0 flex flex-col rounded-lg overflow-hidden"
     >
-      <DialogHeader className="pt-10 pb-0">
+      <DialogHeader className="pt-10 px-6 pb-0">
         <DialogTitle>Atualizar empréstimo</DialogTitle>
         <DialogDescription>Altere os dados necessários.</DialogDescription>
       </DialogHeader>
@@ -199,6 +210,7 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
             <div className="space-y-2">
               <Label htmlFor="cpf">CPF</Label>
               <Input
+                inputMode="numeric"
                 id="cpf"
                 placeholder="000.000.000-00"
                 maxLength={14}
@@ -212,6 +224,7 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
             <div className="space-y-2">
               <Label htmlFor="phone">Telefone</Label>
               <Input
+                inputMode="numeric"
                 id="phone"
                 placeholder="(00) 00000-0000"
                 maxLength={15}
@@ -229,13 +242,13 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="value">Valor do Empréstimo (R$)</Label>
+              <Label htmlFor="value">Valor Empréstimo (R$)</Label>
               <Input
                 id="value"
                 type="text"
+                inputMode="numeric"
                 placeholder="0,00"
-                {...register("value")}
-                onInput={handleMoneyMask}
+                {...register("value", { onChange: handleMoneyMask })}
                 required
               />
             </div>
@@ -254,9 +267,9 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
               <Input
                 id="monthlyPaid"
                 type="text"
-                placeholder="00,00"
-                {...register("monthlyPaid")}
-                onInput={handleMoneyMask}
+                inputMode="numeric"
+                placeholder="0,00"
+                {...register("monthlyPaid", { onChange: handleMoneyMask })}
                 required
               />
             </div>
@@ -272,7 +285,7 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="installmentsPaid">Mensalidades Pagas</Label>
+              <Label htmlFor="installmentsPaid">Pagas</Label>
               <Input
                 id="installmentsPaid"
                 type="number"
@@ -280,7 +293,7 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="lateInstallments">Mensalidades Atrasadas</Label>
+              <Label htmlFor="lateInstallments">Atrasadas</Label>
               <Input
                 id="lateInstallments"
                 type="number"
@@ -291,19 +304,17 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="valuePaid">Valor Total Retornado (R$)</Label>
+              <Label htmlFor="valuePaid">Total Retornado (R$)</Label>
               <Input
                 id="valuePaid"
                 type="text"
+                inputMode="numeric"
                 placeholder="0,00"
-                {...register("valuePaid")}
-                onInput={handleMoneyMask}
+                {...register("valuePaid", { onChange: handleMoneyMask })}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="nextPaymentDate">
-                Próxima Mensalidade (Data)
-              </Label>
+              <Label htmlFor="nextPaymentDate">Próx. Mensalidade</Label>
               <Input
                 id="nextPaymentDate"
                 type="date"
@@ -313,9 +324,7 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="lastPaymentDate">
-                Última Mensalidade Paga (Data)
-              </Label>
+              <Label htmlFor="lastPaymentDate">Última Paga</Label>
               <Input
                 id="lastPaymentDate"
                 type="date"
@@ -325,56 +334,59 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
             </div>
           </div>
 
-          <div className="space-y-2 grid md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="lastPaymentAmount">Último valor Pago (R$)</Label>
+              <Label htmlFor="lastPaymentAmount">Último Valor Pago (R$)</Label>
               <Input
                 id="lastPaymentAmount"
-                className="h-10 w-full px-3 py-0 leading-none appearance-none flex items-center cursor-pointer"
                 type="text"
+                inputMode="numeric"
                 placeholder="0,00"
-                {...register("lastPaymentAmount")}
-                onInput={handleMoneyMask}
+                {...register("lastPaymentAmount", {
+                  onChange: handleMoneyMask,
+                })}
               />
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label>Status Mensalidade</Label>
-            <Controller
-              name="monthlyFeePaid"
-              control={control}
-              render={({ field }) => (
-                <Select
-                  onValueChange={field.onChange}
-                  value={String(field.value)}
-                >
-                  <SelectTrigger
-                    className={
-                      field.value === false || field.value === "false"
-                        ? "text-rose-500"
-                        : "text-emerald-500"
-                    }
-                  >
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="false">Atrasada</SelectItem>
-                    <SelectItem value="true">Em dia</SelectItem>
-                  </SelectContent>
-                </Select>
-              )}
-            />
-          </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Status Mensalidade</Label>
+              <Controller
+                name="monthlyFeePaid"
+                control={control}
+                render={({ field }) => (
+                  <Select
+                    onValueChange={field.onChange}
+                    value={String(field.value)}
+                  >
+                    <SelectTrigger
+                      className={
+                        field.value === false || field.value === "false"
+                          ? "text-rose-500"
+                          : "text-emerald-500"
+                      }
+                    >
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="false">Atrasada</SelectItem>
+                      <SelectItem value="true">Em dia</SelectItem>
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+            </div>
             <div className="space-y-2">
               <Label>Dívida Quitada?</Label>
               <Controller
                 name="totalDebtPaid"
                 control={control}
                 render={({ field }) => (
-                  <Select onValueChange={field.onChange} value={field.value}>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={String(field.value)}
+                  >
                     <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>

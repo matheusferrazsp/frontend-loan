@@ -26,104 +26,48 @@ import {
 import { api } from "@/lib/axios";
 
 interface CreateClientDialogProps {
-  client?: {
-    name?: string;
-    email?: string;
-    cpf?: string;
-    phone?: string;
-    address?: string;
-    value?: number;
-    loanInterest?: number;
-    monthlyPaid?: number;
-    installments?: number;
-    installmentsPaid?: number;
-    lateInstallments?: number;
-    valuePaid?: number;
-    loanDate?: string;
-    nextPaymentDate?: string;
-    lastPaymentDate?: string;
-    monthlyFeePaid?: boolean;
-    totalDebtPaid?: boolean;
-    lastpaymentAmount?: number;
-    observations?: string;
-  };
+  client?: any;
 }
 
 export function CreateClientDialog({ client }: CreateClientDialogProps) {
   const { register, handleSubmit, reset, control, watch, setValue } = useForm();
+
   const loanValue = watch("value");
   const interestPercentage = watch("loanInterest");
-
-  // Função para calcular o valor mensal pago com base nas parcelas pagas e no valor mensal sugerido
   const installmentsPaid = watch("installmentsPaid");
   const monthlyPaid = watch("monthlyPaid");
-  useEffect(() => {
-    if (installmentsPaid > 0 && monthlyPaid > 0) {
-      const totalSuggested = (
-        Number(installmentsPaid) * Number(monthlyPaid)
-      ).toFixed(2);
 
-      setValue("valuePaid", totalSuggested);
-    }
-  }, [installmentsPaid, monthlyPaid, setValue]);
+  // --- FUNÇÕES DE UTILIDADE ---
 
-  // Aplicação de Máscaras no formulário ------------------------------------
-  const handleMoneyMask = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // 1. Remove tudo que não é número
-    let value = e.target.value.replace(/\D/g, "");
-
-    // 2. Transforma em decimal (ex: de "100050" para 1000.50)
-    const numericValue = Number(value) / 100;
-
-    // 3. Formata o que o usuário vê (Mascara Brasileira)
-    const visualValue = new Intl.NumberFormat("pt-BR", {
+  const formatToBRL = (value: any) => {
+    const number = Number(value) || 0;
+    return new Intl.NumberFormat("pt-BR", {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-    }).format(numericValue);
-
-    // 4. Atualiza o valor visual do Input
-    e.target.value = visualValue;
-
-    // 5. ATUALIZA O REACT HOOK FORM COM O VALOR DECIMAL
-    // Isso garante que o valor enviado para a API/Prisma seja 1000.50
-    setValue(e.target.name, numericValue.toFixed(2));
-    
+    }).format(number);
   };
 
-  useEffect(() => {
-  if (client) {
-    // Formata o valor que vem do banco para a máscara brasileira antes de mostrar
-    const formattedInitialValue = new Intl.NumberFormat("pt-BR", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(Number(client.monthlyPaid));
+  const parseMoney = (val: any) => {
+    if (!val) return 0;
+    if (typeof val === "number") return val;
+    // Remove pontos de milhar e troca vírgula por ponto
+    const cleanValue = val.replace(/\./g, "").replace(",", ".");
+    return Number(cleanValue) || 0;
+  };
 
-    reset({
-      ...client,
-      monthlyPaid: formattedInitialValue,
-    });
-  }
-}, [client, reset]);
+  // --- MÁSCARAS ---
 
-  
+  const handleMoneyMask = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    let cleanValue = value.replace(/\D/g, "");
+    const numericValue = Number(cleanValue) / 100;
 
-  useEffect(() => {
-    if (loanValue && interestPercentage) {
-      const monthlyInterest =
-        (Number(loanValue) * Number(interestPercentage)) / 100;
-      const value = monthlyInterest.toFixed(2);
-      setValue("monthlyPaid", value, {
-        shouldValidate: true,
-        shouldDirty: true,
-      });
-    }
-  }, [loanValue, interestPercentage, setValue]);
+    e.target.value = formatToBRL(numericValue);
+    setValue(name, e.target.value);
+  };
 
   const handleCPFMask = (e: React.FormEvent<HTMLInputElement>) => {
-    let value = e.currentTarget.value;
-
-    value = value.replace(/\D/g, "");
-
+    let value = e.currentTarget.value.replace(/\D/g, "");
     value = value
       .replace(/(\d{3})(\d)/, "$1.$2")
       .replace(/(\d{3})(\d)/, "$1.$2")
@@ -133,30 +77,60 @@ export function CreateClientDialog({ client }: CreateClientDialogProps) {
   };
 
   const handlePhoneMask = (e: React.FormEvent<HTMLInputElement>) => {
-    let value = e.currentTarget.value;
-
-    value = value.replace(/\D/g, "");
-
+    let value = e.currentTarget.value.replace(/\D/g, "");
     value = value
       .replace(/^(\d{2})(\d)/g, "($1) $2")
       .replace(/(\d)(\d{4})$/, "$1-$2");
     setValue("phone", value);
   };
 
-  //----------------------------------------------------------------------------
+  // --- EFEITOS DE CÁLCULO ---
+
+  useEffect(() => {
+    if (installmentsPaid > 0 && monthlyPaid) {
+      const val = parseMoney(monthlyPaid);
+      const total = (Number(installmentsPaid) * val).toFixed(2);
+      setValue("valuePaid", formatToBRL(total));
+    }
+  }, [installmentsPaid, monthlyPaid, setValue]);
+
+  useEffect(() => {
+    if (loanValue && interestPercentage) {
+      const val = parseMoney(loanValue);
+      const monthlyInterest = (val * Number(interestPercentage)) / 100;
+      setValue("monthlyPaid", formatToBRL(monthlyInterest.toFixed(2)));
+    }
+  }, [loanValue, interestPercentage, setValue]);
+
+  useEffect(() => {
+    if (client) {
+      reset({
+        ...client,
+        value: formatToBRL(client.value),
+        monthlyPaid: formatToBRL(client.monthlyPaid),
+        valuePaid: formatToBRL(client.valuePaid),
+        lastPaymentAmount: formatToBRL(client.lastPaymentAmount),
+        monthlyFeePaid: String(client.monthlyFeePaid),
+        totalDebtPaid: String(client.totalDebtPaid),
+      });
+    }
+  }, [client, reset]);
+
+  // --- ENVIO ---
 
   async function handleCreateClient(data: any) {
     try {
       const formattedData = {
         ...data,
-        cpf: data.cpf.replace(/\D/g, ""),
-        value: Number(data.value),
+        cpf: data.cpf?.replace(/\D/g, ""),
+        value: parseMoney(data.value),
         loanInterest: Number(data.loanInterest),
         installments: parseInt(data.installments) || 0,
         installmentsPaid: parseInt(data.installmentsPaid) || 0,
         lateInstallments: parseInt(data.lateInstallments) || 0,
-        valuePaid: Number(data.valuePaid) || 0,
-        monthlyPaid: Number(data.monthlyPaid) || 0,
+        valuePaid: parseMoney(data.valuePaid),
+        monthlyPaid: parseMoney(data.monthlyPaid),
+        lastPaymentAmount: parseMoney(data.lastPaymentAmount),
         loanDate: data.loanDate
           ? new Date(data.loanDate).toISOString()
           : new Date().toISOString(),
@@ -168,13 +142,10 @@ export function CreateClientDialog({ client }: CreateClientDialogProps) {
           : null,
         monthlyFeePaid: data.monthlyFeePaid === "true",
         totalDebtPaid: data.totalDebtPaid === "true",
-        lastpaymentAmount: data.lastpaymentAmount
-          ? Number(data.lastpaymentAmount)
-          : 0,
       };
 
       await api.post("/clients", formattedData);
-      toast.success("Cliente cadastrado com sucesso!");
+      toast.success("Cliente salvo com sucesso!");
       reset();
       window.location.reload();
     } catch (error: any) {
@@ -189,24 +160,24 @@ export function CreateClientDialog({ client }: CreateClientDialogProps) {
       className="md:max-w-[500px] h-[80vh] md:h-[85vh] w-[95vw] p-0 flex flex-col rounded-lg overflow-hidden"
     >
       <DialogHeader className="pt-10 px-6 pb-0">
-        <DialogTitle>Novo Empréstimo</DialogTitle>
+        <DialogTitle>
+          {client ? "Editar Empréstimo" : "Novo Empréstimo"}
+        </DialogTitle>
         <DialogDescription>
-          Preencha os dados do novo Empréstimo.
+          Preencha os dados do Empréstimo abaixo.
         </DialogDescription>
       </DialogHeader>
 
       <form
         onSubmit={handleSubmit(handleCreateClient)}
-        className=" flex w-full flex-col flex-1 overflow-x-hidden"
+        className="flex w-full flex-col flex-1 overflow-x-hidden"
       >
-        {/* ÁREA DE SCROLL */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin overflow-x-hidden">
-          {/* GRUPO 1: Data e Nome */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin">
+          {/* GRUPO 1: Datas e Nome */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2 ">
+            <div className="space-y-2">
               <Label htmlFor="loanDate">Data do Empréstimo</Label>
               <Input
-                className="h-10 w-full px-3 py-0 leading-none appearance-none flex items-center"
                 id="loanDate"
                 type="date"
                 {...register("loanDate")}
@@ -257,20 +228,19 @@ export function CreateClientDialog({ client }: CreateClientDialogProps) {
 
           <hr className="border-muted" />
 
-          {/* GRUPO 4: Financeiro (3 colunas em desktop) */}
+          {/* GRUPO 4: Financeiro Principal */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="value">Valor do Empréstimo (R$)</Label>
+              <Label htmlFor="value">Valor Empréstimo (R$)</Label>
               <Input
                 id="value"
                 type="text"
+                inputMode="numeric"
                 placeholder="0,00"
-                {...register("value")}
-                onInput={handleMoneyMask}
+                {...register("value", { onChange: handleMoneyMask })}
                 required
               />
             </div>
-
             <div className="space-y-2">
               <Label htmlFor="loanInterest">Juros (%)</Label>
               <Input
@@ -281,21 +251,20 @@ export function CreateClientDialog({ client }: CreateClientDialogProps) {
                 required
               />
             </div>
-
             <div className="space-y-2">
               <Label htmlFor="monthlyPaid">Juros Mensal (R$)</Label>
               <Input
                 id="monthlyPaid"
                 type="text"
-                placeholder="00,00"
-                {...register("monthlyPaid")}
-                onInput={handleMoneyMask}
+                inputMode="numeric"
+                placeholder="0,00"
+                {...register("monthlyPaid", { onChange: handleMoneyMask })}
                 required
               />
             </div>
           </div>
 
-          {/* GRUPO 5: Parcelas (3 colunas em desktop) */}
+          {/* GRUPO 5: Parcelas */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label htmlFor="installments">Total Parcelas</Label>
@@ -306,7 +275,7 @@ export function CreateClientDialog({ client }: CreateClientDialogProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="installmentsPaid">Mensalidades Pagas</Label>
+              <Label htmlFor="installmentsPaid">Pagas</Label>
               <Input
                 id="installmentsPaid"
                 type="number"
@@ -314,7 +283,7 @@ export function CreateClientDialog({ client }: CreateClientDialogProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="lateInstallments">Mensalidades Atrasadas</Label>
+              <Label htmlFor="lateInstallments">Atrasadas</Label>
               <Input
                 id="lateInstallments"
                 type="number"
@@ -326,56 +295,51 @@ export function CreateClientDialog({ client }: CreateClientDialogProps) {
           {/* GRUPO 6: Pagamentos e Datas */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="valuePaid">Valor Total Retornado (R$)</Label>
+              <Label htmlFor="valuePaid">Total Retornado (R$)</Label>
               <Input
                 id="valuePaid"
                 type="text"
+                inputMode="numeric"
                 placeholder="0,00"
-                {...register("valuePaid")}
-                onInput={handleMoneyMask}
+                {...register("valuePaid", { onChange: handleMoneyMask })}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="nextPaymentDate">
-                Próxima Mensalidade (Data)
-              </Label>
+              <Label htmlFor="nextPaymentDate">Próx. Mensalidade</Label>
               <Input
                 id="nextPaymentDate"
                 type="date"
                 {...register("nextPaymentDate")}
-                className="h-10 w-full px-3 py-0 leading-none appearance-none flex items-center cursor-pointer"
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="lastPaymentDate">
-                Última Mensalidade Paga (Data)
-              </Label>
+              <Label htmlFor="lastPaymentDate">Última Paga</Label>
               <Input
                 id="lastPaymentDate"
-                className="h-10 w-full px-3 py-0 leading-none appearance-none flex items-center cursor-pointer"
                 type="date"
                 {...register("lastPaymentDate")}
               />
             </div>
           </div>
 
-          {/* GRUPO 7: Selects e Observações */}
-          <div className="space-y-2 grid md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="lastPaymentAmount">Último valor Pago (R$)</Label>
+              <Label htmlFor="lastPaymentAmount">Último Valor Pago (R$)</Label>
               <Input
                 id="lastPaymentAmount"
-                className="h-10 w-full px-3 py-0 leading-none appearance-none flex items-center cursor-pointer"
                 type="text"
+                inputMode="numeric"
                 placeholder="0,00"
-                {...register("lastPaymentAmount")}
-                onInput={handleMoneyMask}
+                {...register("lastPaymentAmount", {
+                  onChange: handleMoneyMask,
+                })}
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* GRUPO 7: Último Pagamento e Status */}
+          <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
             <div className="space-y-2">
               <Label>Status Mensalidade</Label>
               <Controller
@@ -384,7 +348,7 @@ export function CreateClientDialog({ client }: CreateClientDialogProps) {
                 defaultValue="false"
                 render={({ field }) => (
                   <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger className="cursor-pointer">
+                    <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -394,6 +358,8 @@ export function CreateClientDialog({ client }: CreateClientDialogProps) {
                   </Select>
                 )}
               />
+            </div>
+            <div className="space-y-2">
               <Label>Dívida Quitada?</Label>
               <Controller
                 name="totalDebtPaid"
@@ -401,7 +367,7 @@ export function CreateClientDialog({ client }: CreateClientDialogProps) {
                 defaultValue="false"
                 render={({ field }) => (
                   <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger className="cursor-pointer">
+                    <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
