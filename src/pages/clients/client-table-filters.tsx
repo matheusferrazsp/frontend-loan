@@ -53,7 +53,7 @@ export function ClientTableFilters({ onFilter }: FilterProps) {
       >
         <Input
           {...register("name")}
-          placeholder="Nome do cliente"
+          placeholder="Nome "
           className="order-1 text-xs md:w-[320px] w-[150px]"
         />
         <Input
@@ -80,7 +80,7 @@ export function ClientTableFilters({ onFilter }: FilterProps) {
           control={control}
           render={({ field }) => (
             <Select onValueChange={field.onChange} value={field.value}>
-              <SelectTrigger className="order-3 md:order-3 text-xs md:w-[150px] w-100%">
+              <SelectTrigger className="order-3 md:order-3 text-xs md:w-[150px] w-[150px]">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -103,7 +103,7 @@ export function ClientTableFilters({ onFilter }: FilterProps) {
 
         <Button
           onClick={() => reset()}
-          className="font-normal  order-4 items-center w-100%"
+          className="font-normal text-xs justify-start order-4 e w-[150px]"
           variant="outline"
           type="button"
         >
