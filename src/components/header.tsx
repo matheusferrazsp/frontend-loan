@@ -15,10 +15,10 @@ export function Header() {
             <span className="md:inline">Dashboard</span>
           </NavLink>
 
-          {/* Clientes: Ícone + Texto sempre visíveis */}
+          {/* Empréstimos: Ícone + Texto sempre visíveis */}
           <NavLink to="/clients">
             <UserRoundPen className="h-5 w-5 md:h-4 md:w-4" />
-            <span className="text-sm md:text-base">Clientes</span>
+            <span className="text-sm md:text-base">Empréstimos</span>
           </NavLink>
         </nav>
 

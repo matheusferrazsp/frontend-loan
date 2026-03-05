@@ -110,10 +110,10 @@ export function Clients() {
 
   return (
     <div className="p-0 md:p-8 flex flex-col gap-4">
-      <Helmet title="Clientes" />
+      <Helmet title="Empréstimos" />
 
       <div className="flex flex-col gap-4">
-        <h1 className="text-3xl font-bold tracking-tight">Clientes</h1>
+        <h1 className="text-3xl font-bold tracking-tight">Empréstimos</h1>
       </div>
 
       <div className="space-y-2.5 mt-4">
