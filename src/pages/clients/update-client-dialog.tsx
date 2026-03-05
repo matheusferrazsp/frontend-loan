@@ -203,7 +203,7 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
         <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="loanDate">Data do Empréstimo</Label>
+              <Label htmlFor="loanDate">Data do Empréstimo (Data)</Label>
               <Input
                 id="loanDate"
                 type="date"
@@ -301,7 +301,7 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="installmentsPaid">Pagas</Label>
+              <Label htmlFor="installmentsPaid">Mensalidades Pagas</Label>
               <Input
                 id="installmentsPaid"
                 type="number"
@@ -309,7 +309,7 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="lateInstallments">Atrasadas</Label>
+              <Label htmlFor="lateInstallments">Mensalidades Atrasadas</Label>
               <Input
                 id="lateInstallments"
                 type="number"
@@ -330,7 +330,7 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="nextPaymentDate">Próx. Mensalidade</Label>
+              <Label htmlFor="nextPaymentDate">Próx. Mensalidade (Data)</Label>
               <Input
                 id="nextPaymentDate"
                 type="date"
@@ -340,7 +340,9 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="lastPaymentDate">Última Paga</Label>
+              <Label htmlFor="lastPaymentDate">
+                Última Data Pagamento (Data)
+              </Label>
               <Input
                 id="lastPaymentDate"
                 type="date"

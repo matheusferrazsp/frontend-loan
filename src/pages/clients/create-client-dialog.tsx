@@ -181,6 +181,7 @@ export function CreateClientDialog({ client }: CreateClientDialogProps) {
                 id="loanDate"
                 type="date"
                 {...register("loanDate")}
+                className="h-10 w-full px-3 py-0 leading-none appearance-none flex items-center cursor-pointer"
                 required
               />
             </div>
@@ -275,7 +276,7 @@ export function CreateClientDialog({ client }: CreateClientDialogProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="installmentsPaid">Pagas</Label>
+              <Label htmlFor="installmentsPaid">Mensalidades Pagas</Label>
               <Input
                 id="installmentsPaid"
                 type="number"
@@ -283,7 +284,7 @@ export function CreateClientDialog({ client }: CreateClientDialogProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="lateInstallments">Atrasadas</Label>
+              <Label htmlFor="lateInstallments">Mensalidades Atrasadas</Label>
               <Input
                 id="lateInstallments"
                 type="number"
@@ -305,8 +306,9 @@ export function CreateClientDialog({ client }: CreateClientDialogProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="nextPaymentDate">Próx. Mensalidade</Label>
+              <Label htmlFor="nextPaymentDate">Próx. Mensalidade (Data)</Label>
               <Input
+                className="h-10 w-full px-3 py-0 leading-none appearance-none flex items-center cursor-pointer"
                 id="nextPaymentDate"
                 type="date"
                 {...register("nextPaymentDate")}
@@ -314,8 +316,9 @@ export function CreateClientDialog({ client }: CreateClientDialogProps) {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="lastPaymentDate">Última Paga</Label>
+              <Label htmlFor="lastPaymentDate">Última Paga (Data)</Label>
               <Input
+                className="h-10 w-full px-3 py-0 leading-none appearance-none flex items-center cursor-pointer"
                 id="lastPaymentDate"
                 type="date"
                 {...register("lastPaymentDate")}
@@ -348,7 +351,13 @@ export function CreateClientDialog({ client }: CreateClientDialogProps) {
                 defaultValue="true"
                 render={({ field }) => (
                   <Select onValueChange={field.onChange} value={field.value}>
-                    <SelectTrigger>
+                    <SelectTrigger
+                      className={
+                        field.value === false || field.value === "false"
+                          ? "text-rose-500"
+                          : "text-emerald-500"
+                      }
+                    >
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
