@@ -49,7 +49,7 @@ export function ClientsTableRow({ client, onDelete }: ClientsTableRowProps) {
       // Prioridade 1: Vence HOJE (Amarelo)
       if (isToday) {
         return {
-          text: "Aguardando",
+          text: "Vence hoje",
           textColor: "text-amber-500",
           dotColor: "bg-amber-500",
         };
