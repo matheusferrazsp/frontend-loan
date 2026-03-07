@@ -123,6 +123,14 @@ export function CreateClientDialog({}: CreateClientDialogProps) {
     }
   }, [loanDateValue, setValue]);
 
+  // --- LIMPEZA AO FECHAR O MODAL ---
+  useEffect(() => {
+    // Essa função de retorno só é chamada quando o DialogContent é fechado/desmontado
+    return () => {
+      reset();
+    };
+  }, [reset]);
+
   async function handleCreateClient(data: any) {
     try {
       const formattedData = {
@@ -364,7 +372,7 @@ export function CreateClientDialog({}: CreateClientDialogProps) {
 
         <DialogFooter className="p-6 border-t bg-muted/20">
           <DialogClose asChild>
-            <Button type="button" variant="ghost">
+            <Button type="button" variant="ghost" onClick={() => reset()}>
               Cancelar
             </Button>
           </DialogClose>

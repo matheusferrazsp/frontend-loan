@@ -129,6 +129,14 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
   // Zerar mensalidades se mudar para Em Dia
   const currentLateInstallments = watch("lateInstallments");
 
+  // --- LIMPEZA AO FECHAR O MODAL ---
+  useEffect(() => {
+    // Essa função de retorno só é chamada quando o DialogContent é fechado/desmontado
+    return () => {
+      reset();
+    };
+  }, [reset]);
+
   // --- A REGRA DE OURO DO STATUS ---
   // Este efeito garante que o Status sempre obedeça o número de Atrasadas
   useEffect(() => {
@@ -497,7 +505,7 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
 
         <DialogFooter className="p-6 border-t bg-muted/20">
           <DialogClose asChild>
-            <Button type="button" variant="ghost">
+            <Button type="button" variant="ghost" onClick={() => reset()}>
               Cancelar
             </Button>
           </DialogClose>
