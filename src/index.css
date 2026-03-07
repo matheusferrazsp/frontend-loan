@@ -128,7 +128,6 @@
 input[type="date"] {
   display: block !important;
   min-width: 0 !important;
-  width: 100% !important;
   padding-top: 0 !important;
   padding-bottom: 0 !important;
   line-height: 1 !important;
