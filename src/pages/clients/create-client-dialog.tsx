@@ -125,7 +125,6 @@ export function CreateClientDialog({}: CreateClientDialogProps) {
 
   // --- LIMPEZA AO FECHAR O MODAL ---
   useEffect(() => {
-    // Essa função de retorno só é chamada quando o DialogContent é fechado/desmontado
     return () => {
       reset();
     };

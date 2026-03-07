@@ -1,4 +1,6 @@
 import { Plus } from "lucide-react";
+// 1. IMPORTAÇÃO DO SOCKET.IO
+import { io } from "socket.io-client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Helmet } from "react-helmet-async";
@@ -18,7 +20,6 @@ import { api } from "@/lib/axios";
 
 import { ClientDetailsProps } from "./client-details";
 import { ClientTableFilters, FilterData } from "./client-table-filters";
-// Importe FilterData aqui
 import { ClientsTableRow } from "./clients-table-row";
 import { CreateClientDialog } from "./create-client-dialog";
 
@@ -28,11 +29,10 @@ export function Clients() {
   const [filteredClients, setFilteredClients] = useState<ClientDetailsProps[]>(
     [],
   );
-
   const [pageIndex, setPageIndex] = useState(0);
 
-  // 1. Função para buscar dados do Back-end
-  async function fetchClients() {
+  // 1. Função de busca protegida com useCallback (Melhor prática React)
+  const fetchClients = useCallback(async () => {
     try {
       setIsLoading(true);
       const response = await api.get("/clients");
@@ -41,16 +41,48 @@ export function Clients() {
       setFilteredClients(data);
     } catch (error) {
       console.error("Erro ao carregar clientes:", error);
-      setClients([]); // Reset para array vazio em caso de erro
+      setClients([]);
       setFilteredClients([]);
     } finally {
       setIsLoading(false);
     }
-  }
-
-  useEffect(() => {
-    fetchClients();
   }, []);
+
+  // 2. O CORAÇÃO DO TEMPO REAL E DO PWA
+  useEffect(() => {
+    // Busca na primeira vez que abre a tela
+    fetchClients();
+
+    // -- CONEXÃO WEBSOCKET --
+    // Use a mesma URL base da sua API
+    const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:3333";
+    const socket = io(backendUrl);
+
+    socket.on("connect", () => {
+      console.log("🟢 Conectado ao servidor WebSocket no Frontend!");
+    });
+
+    // Se o backend gritar que atualizou, busca os dados de novo silenciosamente
+    socket.on("clientesAtualizados", () => {
+      console.log("🔄 Atualização em tempo real recebida!");
+      fetchClients();
+    });
+
+    // -- FALLBACK PWA (CELULAR) --
+    // Se a conexão cair, garante que ao voltar para o app a tela atualiza
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        fetchClients();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    // Limpeza ao desmontar a tela
+    return () => {
+      socket.disconnect();
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [fetchClients]); // Só recria o efeito se a função de busca mudar
 
   const paginatedClients = useMemo(() => {
     const start = pageIndex * 10;
@@ -58,7 +90,7 @@ export function Clients() {
     return filteredClients.slice(start, end);
   }, [filteredClients, pageIndex]);
 
-  // 2. Lógica de filtragem em tempo real
+  // Lógica de filtragem em tempo real
   const handleFilter = useCallback(
     (data: FilterData) => {
       setPageIndex(0);
@@ -98,7 +130,6 @@ export function Clients() {
           return matchName && matchStatus && matchDate;
         });
 
-        // Só atualiza se o resultado for diferente para evitar renders desnecessários
         if (JSON.stringify(prevFiltered) !== JSON.stringify(filtered)) {
           setPageIndex(0);
           return filtered;
@@ -110,8 +141,7 @@ export function Clients() {
     [clients],
   );
 
-  // 3. Lógica de exclusão de cliente
-
+  // Lógica de exclusão de cliente
   function onDeleteSuccess(clientId: string) {
     setClients((prev) => prev.filter((client) => client.id !== clientId));
 
@@ -171,7 +201,6 @@ export function Clients() {
                 </TableCell>
               </TableRow>
             ) : paginatedClients.length > 0 ? (
-              // USAMOS O ARRAY PAGINADO AQUI:
               paginatedClients.map((client) => (
                 <ClientsTableRow
                   key={client.id}
@@ -190,17 +219,13 @@ export function Clients() {
         </Table>
       </div>
 
-      {/* Paginação baseada na lista filtrada */}
       <Pagination
         pageIndex={pageIndex}
         totalCount={filteredClients.length}
         perPage={10}
         onPageChange={(page) => {
-          // Adicione um log para testar no console
           console.log("Indo para a página:", page);
           setPageIndex(page);
-
-          // Opcional: faz a tela voltar ao topo da TABELA suavemente
           window.scrollTo({ top: 0, behavior: "smooth" });
         }}
       />

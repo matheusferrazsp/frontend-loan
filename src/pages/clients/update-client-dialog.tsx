@@ -131,7 +131,6 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
 
   // --- LIMPEZA AO FECHAR O MODAL ---
   useEffect(() => {
-    // Essa função de retorno só é chamada quando o DialogContent é fechado/desmontado
     return () => {
       reset();
     };
