@@ -194,8 +194,8 @@ export function CreateClientDialog({}: CreateClientDialogProps) {
             <div className="space-y-2">
               <Label>Data do Empréstimo</Label>
               <Input
+                className=" w-full overflow-x-hidden"
                 type="date"
-                placeholder="DD/MM/AAAA"
                 {...register("loanDate")}
                 required
               />
@@ -315,11 +315,11 @@ export function CreateClientDialog({}: CreateClientDialogProps) {
                 inputMode="numeric"
                 placeholder="0,00"
                 {...register("lastPaymentAmount", {
-                  onFocus: () => {
-                    lastPaymentBaseRef.current = parseMoney(watch("valuePaid"));
-                  },
                   onChange: handleLastPaymentAmountChange,
                 })}
+                onFocus={() => {
+                  lastPaymentBaseRef.current = parseMoney(watch("valuePaid"));
+                }}
               />
             </div>
             <div className="space-y-2">
