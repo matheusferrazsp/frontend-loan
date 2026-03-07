@@ -128,10 +128,8 @@
 input[type="date"] {
   display: block !important;
   min-width: 0 !important;
-  padding-top: 0 !important;
-  padding-bottom: 0 !important;
   line-height: 1 !important;
   align-items: center !important;
-  min-height: 1rem !important;
+  min-height: 2.5rem !important;
   -webkit-appearance: none !important;
 }
