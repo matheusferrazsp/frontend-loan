@@ -379,7 +379,7 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label>Último Valor Pago (R$)</Label>
               <Input
@@ -391,6 +391,36 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
                 required
               />
             </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Controller
+              name="confirmPayment"
+              control={control}
+              render={({ field }) => (
+                <div className=" mb-4 flex items-center space-x-3 bg-emerald-500/10 p-4 rounded-lg border border-emerald-500/20">
+                  <Checkbox
+                    id="confirmPayment"
+                    checked={field.value}
+                    onCheckedChange={(checked: boolean) => {
+                      // 1. Atualiza o estado interno do React Hook Form
+                      field.onChange(checked);
+
+                      // 2. Dispara a sua função de automação
+                      handleConfirmPayment(checked);
+                    }}
+                    className="w-5 h-5 data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500 cursor-pointer"
+                  />
+                  <Label
+                    htmlFor="confirmPayment"
+                    className="font-semibold text-emerald-700 dark:text-emerald-400 cursor-pointer "
+                  >
+                    Resgistrar pagamento de mensalidade
+                  </Label>
+                </div>
+              )}
+            />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
             <div className="space-y-2 ">
               <Label>Status Mensalidade</Label>
               <Controller
@@ -399,7 +429,7 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
                 render={({ field }) => (
                   <Select
                     onValueChange={(value) => {
-                      field.onChange(value); // Mantém o funcionamento padrão do Select
+                      field.onChange(value);
 
                       if (value === "true") {
                         // Se mudou para Em Dia, zera as parcelas
@@ -433,7 +463,7 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
                 )}
               />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2 ">
               <Label>Dívida Quitada?</Label>
               <Controller
                 name="totalDebtPaid"
@@ -454,32 +484,6 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
                 )}
               />
             </div>
-            <Controller
-              name="confirmPayment"
-              control={control}
-              render={({ field }) => (
-                <div className="mx-6 mb-4 flex items-center space-x-3 bg-emerald-500/10 p-4 rounded-lg border border-emerald-500/20">
-                  <Checkbox
-                    id="confirmPayment"
-                    checked={field.value}
-                    onCheckedChange={(checked: boolean) => {
-                      // 1. Atualiza o estado interno do React Hook Form
-                      field.onChange(checked);
-
-                      // 2. Dispara a sua função de automação
-                      handleConfirmPayment(checked);
-                    }}
-                    className="w-5 h-5 data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500 cursor-pointer"
-                  />
-                  <Label
-                    htmlFor="confirmPayment"
-                    className="font-semibold text-emerald-700 dark:text-emerald-400 cursor-pointer text-base"
-                  >
-                    Resgistrar pagamento de mensalidade
-                  </Label>
-                </div>
-              )}
-            />
           </div>
 
           <div className="space-y-2">
