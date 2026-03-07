@@ -18,26 +18,50 @@ export function Dashboard() {
 
   useEffect(() => {
     const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:3333";
-    const socket = io(backendUrl);
+    const socket = io(backendUrl, {
+      transports: ["websocket"],
+      reconnection: true,
+    });
 
-    socket.on("clientesAtualizados", () => {
-      console.log("🔄 Dashboard: WebSocket disparou! Atualizando cards e gráficos...");
+    const triggerRefresh = (reason: string) => {
+      console.log(`🔄 Dashboard: sincronizando (${reason})`);
       setCardsRefreshTrigger((prev) => prev + 1);
       setChartsRefreshTrigger((prev) => prev + 1);
+    };
+
+    socket.on("clientesAtualizados", () => {
+      triggerRefresh("socket:evento clientesAtualizados");
+    });
+
+    socket.on("connect", () => {
+      triggerRefresh("socket:connect");
+    });
+
+    socket.on("reconnect", () => {
+      triggerRefresh("socket:reconnect");
     });
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible") {
-        console.log("📱 App em foco! Sincronizando cards e gráficos...");
-        setCardsRefreshTrigger((prev) => prev + 1);
-        setChartsRefreshTrigger((prev) => prev + 1);
+        triggerRefresh("visibilitychange");
       }
     };
+
+    const handleFocus = () => triggerRefresh("focus");
+    const handleOnline = () => triggerRefresh("online");
+    const handlePageShow = () => triggerRefresh("pageshow");
+
     document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("focus", handleFocus);
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("pageshow", handlePageShow);
 
     return () => {
       socket.disconnect();
       document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("focus", handleFocus);
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("pageshow", handlePageShow);
     };
   }, []);
 
