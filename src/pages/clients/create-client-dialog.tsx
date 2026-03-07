@@ -31,7 +31,7 @@ interface CreateClientDialogProps {
 }
 
 export function CreateClientDialog({}: CreateClientDialogProps) {
-  const { register, handleSubmit, control, watch, setValue } = useForm();
+  const { register, handleSubmit, control, watch, setValue, reset } = useForm();
 
   const loanValue = watch("value");
   const interestPercentage = watch("loanInterest");
@@ -102,7 +102,26 @@ export function CreateClientDialog({}: CreateClientDialogProps) {
     }
   }, [loanValue, interestPercentage, setValue]);
 
-  // --- ENVIO ---
+  // --- EFEITO PARA DATA DE PAGAMENTO AUTOMÁTICA ---
+  const loanDateValue = watch("loanDate");
+  useEffect(() => {
+    if (loanDateValue) {
+      const date = new Date(loanDateValue + "T12:00:00");
+
+      if (!isNaN(date.getTime())) {
+        // Adicionamos 1 mês
+        date.setMonth(date.getMonth() + 1);
+
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0");
+        const day = String(date.getDate()).padStart(2, "0");
+
+        const nextMonthDate = `${year}-${month}-${day}`;
+
+        setValue("nextPaymentDate", nextMonthDate);
+      }
+    }
+  }, [loanDateValue, setValue]);
 
   async function handleCreateClient(data: any) {
     try {
@@ -118,21 +137,14 @@ export function CreateClientDialog({}: CreateClientDialogProps) {
         valuePaid: parseMoney(data.valuePaid),
         monthlyPaid: parseMoney(data.monthlyPaid),
         lastPaymentAmount: parseMoney(data.lastPaymentAmount),
-        loanDate: data.loanDate
-          ? new Date(data.loanDate).toISOString()
-          : new Date().toISOString(),
-        nextPaymentDate: data.nextPaymentDate
-          ? new Date(data.nextPaymentDate).toISOString()
-          : null,
-        lastPaymentDate: data.lastPaymentDate
-          ? new Date(data.lastPaymentDate).toISOString()
-          : null,
-        monthlyFeePaid: data.monthlyFeePaid === "true",
-        totalDebtPaid: data.totalDebtPaid === "true",
+        loanDate: data.loanDate,
+        nextPaymentDate: data.nextPaymentDate,
+        lastPaymentDate: data.lastPaymentDate,
       };
 
       await api.post("/clients", formattedData);
       toast.success("Cliente cadastrado com sucesso!");
+      reset();
 
       window.location.reload();
     } catch (error: any) {

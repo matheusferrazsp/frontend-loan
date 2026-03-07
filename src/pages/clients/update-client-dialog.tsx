@@ -58,21 +58,7 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
     return Number(cleanValue) || 0;
   };
 
-  const parseDateToISO = (dateStr: string) => {
-    if (!dateStr || !dateStr.includes("/")) return null;
-    const [day, month, year] = dateStr.split("/");
-    const date = new Date(
-      Number(year),
-      Number(month) - 1,
-      Number(day),
-      12,
-      0,
-      0,
-    );
-    return date.toISOString();
-  };
-
-  // --- MÁSCARAS ---
+  // --- MÁSCARAS E GATILHOS ---
 
   const handleMoneyMask = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -101,9 +87,24 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
     setValue("phone", value);
   };
 
+  // Automação: Pula a próxima data para 1 mês à frente quando altera o Empréstimo
+  const handleLoanDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value; // Vem no formato YYYY-MM-DD
+    if (val) {
+      const date = new Date(val + "T12:00:00");
+      date.setMonth(date.getMonth() + 1);
+
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+
+      setValue("nextPaymentDate", `${year}-${month}-${day}`);
+    }
+  };
+
   // --- EFEITOS ---
 
-  // Reset único e consolidado
+  // Reset para carregar os dados
   useEffect(() => {
     if (client) {
       const formatToInputDate = (dateISO: string) => {
@@ -136,7 +137,7 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
     }
   }, [monthlyFeeStatus, setValue, watch]);
 
-  // Cálculos automáticos
+  // Cálculos automáticos de juros
   useEffect(() => {
     if (installmentsPaid > 0 && monthlyPaid) {
       const val = parseMoney(monthlyPaid);
@@ -152,27 +153,19 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
     }
   }, [loanValue, interestPercentage, setValue]);
 
-  // --- ENVIO ---
+  // --- ENVIO LIMPO PARA A API ---
 
   async function handleUpdateClient(data: any) {
+    // 1. Removemos o ID ou qualquer campo de controle extra (como o checkbox se você adicionar depois)
+    const { confirmPayment, id, ...restOfData } = data;
+
     try {
+      // 2. Formatamos apenas os textos que tem máscara.
+      // O resto vai direto, porque o BACKEND agora resolve dinheiro e datas.
       const formattedData = {
-        ...data,
-        cpf: data.cpf.replace(/\D/g, ""),
-        phone: data.phone.replace(/\D/g, ""),
-        value: parseMoney(data.value),
-        loanInterest: Number(data.loanInterest),
-        installments: parseInt(data.installments) || 0,
-        installmentsPaid: parseInt(data.installmentsPaid) || 0,
-        lateInstallments: parseInt(data.lateInstallments) || 0,
-        valuePaid: parseMoney(data.valuePaid),
-        monthlyPaid: parseMoney(data.monthlyPaid),
-        lastPaymentAmount: parseMoney(data.lastPaymentAmount),
-        loanDate: parseDateToISO(data.loanDate),
-        nextPaymentDate: parseDateToISO(data.nextPaymentDate),
-        lastPaymentDate: parseDateToISO(data.lastPaymentDate),
-        monthlyFeePaid: data.monthlyFeePaid === "true",
-        totalDebtPaid: data.totalDebtPaid === "true",
+        ...restOfData,
+        cpf: data.cpf?.replace(/\D/g, ""),
+        phone: data.phone?.replace(/\D/g, ""),
       };
 
       await api.put(`/clients/${client.id}`, formattedData);
@@ -202,7 +195,12 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Data do Empréstimo</Label>
-              <Input type="date" {...register("loanDate")} required />
+              {/* O onChange inteligente foi adicionado aqui */}
+              <Input
+                type="date"
+                {...register("loanDate", { onChange: handleLoanDateChange })}
+                required
+              />
             </div>
             <div className="space-y-2">
               <Label>Nome</Label>
