@@ -395,7 +395,6 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
                 {...register("lastPaymentAmount", {
                   onChange: handleMoneyMask,
                 })}
-                required
               />
             </div>
           </div>

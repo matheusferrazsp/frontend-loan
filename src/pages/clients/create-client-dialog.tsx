@@ -304,7 +304,6 @@ export function CreateClientDialog({}: CreateClientDialogProps) {
                 {...register("lastPaymentAmount", {
                   onChange: handleMoneyMask,
                 })}
-                required
               />
             </div>
             <div className="space-y-2">
