@@ -191,7 +191,7 @@ export function CreateClientDialog({}: CreateClientDialogProps) {
       >
         <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2 w-full overflow-x-hidden">
+            <div className="space-y-2 overflow-x-hidden rounded-md">
               <Label>Data do Empréstimo</Label>
               <Input
                 className=" "
@@ -297,11 +297,11 @@ export function CreateClientDialog({}: CreateClientDialogProps) {
                 {...register("valuePaid", { onChange: handleMoneyMask })}
               />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2 overflow-x-hidden rounded-md">
               <Label>Próx. Mensalidade</Label>
               <Input type="date" {...register("nextPaymentDate")} required />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2 overflow-x-hidden rounded-md">
               <Label>Última Data Paga</Label>
               <Input type="date" {...register("lastPaymentDate")} />
             </div>
