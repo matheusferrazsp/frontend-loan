@@ -17,21 +17,31 @@ export function TotalLoansOfMonth({
 }: {
   refreshTrigger?: number;
 }) {
-  const [data, setData] = useState<{
+  const [rawData, setRawData] = useState<{
     totalOutflow: number;
     diffPercentage: number;
   } | null>(null);
 
-  const [loading, setLoading] = useState(true);
+  const [renderData, setRenderData] = useState<{
+    totalOutflow: number;
+    diffPercentage: number;
+  } | null>(null);
+
+  const [isLoading, setIsLoading] = useState(true);
 
   const load = useCallback(async () => {
     try {
+      setIsLoading(true);
+      setRenderData(null);
       const response = await api.get("/dashboard/total-outflow");
-      setData(response.data);
+      setRawData(response.data);
+
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 300);
     } catch (error) {
       console.error(error);
-    } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   }, []);
 
@@ -39,7 +49,16 @@ export function TotalLoansOfMonth({
     load();
   }, [load, refreshTrigger]);
 
-  if (loading && !data) {
+  useEffect(() => {
+    if (!isLoading && rawData) {
+      const timer = setTimeout(() => {
+        setRenderData(rawData);
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading, rawData]);
+
+  if (isLoading) {
     return (
       <Card className="h-32 flex items-center justify-center">
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -48,7 +67,7 @@ export function TotalLoansOfMonth({
   }
 
   // Se a porcentagem for positiva, significa que você emprestou MAIS dinheiro este mês
-  const isIncrease = (data?.diffPercentage ?? 0) > 0;
+  const isIncrease = (renderData?.diffPercentage ?? 0) > 0;
 
   return (
     <Card>
@@ -60,7 +79,7 @@ export function TotalLoansOfMonth({
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold tracking-tight">
-          {Number(data?.totalOutflow || 0).toLocaleString("pt-BR", {
+          {Number(renderData?.totalOutflow || 0).toLocaleString("pt-BR", {
             style: "currency",
             currency: "BRL",
           })}
@@ -75,7 +94,7 @@ export function TotalLoansOfMonth({
               <TrendingDown className="h-3 w-3 mr-1" />
             )}
             {isIncrease ? "+" : ""}
-            {Number(data?.diffPercentage || 0).toFixed(2)}%
+            {Number(renderData?.diffPercentage || 0).toFixed(2)}%
           </span>
           em relação ao mês passado
         </p>

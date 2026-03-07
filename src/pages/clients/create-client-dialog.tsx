@@ -152,8 +152,6 @@ export function CreateClientDialog({}: CreateClientDialogProps) {
       await api.post("/clients", formattedData);
       toast.success("Cliente cadastrado com sucesso!");
       reset();
-
-      window.location.reload();
     } catch (error: any) {
       console.error("ERRO:", error.response?.data);
       toast.error("Erro ao salvar cliente.");

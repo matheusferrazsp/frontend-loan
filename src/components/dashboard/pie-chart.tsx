@@ -3,8 +3,7 @@
 import { Loader2, TrendingUp } from "lucide-react";
 import { Label, Pie, PieChart } from "recharts";
 
-import * as React from "react";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
   Card,
@@ -22,33 +21,45 @@ import {
 } from "@/components/ui/chart";
 import { api } from "@/lib/axios";
 
+// Configuração de cores e labels para o gráfico
 const pieChartConfig = {
   clients: {
     label: "Clientes",
   },
-  pendentes: {
+  pendente: {
     label: "Pendentes",
     color: "hsl(var(--chart-1))",
   },
-  emDia: {
+  "em-dia": {
     label: "Em dia",
     color: "hsl(var(--chart-2))",
   },
 } satisfies ChartConfig;
 
+interface ChartData {
+  status: string;
+  value: number;
+}
+
 export function PieData({ refreshTrigger }: { refreshTrigger?: number }) {
-  const [pieData, setPieData] = React.useState<
-    { status: string; value: number; fill: string }[]
-  >([]);
-  const [isLoading, setIsLoading] = React.useState(true);
+  const [rawApiData, setRawApiData] = useState<ChartData[]>([]); // Dados brutos da API
+  const [renderData, setRenderData] = useState<ChartData[]>([]); // Dados que o gráfico REALMENTE usa
+  const [isLoading, setIsLoading] = useState(true);
 
   const load = useCallback(async () => {
     try {
+      setIsLoading(true);
+      setRenderData([]); // Limpa o gráfico para forçar nova animação
+
       const response = await api.get("/stats/status");
-      setPieData(response.data);
+      setRawApiData(response.data);
+
+      // 1. Primeiro removemos o Loader
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 300);
     } catch (error) {
       console.error(error);
-    } finally {
       setIsLoading(false);
     }
   }, []);
@@ -57,19 +68,32 @@ export function PieData({ refreshTrigger }: { refreshTrigger?: number }) {
     load();
   }, [load, refreshTrigger]);
 
-  const totalClients = React.useMemo(() => {
-    return pieData.reduce((acc, curr) => acc + (curr.value || 0), 0);
-  }, [pieData]);
+  // 2. O PULO DO GATO: Só entrega os dados para o Recharts APÓS o componente montar
+  useEffect(() => {
+    if (!isLoading && rawApiData.length > 0) {
+      // Damos um fôlego de 100ms para o navegador estabilizar o layout do Card
+      const timer = setTimeout(() => {
+        setRenderData(rawApiData);
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading, rawApiData]);
 
-  const percentageLate = React.useMemo(() => {
+  const totalClients = useMemo(() => {
+    return renderData.reduce((acc, curr) => acc + (Number(curr.value) || 0), 0);
+  }, [renderData]);
+
+  const percentageLate = useMemo(() => {
     if (totalClients === 0) return 0;
-    const late = pieData.find((d) => d.status === "atrasado")?.value || 0;
-    return Math.round((late / totalClients) * 100);
-  }, [pieData, totalClients]);
+    const late =
+      renderData.find((d) => d.status.toLowerCase().includes("pendente"))
+        ?.value || 0;
+    return Math.round((Number(late) / totalClients) * 100);
+  }, [renderData, totalClients]);
 
-  if (isLoading && pieData.length === 0) {
+  if (isLoading) {
     return (
-      <Card className="flex h-[350px] items-center justify-center">
+      <Card className="flex h-[400px] items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </Card>
     );
@@ -81,6 +105,7 @@ export function PieData({ refreshTrigger }: { refreshTrigger?: number }) {
         <CardTitle>Gráfico de clientes</CardTitle>
         <CardDescription>Em dívida - Em dia</CardDescription>
       </CardHeader>
+
       <CardContent className="flex-1 flex md:pt-15">
         <ChartContainer
           config={pieChartConfig}
@@ -92,11 +117,16 @@ export function PieData({ refreshTrigger }: { refreshTrigger?: number }) {
               content={<ChartTooltipContent hideLabel />}
             />
             <Pie
-              data={pieData}
+              data={renderData}
               dataKey="value"
               nameKey="status"
               innerRadius={70}
               strokeWidth={5}
+              // --- ANIMAÇÃO NATIVA DO RECHARTS ---
+              isAnimationActive={true}
+              animationBegin={50}
+              animationDuration={1500}
+              animationEasing="ease-out"
             >
               <Label
                 content={({ viewBox }) => {
@@ -131,24 +161,29 @@ export function PieData({ refreshTrigger }: { refreshTrigger?: number }) {
           </PieChart>
         </ChartContainer>
       </CardContent>
+
       <CardFooter className="flex-col gap-2 text-sm">
         <div className="flex items-center gap-2 font-medium leading-none">
-          {percentageLate}% em dívida <TrendingUp className="h-4 w-4" />
+          {percentageLate}% em dívida{" "}
+          <TrendingUp className="h-4 w-4 text-rose-500" />
         </div>
         <div className="text-muted-foreground gap-1 flex items-center flex-col">
-          <span className="dark:text-emerald-400 text-emerald-500">
-            Em dia:{"  "}
-            {pieData
-              .find((d) => d.status === "em-dia")
-              ?.value.toLocaleString() || 0}
+          <span className="dark:text-emerald-400 text-emerald-600 font-semibold">
+            Em dia:{" "}
+            {(
+              renderData.find((d) => d.status.toLowerCase() === "em-dia")
+                ?.value || 0
+            ).toLocaleString()}
           </span>
-          <span className="dark:text-red-400 text-red-500">
+          <span className="dark:text-rose-400 text-rose-600 font-semibold">
             Atrasados:{" "}
-            {pieData
-              .find((d) => d.status === "atrasado")
-              ?.value.toLocaleString() || 0}
+            {(
+              renderData.find((d) =>
+                d.status.toLowerCase().includes("atrasado"),
+              )?.value || 0
+            ).toLocaleString()}
           </span>
-          Mostrando todos os clientes.
+          <p className="text-xs pt-2">Mostrando todos os clientes ativos.</p>
         </div>
       </CardFooter>
     </Card>

@@ -237,7 +237,6 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
 
       await api.put(`/clients/${client.id}`, formattedData);
       toast.success("Cliente atualizado com sucesso!");
-      window.location.reload();
     } catch (error: any) {
       console.error("ERRO:", error.response?.data);
       toast.error("Erro ao atualizar cliente.");

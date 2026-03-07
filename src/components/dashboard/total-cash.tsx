@@ -8,21 +8,31 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { api } from "@/lib/axios";
 
 export function TotalCash({ refreshTrigger }: { refreshTrigger?: number }) {
-  const [data, setData] = useState<{
+  const [rawData, setRawData] = useState<{
     totalCirculating: number;
     diffPercentage: number;
   } | null>(null);
 
-  const [loading, setLoading] = useState(true);
+  const [renderData, setRenderData] = useState<{
+    totalCirculating: number;
+    diffPercentage: number;
+  } | null>(null);
+
+  const [isLoading, setIsLoading] = useState(true);
 
   const load = useCallback(async () => {
     try {
+      setIsLoading(true);
+      setRenderData(null);
       const response = await api.get("/dashboard/total-circulating");
-      setData(response.data);
+      setRawData(response.data);
+
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 300);
     } catch (error) {
       console.error(error);
-    } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   }, []);
 
@@ -30,7 +40,16 @@ export function TotalCash({ refreshTrigger }: { refreshTrigger?: number }) {
     load();
   }, [load, refreshTrigger]);
 
-  if (loading && !data)
+  useEffect(() => {
+    if (!isLoading && rawData) {
+      const timer = setTimeout(() => {
+        setRenderData(rawData);
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading, rawData]);
+
+  if (isLoading)
     return (
       <Card className="h-32 flex items-center justify-center">
         <Loader2 className="animate-spin" />
@@ -38,7 +57,7 @@ export function TotalCash({ refreshTrigger }: { refreshTrigger?: number }) {
     );
 
   // Se a porcentagem for negativa, significa que sua "exposição ao risco" diminuiu (bom sinal!)
-  const isIncrease = (data?.diffPercentage ?? 0) > 0;
+  const isIncrease = (renderData?.diffPercentage ?? 0) > 0;
 
   return (
     <Card>
@@ -50,7 +69,7 @@ export function TotalCash({ refreshTrigger }: { refreshTrigger?: number }) {
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold tracking-tight">
-          {data?.totalCirculating.toLocaleString("pt-BR", {
+          {renderData?.totalCirculating.toLocaleString("pt-BR", {
             style: "currency",
             currency: "BRL",
           })}
@@ -65,7 +84,7 @@ export function TotalCash({ refreshTrigger }: { refreshTrigger?: number }) {
               <TrendingDown className="h-3 w-3 mr-1" />
             )}
             {isIncrease ? "+" : ""}
-            {data?.diffPercentage}%
+            {renderData?.diffPercentage}%
           </span>
           em relação ao mês passado
         </p>

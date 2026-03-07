@@ -17,21 +17,31 @@ export function MonthInterestCard({
 }: {
   refreshTrigger?: number;
 }) {
-  const [data, setData] = useState<{
+  const [rawData, setRawData] = useState<{
     totalInterest: number;
     diffPercentage: number;
   } | null>(null);
 
-  const [loading, setLoading] = useState(true);
+  const [renderData, setRenderData] = useState<{
+    totalInterest: number;
+    diffPercentage: number;
+  } | null>(null);
+
+  const [isLoading, setIsLoading] = useState(true);
 
   const load = useCallback(async () => {
     try {
+      setIsLoading(true);
+      setRenderData(null);
       const response = await api.get("/dashboard/total-loan-interest");
-      setData(response.data);
+      setRawData(response.data);
+
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 300);
     } catch (error) {
       console.error(error);
-    } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   }, []);
 
@@ -39,7 +49,16 @@ export function MonthInterestCard({
     load();
   }, [load, refreshTrigger]);
 
-  if (loading && !data) {
+  useEffect(() => {
+    if (!isLoading && rawData) {
+      const timer = setTimeout(() => {
+        setRenderData(rawData);
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading, rawData]);
+
+  if (isLoading) {
     return (
       <Card className="h-32 flex items-center justify-center">
         <Loader2 className="animate-spin text-muted-foreground" />
@@ -47,7 +66,7 @@ export function MonthInterestCard({
     );
   }
 
-  const isPositive = (data?.diffPercentage ?? 0) >= 0;
+  const isPositive = (renderData?.diffPercentage ?? 0) >= 0;
 
   return (
     <Card>
@@ -59,7 +78,7 @@ export function MonthInterestCard({
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold">
-          {data?.totalInterest.toLocaleString("pt-BR", {
+          {renderData?.totalInterest.toLocaleString("pt-BR", {
             style: "currency",
             currency: "BRL",
           })}
@@ -74,7 +93,7 @@ export function MonthInterestCard({
               <TrendingDown className="h-3 w-3 mr-1" />
             )}
             {isPositive ? "+" : ""}
-            {data?.diffPercentage}%
+            {renderData?.diffPercentage}%
           </span>
           em relação ao mês passado
         </p>

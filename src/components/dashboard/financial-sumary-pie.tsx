@@ -25,7 +25,12 @@ export function FinancialSummaryPie({
 }: {
   refreshTrigger?: number;
 }) {
-  const [data, setData] = useState<{
+  const [rawData, setRawData] = useState<{
+    totalIn: number;
+    totalOut: number;
+  } | null>(null);
+
+  const [renderData, setRenderData] = useState<{
     totalIn: number;
     totalOut: number;
   } | null>(null);
@@ -34,11 +39,16 @@ export function FinancialSummaryPie({
 
   const load = useCallback(async () => {
     try {
+      setIsLoading(true);
+      setRenderData(null);
       const response = await api.get("/dashboard/monthly-summary");
-      setData(response.data);
+      setRawData(response.data);
+
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 300);
     } catch (error) {
       console.error(error);
-    } finally {
       setIsLoading(false);
     }
   }, []);
@@ -47,23 +57,32 @@ export function FinancialSummaryPie({
     load();
   }, [load, refreshTrigger]);
 
-  const saldoFinal = (data?.totalIn || 0) - (data?.totalOut || 0);
+  useEffect(() => {
+    if (!isLoading && rawData) {
+      const timer = setTimeout(() => {
+        setRenderData(rawData);
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading, rawData]);
+
+  const saldoFinal = (renderData?.totalIn || 0) - (renderData?.totalOut || 0);
   const isLucro = saldoFinal >= 0;
 
   const pieChartData = [
     {
       status: "Entradas",
-      value: data?.totalIn || 0,
+      value: renderData?.totalIn || 0,
       fill: "var(--color-chart-2)",
     },
     {
       status: "Saídas",
-      value: data?.totalOut || 0,
+      value: renderData?.totalOut || 0,
       fill: "var(--color-chart-5)",
     },
   ];
 
-  if (isLoading && !data) {
+  if (isLoading) {
     return (
       <Card className="flex h-[350px] items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -143,8 +162,8 @@ export function FinancialSummaryPie({
           )}
         </div>
         <div className="leading-none text-muted-foreground text-xs text-center">
-          Entradas: R$ {data?.totalIn.toLocaleString("pt-BR")} | Saídas: R${" "}
-          {data?.totalOut.toLocaleString("pt-BR")}
+          Entradas: R$ {renderData?.totalIn.toLocaleString("pt-BR") || "0"} |
+          Saídas: R$ {renderData?.totalOut.toLocaleString("pt-BR") || "0"}
         </div>
       </CardFooter>
     </Card>

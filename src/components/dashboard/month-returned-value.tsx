@@ -12,21 +12,31 @@ export function TotalValueReturned({
 }: {
   refreshTrigger?: number;
 }) {
-  const [data, setData] = useState<{
+  const [rawData, setRawData] = useState<{
     totalReturned: number;
     diffPercentage: number;
   } | null>(null);
 
-  const [loading, setLoading] = useState(true);
+  const [renderData, setRenderData] = useState<{
+    totalReturned: number;
+    diffPercentage: number;
+  } | null>(null);
+
+  const [isLoading, setIsLoading] = useState(true);
 
   const load = useCallback(async () => {
     try {
+      setIsLoading(true);
+      setRenderData(null);
       const response = await api.get("/dashboard/total-returned");
-      setData(response.data);
+      setRawData(response.data);
+
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 300);
     } catch (error) {
       console.error(error);
-    } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   }, []);
 
@@ -34,7 +44,16 @@ export function TotalValueReturned({
     load();
   }, [load, refreshTrigger]);
 
-  if (loading && !data) {
+  useEffect(() => {
+    if (!isLoading && rawData) {
+      const timer = setTimeout(() => {
+        setRenderData(rawData);
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading, rawData]);
+
+  if (isLoading) {
     return (
       <Card className="h-32 flex items-center justify-center">
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -42,7 +61,7 @@ export function TotalValueReturned({
     );
   }
 
-  const isPositive = (data?.diffPercentage ?? 0) >= 0;
+  const isPositive = (renderData?.diffPercentage ?? 0) >= 0;
 
   return (
     <Card>
@@ -54,7 +73,7 @@ export function TotalValueReturned({
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold tracking-tight">
-          {data?.totalReturned.toLocaleString("pt-BR", {
+          {renderData?.totalReturned.toLocaleString("pt-BR", {
             style: "currency",
             currency: "BRL",
           })}
@@ -69,7 +88,7 @@ export function TotalValueReturned({
               <TrendingDown className="h-3 w-3 mr-1" />
             )}
             {isPositive ? "+" : ""}
-            {data?.diffPercentage}%
+            {renderData?.diffPercentage}%
           </span>
           em relação ao mês passado
         </p>

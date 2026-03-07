@@ -42,17 +42,23 @@ interface ChartDataItem {
 }
 
 export function AnnualChart({ refreshTrigger }: { refreshTrigger?: number }) {
-  const [chartData, setChartData] = useState<ChartDataItem[]>([]);
+  const [rawChartData, setRawChartData] = useState<ChartDataItem[]>([]);
+  const [renderChartData, setRenderChartData] = useState<ChartDataItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
 
   const load = useCallback(async () => {
     try {
+      setIsLoading(true);
+      setRenderChartData([]);
       const response = await api.get("/dashboard/annual-stats");
-      setChartData(response.data);
+      setRawChartData(response.data);
+
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 300);
     } catch (error) {
       console.error(error);
-    } finally {
       setIsLoading(false);
     }
   }, []);
@@ -60,6 +66,15 @@ export function AnnualChart({ refreshTrigger }: { refreshTrigger?: number }) {
   useEffect(() => {
     load();
   }, [load, refreshTrigger]);
+
+  useEffect(() => {
+    if (!isLoading && rawChartData.length > 0) {
+      const timer = setTimeout(() => {
+        setRenderChartData(rawChartData);
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading, rawChartData]);
 
   const checkMobile = () => setIsMobile(window.innerWidth < 768);
 
@@ -69,7 +84,7 @@ export function AnnualChart({ refreshTrigger }: { refreshTrigger?: number }) {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  if (isLoading && chartData.length === 0) {
+  if (isLoading) {
     return (
       <Card className="flex h-[350px] items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -90,7 +105,7 @@ export function AnnualChart({ refreshTrigger }: { refreshTrigger?: number }) {
         >
           <BarChart
             accessibilityLayer
-            data={chartData}
+            data={renderChartData}
             margin={{
               left: isMobile ? -50 : 0,
               right: 10,
@@ -132,7 +147,7 @@ export function AnnualChart({ refreshTrigger }: { refreshTrigger?: number }) {
           Total de Entrada:{" "}
           <span className="dark:text-emerald-400 text-emerald-500">
             {formatCurrency(
-              chartData.reduce((sum, item) => sum + item.entry, 0),
+              renderChartData.reduce((sum, item) => sum + item.entry, 0),
             )}
           </span>
         </div>
@@ -140,7 +155,7 @@ export function AnnualChart({ refreshTrigger }: { refreshTrigger?: number }) {
           Total de Saída:{" "}
           <span className="dark:text-red-400 text-red-500">
             {formatCurrency(
-              chartData.reduce((sum, item) => sum + item.exit, 0),
+              renderChartData.reduce((sum, item) => sum + item.exit, 0),
             )}
           </span>
         </div>
