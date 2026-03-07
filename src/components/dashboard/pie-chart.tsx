@@ -63,7 +63,7 @@ export function PieData({ refreshTrigger }: { refreshTrigger?: number }) {
 
   const percentageLate = React.useMemo(() => {
     if (totalClients === 0) return 0;
-    const late = pieData.find((d) => d.status === "pendente")?.value || 0;
+    const late = pieData.find((d) => d.status === "atrasado")?.value || 0;
     return Math.round((late / totalClients) * 100);
   }, [pieData, totalClients]);
 
@@ -145,7 +145,7 @@ export function PieData({ refreshTrigger }: { refreshTrigger?: number }) {
           <span className="dark:text-red-400 text-red-500">
             Atrasados:{" "}
             {pieData
-              .find((d) => d.status === "pendente")
+              .find((d) => d.status === "atrasado")
               ?.value.toLocaleString() || 0}
           </span>
           Mostrando todos os clientes.
