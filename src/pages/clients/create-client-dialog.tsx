@@ -4,6 +4,7 @@ import { toast } from "sonner";
 
 import { useEffect } from "react";
 import React from "react";
+import { useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
@@ -32,6 +33,7 @@ interface CreateClientDialogProps {
 
 export function CreateClientDialog({}: CreateClientDialogProps) {
   const { register, handleSubmit, control, watch, setValue, reset } = useForm();
+  const lastPaymentBaseRef = useRef(0);
 
   const loanValue = watch("value");
   const interestPercentage = watch("loanInterest");
@@ -86,6 +88,19 @@ export function CreateClientDialog({}: CreateClientDialogProps) {
   };
 
   // --- EFEITOS DE CÁLCULO ---
+
+  const syncTotalReturnedWithLastPayment = (lastPaymentValue: any) => {
+    const lastPayment = parseMoney(lastPaymentValue);
+    const updatedTotal = lastPaymentBaseRef.current + lastPayment;
+    setValue("valuePaid", formatToBRL(updatedTotal));
+  };
+
+  const handleLastPaymentAmountChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    handleMoneyMask(e);
+    syncTotalReturnedWithLastPayment(e.target.value);
+  };
 
   useEffect(() => {
     if (installmentsPaid > 0 && monthlyPaid) {
@@ -300,7 +315,10 @@ export function CreateClientDialog({}: CreateClientDialogProps) {
                 inputMode="numeric"
                 placeholder="0,00"
                 {...register("lastPaymentAmount", {
-                  onChange: handleMoneyMask,
+                  onFocus: () => {
+                    lastPaymentBaseRef.current = parseMoney(watch("valuePaid"));
+                  },
+                  onChange: handleLastPaymentAmountChange,
                 })}
               />
             </div>

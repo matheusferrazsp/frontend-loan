@@ -4,6 +4,7 @@ import { toast } from "sonner";
 
 import { useEffect } from "react";
 import React from "react";
+import { useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
@@ -35,6 +36,7 @@ interface UpdateClientDialogProps {
 
 export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
   const { register, handleSubmit, reset, control, watch, setValue } = useForm();
+  const lastPaymentBaseRef = useRef(0);
 
   const loanValue = watch("value");
   const interestPercentage = watch("loanInterest");
@@ -123,8 +125,22 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
         valuePaid: formatToBRL(client.valuePaid),
         lastPaymentAmount: formatToBRL(client.lastPaymentAmount),
       });
+      lastPaymentBaseRef.current = Number(client.valuePaid) || 0;
     }
   }, [client, reset]);
+
+  const syncTotalReturnedWithLastPayment = (lastPaymentValue: any) => {
+    const lastPayment = parseMoney(lastPaymentValue);
+    const updatedTotal = lastPaymentBaseRef.current + lastPayment;
+    setValue("valuePaid", formatToBRL(updatedTotal));
+  };
+
+  const handleLastPaymentAmountChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    handleMoneyMask(e);
+    syncTotalReturnedWithLastPayment(e.target.value);
+  };
 
   // Zerar mensalidades se mudar para Em Dia
   const currentLateInstallments = watch("lateInstallments");
@@ -151,12 +167,6 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
   }, [currentLateInstallments, setValue]);
 
   // Cálculos automáticos de juros
-  useEffect(() => {
-    if (installmentsPaid > 0 && monthlyPaid) {
-      const val = parseMoney(monthlyPaid);
-      setValue("valuePaid", formatToBRL(Number(installmentsPaid) * val));
-    }
-  }, [installmentsPaid, monthlyPaid, setValue]);
 
   useEffect(() => {
     if (loanValue && interestPercentage) {
@@ -186,7 +196,9 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
 
       // 3. Atualiza o valor pago (puxa do juros mensal)
       const currentMonthlyPaid = watch("monthlyPaid");
+      lastPaymentBaseRef.current = parseMoney(watch("valuePaid"));
       setValue("lastPaymentAmount", currentMonthlyPaid);
+      syncTotalReturnedWithLastPayment(currentMonthlyPaid);
 
       // 4. Última Data Paga = Exatamente HOJE (Data real)
       const today = new Date();
@@ -227,12 +239,16 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
     const { confirmPayment, id, ...restOfData } = data;
 
     try {
+      const insertedLastPayment = parseMoney(data.lastPaymentAmount);
+
       // 2. Formatamos apenas os textos que tem máscara.
       // O resto vai direto, porque o BACKEND agora resolve dinheiro e datas.
       const formattedData = {
         ...restOfData,
         cpf: data.cpf?.replace(/\D/g, ""),
         phone: data.phone?.replace(/\D/g, ""),
+        valuePaid: parseMoney(data.valuePaid),
+        lastPaymentAmount: insertedLastPayment,
       };
 
       await api.put(`/clients/${client.id}`, formattedData);
@@ -392,7 +408,10 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
                 type="text"
                 inputMode="numeric"
                 {...register("lastPaymentAmount", {
-                  onChange: handleMoneyMask,
+                  onFocus: () => {
+                    lastPaymentBaseRef.current = parseMoney(watch("valuePaid"));
+                  },
+                  onChange: handleLastPaymentAmountChange,
                 })}
               />
             </div>
