@@ -7,33 +7,39 @@ import {
   TrendingUp,
 } from "lucide-react";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { api } from "@/lib/axios";
 
-export function TotalLoansOfMonth() {
+export function TotalLoansOfMonth({
+  refreshTrigger,
+}: {
+  refreshTrigger?: number;
+}) {
   const [data, setData] = useState<{
     totalOutflow: number;
     diffPercentage: number;
   } | null>(null);
+
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const response = await api.get("/dashboard/total-outflow");
-        setData(response.data);
-      } catch (error) {
-        console.error("Erro ao carregar saídas:", error);
-      } finally {
-        setLoading(false);
-      }
+  const load = useCallback(async () => {
+    try {
+      const response = await api.get("/dashboard/total-outflow");
+      setData(response.data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
     }
-    load();
   }, []);
 
-  if (loading) {
+  useEffect(() => {
+    load();
+  }, [load, refreshTrigger]);
+
+  if (loading && !data) {
     return (
       <Card className="h-32 flex items-center justify-center">
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -47,14 +53,14 @@ export function TotalLoansOfMonth() {
   return (
     <Card>
       <CardHeader className="flex flex-row space-y-0 items-center justify-between pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">
+        <CardTitle className="text-sm font-medium ">
           Total de Saídas (Mês)
         </CardTitle>
         <BanknoteArrowDown className="h-4 w-4 dark:text-rose-400 text-rose-500" />
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold tracking-tight">
-          {data?.totalOutflow.toLocaleString("pt-BR", {
+          {Number(data?.totalOutflow || 0).toLocaleString("pt-BR", {
             style: "currency",
             currency: "BRL",
           })}
@@ -69,7 +75,7 @@ export function TotalLoansOfMonth() {
               <TrendingDown className="h-3 w-3 mr-1" />
             )}
             {isIncrease ? "+" : ""}
-            {data?.diffPercentage}%
+            {Number(data?.diffPercentage || 0).toFixed(2)}%
           </span>
           em relação ao mês passado
         </p>

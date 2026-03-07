@@ -2,33 +2,39 @@
 
 import { DollarSign, Loader2, TrendingDown, TrendingUp } from "lucide-react";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { api } from "@/lib/axios";
 
-export function TotalValueReturned() {
+export function TotalValueReturned({
+  refreshTrigger,
+}: {
+  refreshTrigger?: number;
+}) {
   const [data, setData] = useState<{
     totalReturned: number;
     diffPercentage: number;
   } | null>(null);
+
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function load() {
-      try {
-        const response = await api.get("/dashboard/total-returned");
-        setData(response.data);
-      } catch (error) {
-        console.error("Erro ao carregar total devolvido:", error);
-      } finally {
-        setLoading(false);
-      }
+  const load = useCallback(async () => {
+    try {
+      const response = await api.get("/dashboard/total-returned");
+      setData(response.data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
     }
-    load();
   }, []);
 
-  if (loading) {
+  useEffect(() => {
+    load();
+  }, [load, refreshTrigger]);
+
+  if (loading && !data) {
     return (
       <Card className="h-32 flex items-center justify-center">
         <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />

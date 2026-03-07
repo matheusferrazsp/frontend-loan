@@ -1,7 +1,7 @@
 import { Loader2 } from "lucide-react";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import {
   Card,
@@ -41,32 +41,35 @@ interface ChartDataItem {
   exit: number;
 }
 
-export function AnnualChart() {
+export function AnnualChart({ refreshTrigger }: { refreshTrigger?: number }) {
   const [chartData, setChartData] = useState<ChartDataItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const response = await api.get("/dashboard/annual-stats");
-        setChartData(response.data);
-      } catch (error) {
-        console.error("Erro ao carregar dados", error);
-      } finally {
-        setIsLoading(false);
-      }
+  const load = useCallback(async () => {
+    try {
+      const response = await api.get("/dashboard/annual-stats");
+      setChartData(response.data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
     }
+  }, []);
 
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
+  useEffect(() => {
+    load();
+  }, [load, refreshTrigger]);
 
-    fetchData();
+  const checkMobile = () => setIsMobile(window.innerWidth < 768);
+
+  useEffect(() => {
     checkMobile();
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  if (isLoading) {
+  if (isLoading && chartData.length === 0) {
     return (
       <Card className="flex h-[350px] items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />

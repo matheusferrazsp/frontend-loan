@@ -4,6 +4,7 @@ import { Loader2, TrendingUp } from "lucide-react";
 import { Label, Pie, PieChart } from "recharts";
 
 import * as React from "react";
+import { useCallback, useEffect } from "react";
 
 import {
   Card,
@@ -35,25 +36,26 @@ const pieChartConfig = {
   },
 } satisfies ChartConfig;
 
-export function PieData() {
+export function PieData({ refreshTrigger }: { refreshTrigger?: number }) {
   const [pieData, setPieData] = React.useState<
     { status: string; value: number; fill: string }[]
   >([]);
   const [isLoading, setIsLoading] = React.useState(true);
 
-  React.useEffect(() => {
-    async function loadStats() {
-      try {
-        const response = await api.get("/stats/status");
-        setPieData(response.data);
-      } catch (error) {
-        console.error("Erro ao carregar pizza:", error);
-      } finally {
-        setIsLoading(false);
-      }
+  const load = useCallback(async () => {
+    try {
+      const response = await api.get("/stats/status");
+      setPieData(response.data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
     }
-    loadStats();
   }, []);
+
+  useEffect(() => {
+    load();
+  }, [load, refreshTrigger]);
 
   const totalClients = React.useMemo(() => {
     return pieData.reduce((acc, curr) => acc + (curr.value || 0), 0);
@@ -65,7 +67,7 @@ export function PieData() {
     return Math.round((late / totalClients) * 100);
   }, [pieData, totalClients]);
 
-  if (isLoading) {
+  if (isLoading && pieData.length === 0) {
     return (
       <Card className="flex h-[350px] items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />

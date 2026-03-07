@@ -3,7 +3,7 @@
 import { Loader2, TrendingDown, TrendingUp } from "lucide-react";
 import { Label, Pie, PieChart } from "recharts";
 
-import * as React from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import {
   Card,
@@ -20,32 +20,32 @@ import {
 } from "@/components/ui/chart";
 import { api } from "@/lib/axios";
 
-export function FinancialSummaryPie() {
-  const [data, setData] = React.useState<{
+export function FinancialSummaryPie({
+  refreshTrigger,
+}: {
+  refreshTrigger?: number;
+}) {
+  const [data, setData] = useState<{
     totalIn: number;
     totalOut: number;
   } | null>(null);
-  const [isLoading, setIsLoading] = React.useState(true);
 
-  React.useEffect(() => {
-    async function fetchSummary() {
-      try {
-        const response = await api.get("/dashboard/monthly-summary");
+  const [isLoading, setIsLoading] = useState(true);
 
-        const { totalIn, totalOut } = response.data;
-
-        setData({
-          totalIn: totalIn,
-          totalOut: totalOut,
-        });
-      } catch (error) {
-        console.error("Erro ao buscar resumo financeiro:", error);
-      } finally {
-        setIsLoading(false);
-      }
+  const load = useCallback(async () => {
+    try {
+      const response = await api.get("/dashboard/monthly-summary");
+      setData(response.data);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
     }
-    fetchSummary();
   }, []);
+
+  useEffect(() => {
+    load();
+  }, [load, refreshTrigger]);
 
   const saldoFinal = (data?.totalIn || 0) - (data?.totalOut || 0);
   const isLucro = saldoFinal >= 0;
@@ -63,7 +63,7 @@ export function FinancialSummaryPie() {
     },
   ];
 
-  if (isLoading) {
+  if (isLoading && !data) {
     return (
       <Card className="flex h-[350px] items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
@@ -74,8 +74,8 @@ export function FinancialSummaryPie() {
   return (
     <Card className="flex flex-col">
       <CardHeader className="items-center pb-0">
-        <CardTitle>Resumo Financeiro</CardTitle>
-        <CardDescription>Entradas vs Empréstimos (Mês Atual)</CardDescription>
+        <CardTitle>Resumo Financeiro (Mês Atual)</CardTitle>
+        <CardDescription>Entradas vs Saídas </CardDescription>
       </CardHeader>
       <CardContent className="flex-1 flex md:pt-15">
         <ChartContainer
@@ -126,7 +126,7 @@ export function FinancialSummaryPie() {
       </CardContent>
       <CardFooter className="flex-col gap-2 text-sm">
         <div className="flex items-center gap-2 font-medium leading-none">
-          {isLucro ? "Recuperado:" : "Déficit:"}{" "}
+          {isLucro ? "Superávit:" : "Déficit:"}{" "}
           <span
             className={
               isLucro
