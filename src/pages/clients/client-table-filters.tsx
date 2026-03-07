@@ -64,20 +64,7 @@ export function ClientTableFilters({ onFilter }: FilterProps) {
         />
         <Input
           {...register("date")}
-          placeholder="Data de pagamento"
           type="date"
-          onFocus={(e) => {
-            e.target.type = "date";
-            // Tenta abrir o calendário nativo automaticamente
-            try {
-              e.target.showPicker();
-            } catch (error) {
-              console.log("showPicker não suportado ou bloqueado");
-            }
-          }}
-          onBlur={(e) => {
-            if (!e.target.value) e.target.type = "text";
-          }}
           className="order-3 text-xs md:w-[150px] w-[150px]"
         />
 
