@@ -58,15 +58,6 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
     return Number(cleanValue) || 0;
   };
 
-  const formatDateToBR = (dateISO: string) => {
-    if (!dateISO) return "";
-    const date = new Date(dateISO);
-    const day = String(date.getUTCDate()).padStart(2, "0");
-    const month = String(date.getUTCMonth() + 1).padStart(2, "0");
-    const year = date.getUTCFullYear();
-    return `${day}/${month}/${year}`;
-  };
-
   const parseDateToISO = (dateStr: string) => {
     if (!dateStr || !dateStr.includes("/")) return null;
     const [day, month, year] = dateStr.split("/");
@@ -89,17 +80,6 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
     const numericValue = Number(cleanValue) / 100;
     e.target.value = formatToBRL(numericValue);
     setValue(name, e.target.value);
-  };
-
-  const handleDateMask = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let value = e.target.value.replace(/\D/g, "");
-    if (value.length > 8) value = value.slice(0, 8);
-    const formattedDate = value
-      .replace(/(\d{2})(\d)/, "$1/$2")
-      .replace(/(\d{2})(\d)/, "$1/$2")
-      .replace(/(\d{4})(\d)/, "$1");
-    e.target.value = formattedDate;
-    setValue(e.target.name, formattedDate);
   };
 
   const handleCPFMask = (e: React.FormEvent<HTMLInputElement>) => {
@@ -126,11 +106,15 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
   // Reset único e consolidado
   useEffect(() => {
     if (client) {
+      const formatToInputDate = (dateISO: string) => {
+        if (!dateISO) return "";
+        return new Date(dateISO).toISOString().split("T")[0];
+      };
       reset({
         ...client,
-        loanDate: formatDateToBR(client.loanDate),
-        nextPaymentDate: formatDateToBR(client.nextPaymentDate),
-        lastPaymentDate: formatDateToBR(client.lastPaymentDate),
+        loanDate: formatToInputDate(client.loanDate),
+        nextPaymentDate: formatToInputDate(client.nextPaymentDate),
+        lastPaymentDate: formatToInputDate(client.lastPaymentDate),
         monthlyFeePaid: String(client.monthlyFeePaid),
         totalDebtPaid: String(client.totalDebtPaid),
         value: formatToBRL(client.value),
@@ -218,13 +202,7 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Data do Empréstimo</Label>
-              <Input
-                type="text"
-                inputMode="numeric"
-                placeholder="DD/MM/AAAA"
-                {...register("loanDate", { onChange: handleDateMask })}
-                required
-              />
+              <Input type="date" {...register("loanDate")} required />
             </div>
             <div className="space-y-2">
               <Label>Nome</Label>
@@ -322,22 +300,11 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
             </div>
             <div className="space-y-2">
               <Label>Próx. Mensalidade</Label>
-              <Input
-                type="text"
-                inputMode="numeric"
-                placeholder="DD/MM/AAAA"
-                {...register("nextPaymentDate", { onChange: handleDateMask })}
-                required
-              />
+              <Input type="date" {...register("nextPaymentDate")} required />
             </div>
             <div className="space-y-2">
               <Label>Última Data Paga</Label>
-              <Input
-                type="text"
-                inputMode="numeric"
-                placeholder="DD/MM/AAAA"
-                {...register("lastPaymentDate", { onChange: handleDateMask })}
-              />
+              <Input type="date" {...register("lastPaymentDate")} />
             </div>
           </div>
 
@@ -350,6 +317,7 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
                 {...register("lastPaymentAmount", {
                   onChange: handleMoneyMask,
                 })}
+                required
               />
             </div>
             <div className="space-y-2">

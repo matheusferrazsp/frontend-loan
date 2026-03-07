@@ -55,21 +55,6 @@ export function CreateClientDialog({}: CreateClientDialogProps) {
     return Number(cleanValue) || 0;
   };
 
-  const parseDateToISO = (dateStr: string) => {
-    if (!dateStr || !dateStr.includes("/")) return null;
-    const [day, month, year] = dateStr.split("/");
-    // Usamos o meio do dia (12:00) para evitar que o fuso horário mude o dia
-    const date = new Date(
-      Number(year),
-      Number(month) - 1,
-      Number(day),
-      12,
-      0,
-      0,
-    );
-    return date.toISOString();
-  };
-
   // --- MÁSCARAS ---
 
   const handleMoneyMask = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -79,19 +64,6 @@ export function CreateClientDialog({}: CreateClientDialogProps) {
 
     e.target.value = formatToBRL(numericValue);
     setValue(name, e.target.value);
-  };
-
-  const handleDateMask = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let value = e.target.value.replace(/\D/g, "");
-    if (value.length > 8) value = value.slice(0, 8);
-
-    const formattedDate = value
-      .replace(/(\d{2})(\d)/, "$1/$2")
-      .replace(/(\d{2})(\d)/, "$1/$2")
-      .replace(/(\d{4})(\d)/, "$1");
-
-    e.target.value = formattedDate;
-    setValue(e.target.name, formattedDate);
   };
 
   const handleCPFMask = (e: React.FormEvent<HTMLInputElement>) => {
@@ -146,9 +118,15 @@ export function CreateClientDialog({}: CreateClientDialogProps) {
         valuePaid: parseMoney(data.valuePaid),
         monthlyPaid: parseMoney(data.monthlyPaid),
         lastPaymentAmount: parseMoney(data.lastPaymentAmount),
-        loanDate: parseDateToISO(data.loanDate) || new Date().toISOString(),
-        nextPaymentDate: parseDateToISO(data.nextPaymentDate),
-        lastPaymentDate: parseDateToISO(data.lastPaymentDate),
+        loanDate: data.loanDate
+          ? new Date(data.loanDate).toISOString()
+          : new Date().toISOString(),
+        nextPaymentDate: data.nextPaymentDate
+          ? new Date(data.nextPaymentDate).toISOString()
+          : null,
+        lastPaymentDate: data.lastPaymentDate
+          ? new Date(data.lastPaymentDate).toISOString()
+          : null,
         monthlyFeePaid: data.monthlyFeePaid === "true",
         totalDebtPaid: data.totalDebtPaid === "true",
       };
@@ -184,10 +162,9 @@ export function CreateClientDialog({}: CreateClientDialogProps) {
             <div className="space-y-2">
               <Label>Data do Empréstimo</Label>
               <Input
-                type="text"
-                inputMode="numeric"
+                type="date"
                 placeholder="DD/MM/AAAA"
-                {...register("loanDate", { onChange: handleDateMask })}
+                {...register("loanDate")}
                 required
               />
             </div>
@@ -290,22 +267,11 @@ export function CreateClientDialog({}: CreateClientDialogProps) {
             </div>
             <div className="space-y-2">
               <Label>Próx. Mensalidade</Label>
-              <Input
-                type="text"
-                inputMode="numeric"
-                placeholder="DD/MM/AAAA"
-                {...register("nextPaymentDate", { onChange: handleDateMask })}
-                required
-              />
+              <Input type="date" {...register("nextPaymentDate")} required />
             </div>
             <div className="space-y-2">
-              <Label>Última Paga</Label>
-              <Input
-                type="text"
-                inputMode="numeric"
-                placeholder="DD/MM/AAAA"
-                {...register("lastPaymentDate", { onChange: handleDateMask })}
-              />
+              <Label>Última Data Paga</Label>
+              <Input type="date" {...register("lastPaymentDate")} />
             </div>
           </div>
 
@@ -319,6 +285,7 @@ export function CreateClientDialog({}: CreateClientDialogProps) {
                 {...register("lastPaymentAmount", {
                   onChange: handleMoneyMask,
                 })}
+                required
               />
             </div>
             <div className="space-y-2">
