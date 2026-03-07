@@ -42,19 +42,18 @@ interface ChartData {
 }
 
 export function PieData({ refreshTrigger }: { refreshTrigger?: number }) {
-  const [rawApiData, setRawApiData] = useState<ChartData[]>([]); // Dados brutos da API
-  const [renderData, setRenderData] = useState<ChartData[]>([]); // Dados que o gráfico REALMENTE usa
+  const [rawApiData, setRawApiData] = useState<ChartData[]>([]);
+  const [renderData, setRenderData] = useState<ChartData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const load = useCallback(async () => {
     try {
       setIsLoading(true);
-      setRenderData([]); // Limpa o gráfico para forçar nova animação
+      setRenderData([]);
 
       const response = await api.get("/stats/status");
       setRawApiData(response.data);
 
-      // 1. Primeiro removemos o Loader
       setTimeout(() => {
         setIsLoading(false);
       }, 300);
@@ -68,10 +67,8 @@ export function PieData({ refreshTrigger }: { refreshTrigger?: number }) {
     load();
   }, [load, refreshTrigger]);
 
-  // 2. O PULO DO GATO: Só entrega os dados para o Recharts APÓS o componente montar
   useEffect(() => {
     if (!isLoading && rawApiData.length > 0) {
-      // Damos um fôlego de 100ms para o navegador estabilizar o layout do Card
       const timer = setTimeout(() => {
         setRenderData(rawApiData);
       }, 100);
@@ -122,7 +119,6 @@ export function PieData({ refreshTrigger }: { refreshTrigger?: number }) {
               nameKey="status"
               innerRadius={70}
               strokeWidth={5}
-              // --- ANIMAÇÃO NATIVA DO RECHARTS ---
               isAnimationActive={true}
               animationBegin={50}
               animationDuration={1500}
@@ -150,7 +146,7 @@ export function PieData({ refreshTrigger }: { refreshTrigger?: number }) {
                           y={(viewBox.cy || 0) + 24}
                           className="fill-muted-foreground"
                         >
-                          Clientes
+                          Clientes Ativos
                         </tspan>
                       </text>
                     );

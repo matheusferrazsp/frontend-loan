@@ -2,7 +2,7 @@ import { Plus } from "lucide-react";
 // 1. IMPORTAÇÃO DO SOCKET.IO
 import { io } from "socket.io-client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
 
 import { Button } from "@/components/ui/button";
@@ -24,12 +24,68 @@ import { ClientsTableRow } from "./clients-table-row";
 import { CreateClientDialog } from "./create-client-dialog";
 
 export function Clients() {
+  const defaultFilters: FilterData = {
+    name: "",
+    date: "",
+    status: "all",
+    debtStatus: "pending",
+  };
+
   const [isLoading, setIsLoading] = useState(true);
   const [clients, setClients] = useState<ClientDetailsProps[]>([]);
   const [filteredClients, setFilteredClients] = useState<ClientDetailsProps[]>(
     [],
   );
   const [pageIndex, setPageIndex] = useState(0);
+  const activeFiltersRef = useRef<FilterData>(defaultFilters);
+
+  const applyFilters = useCallback(
+    (clientList: ClientDetailsProps[], data: FilterData) => {
+      return clientList.filter((client) => {
+        const matchName = client.name
+          .toLowerCase()
+          .includes(data.name.toLowerCase());
+
+        const matchStatus =
+          data.status === "all"
+            ? true
+            : data.status === "due"
+              ? (() => {
+                  const today = new Date();
+                  today.setHours(0, 0, 0, 0);
+
+                  if (!client.nextPaymentDate) return false;
+
+                  const dueDate = new Date(client.nextPaymentDate);
+                  const dueDateZero = new Date(
+                    dueDate.getUTCFullYear(),
+                    dueDate.getUTCMonth(),
+                    dueDate.getUTCDate(),
+                  );
+
+                  return dueDateZero.getTime() === today.getTime();
+                })()
+              : data.status === "debtor"
+                ? client.lateInstallments > 0
+                : client.lateInstallments === 0;
+
+        const matchDate = data.date
+          ? client.nextPaymentDate?.includes(data.date)
+          : true;
+
+        const clientDebtPaid =
+          client.totalDebtPaid === true ||
+          (typeof client.totalDebtPaid === "string" &&
+            client.totalDebtPaid === "true");
+
+        const matchDebtStatus =
+          data.debtStatus === "paid" ? clientDebtPaid : !clientDebtPaid;
+
+        return matchName && matchStatus && matchDate && matchDebtStatus;
+      });
+    },
+    [],
+  );
 
   // 1. Função de busca protegida com useCallback (Melhor prática React)
   const fetchClients = useCallback(async () => {
@@ -38,7 +94,7 @@ export function Clients() {
       const response = await api.get("/clients");
       const data = Array.isArray(response.data) ? response.data : [];
       setClients(data);
-      setFilteredClients(data);
+      setFilteredClients(applyFilters(data, activeFiltersRef.current));
     } catch (error) {
       console.error("Erro ao carregar clientes:", error);
       setClients([]);
@@ -46,15 +102,13 @@ export function Clients() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [applyFilters]);
 
-  // 2. O CORAÇÃO DO TEMPO REAL E DO PWA
   useEffect(() => {
-    // Busca na primeira vez que abre a tela
     fetchClients();
 
     // -- CONEXÃO WEBSOCKET --
-    // Use a mesma URL base da sua API
+
     const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:3333";
     const socket = io(backendUrl);
 
@@ -62,14 +116,11 @@ export function Clients() {
       console.log("🟢 Conectado ao servidor WebSocket no Frontend!");
     });
 
-    // Se o backend gritar que atualizou, busca os dados de novo silenciosamente
     socket.on("clientesAtualizados", () => {
       console.log("🔄 Atualização em tempo real recebida!");
       fetchClients();
     });
 
-    // -- FALLBACK PWA (CELULAR) --
-    // Se a conexão cair, garante que ao voltar para o app a tela atualiza
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible") {
         fetchClients();
@@ -77,12 +128,11 @@ export function Clients() {
     };
     document.addEventListener("visibilitychange", handleVisibilityChange);
 
-    // Limpeza ao desmontar a tela
     return () => {
       socket.disconnect();
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [fetchClients]); // Só recria o efeito se a função de busca mudar
+  }, [fetchClients]);
 
   const paginatedClients = useMemo(() => {
     const start = pageIndex * 10;
@@ -93,42 +143,10 @@ export function Clients() {
   // Lógica de filtragem em tempo real
   const handleFilter = useCallback(
     (data: FilterData) => {
+      activeFiltersRef.current = data;
       setPageIndex(0);
       setFilteredClients((prevFiltered) => {
-        const filtered = clients.filter((client) => {
-          const matchName = client.name
-            .toLowerCase()
-            .includes(data.name.toLowerCase());
-
-          const matchStatus =
-            data.status === "all"
-              ? true
-              : data.status === "due"
-                ? (() => {
-                    const today = new Date();
-                    today.setHours(0, 0, 0, 0);
-
-                    if (!client.nextPaymentDate) return false;
-
-                    const dueDate = new Date(client.nextPaymentDate);
-                    const dueDateZero = new Date(
-                      dueDate.getUTCFullYear(),
-                      dueDate.getUTCMonth(),
-                      dueDate.getUTCDate(),
-                    );
-
-                    return dueDateZero.getTime() === today.getTime();
-                  })()
-                : data.status === "debtor"
-                  ? client.lateInstallments > 0
-                  : client.lateInstallments === 0;
-
-          const matchDate = data.date
-            ? client.nextPaymentDate?.includes(data.date)
-            : true;
-
-          return matchName && matchStatus && matchDate;
-        });
+        const filtered = applyFilters(clients, data);
 
         if (JSON.stringify(prevFiltered) !== JSON.stringify(filtered)) {
           setPageIndex(0);
@@ -138,7 +156,7 @@ export function Clients() {
         return prevFiltered;
       });
     },
-    [clients],
+    [applyFilters, clients],
   );
 
   // Lógica de exclusão de cliente

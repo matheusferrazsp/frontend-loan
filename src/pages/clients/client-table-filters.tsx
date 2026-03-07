@@ -21,18 +21,24 @@ export interface FilterData {
   name: string;
   date: string;
   status: string;
+  debtStatus: string;
 }
 
 export function ClientTableFilters({ onFilter }: FilterProps) {
-  const { register, control, watch, reset } = useForm<FilterData>({
+  const { register, control, watch, reset, getValues } = useForm<FilterData>({
     defaultValues: {
       name: "",
       date: "",
       status: "all",
+      debtStatus: "pending",
     },
   });
 
   // "Assiste" todos os campos em tempo real
+
+  useEffect(() => {
+    onFilter(getValues());
+  }, [getValues, onFilter]);
 
   useEffect(() => {
     const subscription = watch((value) => {
@@ -95,6 +101,26 @@ export function ClientTableFilters({ onFilter }: FilterProps) {
                 </SelectItem>
                 <SelectItem className="text-xs" value="paid">
                   Em dia
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          )}
+        />
+
+        <Controller
+          name="debtStatus"
+          control={control}
+          render={({ field }) => (
+            <Select onValueChange={field.onChange} value={field.value}>
+              <SelectTrigger className="order-3 md:order-3 text-xs md:w-[150px] w-[150px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem className="text-xs" value="pending">
+                  Dívida Pendente
+                </SelectItem>
+                <SelectItem className="text-xs" value="paid">
+                  Dívida Quitada
                 </SelectItem>
               </SelectContent>
             </Select>
