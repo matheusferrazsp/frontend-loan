@@ -7,6 +7,7 @@ import React from "react";
 import { Controller, useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DialogClose,
   DialogContent,
@@ -35,7 +36,6 @@ interface UpdateClientDialogProps {
 export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
   const { register, handleSubmit, reset, control, watch, setValue } = useForm();
 
-  const monthlyFeeStatus = watch("monthlyFeePaid");
   const loanValue = watch("value");
   const interestPercentage = watch("loanInterest");
   const installmentsPaid = watch("installmentsPaid");
@@ -127,15 +127,21 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
   }, [client, reset]);
 
   // Zerar mensalidades se mudar para Em Dia
+  const currentLateInstallments = watch("lateInstallments");
+
+  // --- A REGRA DE OURO DO STATUS ---
+  // Este efeito garante que o Status sempre obedeça o número de Atrasadas
   useEffect(() => {
-    if (monthlyFeeStatus === "true" || monthlyFeeStatus === true) {
-      const currentLate = watch("lateInstallments");
-      if (currentLate > 0) {
-        setValue("lateInstallments", 0);
-        toast.info("Mensalidades atrasadas zeradas.");
-      }
+    const atrasadas = Number(currentLateInstallments) || 0;
+
+    if (atrasadas > 0) {
+      // Se tem 1 ou mais atrasos, o status TRAVA no Atrasado (false)
+      setValue("monthlyFeePaid", "false");
+    } else {
+      // Se não tem atraso (0), o status TRAVA no Em dia (true)
+      setValue("monthlyFeePaid", "true");
     }
-  }, [monthlyFeeStatus, setValue, watch]);
+  }, [currentLateInstallments, setValue]);
 
   // Cálculos automáticos de juros
   useEffect(() => {
@@ -153,7 +159,61 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
     }
   }, [loanValue, interestPercentage, setValue]);
 
-  // --- ENVIO LIMPO PARA A API ---
+  const handleConfirmPayment = (checked: boolean) => {
+    if (checked) {
+      // 1. Adiciona +1 nas parcelas pagas
+      const currentInstallmentsPaid = Number(watch("installmentsPaid")) || 0;
+      setValue("installmentsPaid", currentInstallmentsPaid + 1);
+
+      // 2. Reduz 1 parcela atrasada dinamicamente (sem zerar tudo)
+      const currentLate = Number(watch("lateInstallments")) || 0;
+      const newLate = Math.max(0, currentLate - 1);
+      setValue("lateInstallments", newLate);
+
+      // Só fica "Em dia" se o cliente não tiver mais nenhuma parcela atrasada
+      if (newLate === 0) {
+        setValue("monthlyFeePaid", "true");
+      } else {
+        setValue("monthlyFeePaid", "false");
+      }
+
+      // 3. Atualiza o valor pago (puxa do juros mensal)
+      const currentMonthlyPaid = watch("monthlyPaid");
+      setValue("lastPaymentAmount", currentMonthlyPaid);
+
+      // 4. Última Data Paga = Exatamente HOJE (Data real)
+      const today = new Date();
+      const todayY = today.getFullYear();
+      const todayM = String(today.getMonth() + 1).padStart(2, "0");
+      const todayD = String(today.getDate()).padStart(2, "0");
+      setValue("lastPaymentDate", `${todayY}-${todayM}-${todayD}`);
+
+      // 5. Próxima Data = Mês que vem em relação a HOJE, mas mantendo o DIA do vencimento
+      const currentNextDate = watch("nextPaymentDate");
+      let dueDay = today.getDate(); // Padrão de segurança
+
+      if (currentNextDate) {
+        // Pega o dia de vencimento que estava cadastrado (ex: se era todo dia 15)
+        const oldDateObj = new Date(currentNextDate + "T12:00:00Z");
+        dueDay = oldDateObj.getDate();
+      }
+
+      // Calcula o mês que vem (O JavaScript já vira o ano sozinho se hoje for Dezembro)
+      const nextDateObj = new Date(
+        today.getFullYear(),
+        today.getMonth() + 1,
+        dueDay,
+      );
+
+      const nextY = nextDateObj.getFullYear();
+      const nextM = String(nextDateObj.getMonth() + 1).padStart(2, "0");
+      const nextD = String(nextDateObj.getDate()).padStart(2, "0");
+
+      setValue("nextPaymentDate", `${nextY}-${nextM}-${nextD}`);
+
+      toast.success("Pagamento registrado e parcelas ajustadas!");
+    }
+  };
 
   async function handleUpdateClient(data: any) {
     // 1. Removemos o ID ou qualquer campo de controle extra (como o checkbox se você adicionar depois)
@@ -191,7 +251,7 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
         onSubmit={handleSubmit(handleUpdateClient)}
         className="flex flex-col flex-1 overflow-hidden"
       >
-        <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin">
+        <div className="flex-1 overflow-y-auto oxerflow-x-hidden p-6 space-y-6 scrollbar-thin">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Data do Empréstimo</Label>
@@ -283,7 +343,20 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
             </div>
             <div className="space-y-2">
               <Label>Atrasadas</Label>
-              <Input type="number" {...register("lateInstallments")} />
+              <Input
+                type="number"
+                {...register("lateInstallments", {
+                  onChange: (e) => {
+                    const val = Number(e.target.value) || 0;
+                    // Se for maior que 0, trava em Atrasado. Senão, Em dia.
+                    if (val > 0) {
+                      setValue("monthlyFeePaid", "false");
+                    } else {
+                      setValue("monthlyFeePaid", "true");
+                    }
+                  },
+                })}
+              />
             </div>
           </div>
 
@@ -306,7 +379,7 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="space-y-2">
               <Label>Último Valor Pago (R$)</Label>
               <Input
@@ -318,14 +391,29 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
                 required
               />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-2 ">
               <Label>Status Mensalidade</Label>
               <Controller
                 name="monthlyFeePaid"
                 control={control}
                 render={({ field }) => (
                   <Select
-                    onValueChange={field.onChange}
+                    onValueChange={(value) => {
+                      field.onChange(value); // Mantém o funcionamento padrão do Select
+
+                      if (value === "true") {
+                        // Se mudou para Em Dia, zera as parcelas
+                        setValue("lateInstallments", 0);
+                        toast.info("Mensalidades atrasadas zeradas.");
+                      } else if (value === "false") {
+                        // Se mudou para Atrasada, garante que tenha pelo menos 1 atraso
+                        const currentLate =
+                          Number(watch("lateInstallments")) || 0;
+                        if (currentLate === 0) {
+                          setValue("lateInstallments", 1);
+                        }
+                      }
+                    }}
                     value={String(field.value)}
                   >
                     <SelectTrigger
@@ -366,6 +454,32 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
                 )}
               />
             </div>
+            <Controller
+              name="confirmPayment"
+              control={control}
+              render={({ field }) => (
+                <div className="mx-6 mb-4 flex items-center space-x-3 bg-emerald-500/10 p-4 rounded-lg border border-emerald-500/20">
+                  <Checkbox
+                    id="confirmPayment"
+                    checked={field.value}
+                    onCheckedChange={(checked: boolean) => {
+                      // 1. Atualiza o estado interno do React Hook Form
+                      field.onChange(checked);
+
+                      // 2. Dispara a sua função de automação
+                      handleConfirmPayment(checked);
+                    }}
+                    className="w-5 h-5 data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500 cursor-pointer"
+                  />
+                  <Label
+                    htmlFor="confirmPayment"
+                    className="font-semibold text-emerald-700 dark:text-emerald-400 cursor-pointer text-base"
+                  >
+                    Resgistrar pagamento de mensalidade
+                  </Label>
+                </div>
+              )}
+            />
           </div>
 
           <div className="space-y-2">
