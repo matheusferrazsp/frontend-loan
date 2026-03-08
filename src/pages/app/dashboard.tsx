@@ -6,6 +6,7 @@ import { Helmet } from "react-helmet-async";
 import { AnnualChart } from "@/components/dashboard/annual-chart";
 import { FinancialSummaryPie } from "@/components/dashboard/financial-sumary-pie";
 import { PieData } from "@/components/dashboard/pie-chart";
+import { Button } from "@/components/ui/button";
 
 import { MonthInterestCard } from "../../components/dashboard/month-interest-card";
 import { TotalValueReturned } from "../../components/dashboard/month-returned-value";
@@ -74,6 +75,20 @@ export function Dashboard() {
         <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
           Dashboard
         </h1>
+        <div>
+          <Button
+            className="md:hidden border-1 dark:border-emerald-400 border-emerald-500 mb-2 mt-2"
+            variant="ghost"
+            size="lg"
+          >
+            <a
+              className="dark:text-emerald-400 text-emerald-500 font-medium"
+              href="/clients"
+            >
+              Novo Empréstimo
+            </a>
+          </Button>
+        </div>
 
         <div className="grid gap-4 md:grid-cols-4 md:gap-4">
           <MonthInterestCard refreshTrigger={cardsRefreshTrigger} />
@@ -83,9 +98,9 @@ export function Dashboard() {
         </div>
 
         <div className="grid gap-4 md:grid-cols-3 md:gap-4">
-          <AnnualChart refreshTrigger={chartsRefreshTrigger} />
-          <PieData refreshTrigger={chartsRefreshTrigger} />
           <FinancialSummaryPie refreshTrigger={chartsRefreshTrigger} />
+          <PieData refreshTrigger={chartsRefreshTrigger} />
+          <AnnualChart refreshTrigger={chartsRefreshTrigger} />
         </div>
       </div>
     </>
