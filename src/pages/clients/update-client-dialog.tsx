@@ -223,7 +223,7 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
   };
 
   async function handleUpdateClient(data: any) {
-    // 1. Removemos o ID ou qualquer campo de controle extra (como o checkbox se você adicionar depois)
+    // 1. Removemos o ID ou qualquer campo de controle extra
     const { confirmPayment, id, ...restOfData } = data;
 
     try {
@@ -237,6 +237,8 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
         phone: data.phone?.replace(/\D/g, ""),
         valuePaid: parseMoney(data.valuePaid),
         lastPaymentAmount: insertedLastPayment,
+        // Inclui confirmPayment: true apenas se o usuário marcou a checkbox
+        ...(confirmPayment && { confirmPayment: true }),
       };
 
       await api.put(`/clients/${client.id}`, formattedData);
@@ -370,6 +372,35 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
             </div>
           </div>
 
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Controller
+              name="confirmPayment"
+              control={control}
+              render={({ field }) => (
+                <div className=" mb-4 flex items-center space-x-3 bg-emerald-500/10 p-4 rounded-lg border border-emerald-500/20">
+                  <Checkbox
+                    id="confirmPayment"
+                    checked={field.value}
+                    onCheckedChange={(checked: boolean) => {
+                      // 1. Atualiza o estado interno do React Hook Form
+                      field.onChange(checked);
+
+                      // 2. Dispara a sua função de automação
+                      handleConfirmPayment(checked);
+                    }}
+                    className="w-5 h-5 data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500 cursor-pointer"
+                  />
+                  <Label
+                    htmlFor="confirmPayment"
+                    className="font-semibold text-emerald-700 dark:text-emerald-400 cursor-pointer "
+                  >
+                    Resgistrar pagamento de mensalidade
+                  </Label>
+                </div>
+              )}
+            />
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Último Valor Pago (R$)</Label>
@@ -405,34 +436,6 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Controller
-              name="confirmPayment"
-              control={control}
-              render={({ field }) => (
-                <div className=" mb-4 flex items-center space-x-3 bg-emerald-500/10 p-4 rounded-lg border border-emerald-500/20">
-                  <Checkbox
-                    id="confirmPayment"
-                    checked={field.value}
-                    onCheckedChange={(checked: boolean) => {
-                      // 1. Atualiza o estado interno do React Hook Form
-                      field.onChange(checked);
-
-                      // 2. Dispara a sua função de automação
-                      handleConfirmPayment(checked);
-                    }}
-                    className="w-5 h-5 data-[state=checked]:bg-emerald-500 data-[state=checked]:border-emerald-500 cursor-pointer"
-                  />
-                  <Label
-                    htmlFor="confirmPayment"
-                    className="font-semibold text-emerald-700 dark:text-emerald-400 cursor-pointer "
-                  >
-                    Resgistrar pagamento de mensalidade
-                  </Label>
-                </div>
-              )}
-            />
-          </div>
           <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
             <div className="space-y-2 ">
               <Label>Status Mensalidade</Label>

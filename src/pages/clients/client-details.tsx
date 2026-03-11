@@ -1,4 +1,7 @@
-import { MessageCircle } from "lucide-react";
+import { Loader2, MessageCircle, Trash2 } from "lucide-react";
+import { toast } from "sonner";
+
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -8,7 +11,22 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { api } from "@/lib/axios";
+
+interface ClientPayment {
+  id: string;
+  amount: number;
+  date: string;
+  note?: string | null;
+}
 
 export interface ClientDetailsProps {
   id: string;
@@ -34,6 +52,13 @@ export interface ClientDetailsProps {
 }
 
 export function ClientDetails(props: ClientDetailsProps) {
+  const [payments, setPayments] = useState<ClientPayment[]>([]);
+  const [isLoadingPayments, setIsLoadingPayments] = useState(true);
+  const [paymentsError, setPaymentsError] = useState<string | null>(null);
+  const [deletingPaymentId, setDeletingPaymentId] = useState<string | null>(
+    null,
+  );
+
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {
       style: "currency",
@@ -58,6 +83,60 @@ export function ClientDetails(props: ClientDetailsProps) {
 
   const whatsappNumber = props.phone.replace(/\D/g, "");
   const whatsappLink = `https://wa.me/55${whatsappNumber}`;
+
+  const handleDeletePayment = async (paymentId: string) => {
+    try {
+      setDeletingPaymentId(paymentId);
+
+      await api.delete(`/clients/${props.id}/payments/${paymentId}`);
+
+      setPayments((prevPayments) =>
+        prevPayments.filter((payment) => payment.id !== paymentId),
+      );
+
+      toast.success("Pagamento removido com sucesso!");
+    } catch (error) {
+      console.error("Erro ao deletar pagamento:", error);
+      toast.error("Erro ao remover pagamento.");
+    } finally {
+      setDeletingPaymentId(null);
+    }
+  };
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function fetchPayments() {
+      try {
+        setIsLoadingPayments(true);
+        setPaymentsError(null);
+
+        const response = await api.get(`/clients/${props.id}/payments`);
+        const paymentList = Array.isArray(response.data) ? response.data : [];
+
+        if (isMounted) {
+          setPayments(paymentList);
+        }
+      } catch (error) {
+        console.error("Erro ao carregar histórico de pagamentos:", error);
+
+        if (isMounted) {
+          setPayments([]);
+          setPaymentsError("Não foi possível carregar o histórico.");
+        }
+      } finally {
+        if (isMounted) {
+          setIsLoadingPayments(false);
+        }
+      }
+    }
+
+    fetchPayments();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [props.id]);
 
   return (
     <DialogContent className="sm:max-w-[500px] w-[98vw] h-[85vh] p-0 flex flex-col rounded-lg overflow-x-hidden">
@@ -300,6 +379,83 @@ export function ClientDetails(props: ClientDetailsProps) {
             </TableRow>
           </TableBody>
         </Table>
+
+        <div className="mt-6 px-2">
+          <div className="mb-2 px-2">
+            <h3 className="text-sm font-semibold">Histórico de pagamentos</h3>
+            <p className="text-xs text-muted-foreground">
+              Últimas datas e valores pagos para este cliente.
+            </p>
+          </div>
+
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Data</TableHead>
+                  <TableHead className="text-right">Valor pago</TableHead>
+                  <TableHead className="w-[60px]"></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {isLoadingPayments ? (
+                  <TableRow>
+                    <TableCell colSpan={3} className="py-6">
+                      <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Carregando histórico...
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ) : paymentsError ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={3}
+                      className="py-6 text-center text-sm text-rose-500"
+                    >
+                      {paymentsError}
+                    </TableCell>
+                  </TableRow>
+                ) : payments.length > 0 ? (
+                  payments.map((payment) => (
+                    <TableRow key={payment.id}>
+                      <TableCell className="text-sm">
+                        {formatDate(payment.date)}
+                      </TableCell>
+                      <TableCell className="text-right text-sm font-medium text-emerald-600">
+                        {formatCurrency(Number(payment.amount) || 0)}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDeletePayment(payment.id)}
+                          disabled={deletingPaymentId === payment.id}
+                          className="text-rose-500 hover:text-rose-600 h-7 w-7 p-0"
+                        >
+                          {deletingPaymentId === payment.id ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            <Trash2 className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={3}
+                      className="py-6 text-center text-sm text-muted-foreground"
+                    >
+                      Nenhum pagamento registrado.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
       </div>
     </DialogContent>
   );
