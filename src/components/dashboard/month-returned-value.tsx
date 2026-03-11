@@ -67,7 +67,7 @@ export function TotalValueReturned({
     <Card>
       <CardHeader className="flex flex-row space-y-0 items-center justify-between pb-2">
         <CardTitle className="text-sm font-medium">
-          Total Devolvido (Mês)
+          Total Entradas (Mês)
         </CardTitle>
         <DollarSign className="h-4 w-4 dark:text-emerald-400 text-emerald-500" />
       </CardHeader>
