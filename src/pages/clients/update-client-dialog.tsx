@@ -40,8 +40,6 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
 
   const loanValue = watch("value");
   const interestPercentage = watch("loanInterest");
-  const installmentsPaid = watch("installmentsPaid");
-  const monthlyPaid = watch("monthlyPaid");
 
   // --- FUNÇÕES DE UTILIDADE ---
 
@@ -207,28 +205,18 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
       const todayD = String(today.getDate()).padStart(2, "0");
       setValue("lastPaymentDate", `${todayY}-${todayM}-${todayD}`);
 
-      // 5. Próxima Data = Mês que vem em relação a HOJE, mas mantendo o DIA do vencimento
+      // 5. Próxima Data = incrementa apenas o mês da data de vencimento atual em 1
       const currentNextDate = watch("nextPaymentDate");
-      let dueDay = today.getDate(); // Padrão de segurança
-
       if (currentNextDate) {
-        // Pega o dia de vencimento que estava cadastrado (ex: se era todo dia 15)
-        const oldDateObj = new Date(currentNextDate + "T12:00:00Z");
-        dueDay = oldDateObj.getDate();
+        const oldDateObj = new Date(currentNextDate + "T12:00:00");
+        oldDateObj.setMonth(oldDateObj.getMonth() + 1);
+
+        const nextY = oldDateObj.getFullYear();
+        const nextM = String(oldDateObj.getMonth() + 1).padStart(2, "0");
+        const nextD = String(oldDateObj.getDate()).padStart(2, "0");
+
+        setValue("nextPaymentDate", `${nextY}-${nextM}-${nextD}`);
       }
-
-      // Calcula o mês que vem (O JavaScript já vira o ano sozinho se hoje for Dezembro)
-      const nextDateObj = new Date(
-        today.getFullYear(),
-        today.getMonth() + 1,
-        dueDay,
-      );
-
-      const nextY = nextDateObj.getFullYear();
-      const nextM = String(nextDateObj.getMonth() + 1).padStart(2, "0");
-      const nextD = String(nextDateObj.getDate()).padStart(2, "0");
-
-      setValue("nextPaymentDate", `${nextY}-${nextM}-${nextD}`);
 
       toast.success("Pagamento registrado e parcelas ajustadas!");
     }
@@ -382,7 +370,20 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Último Valor Pago (R$)</Label>
+              <Input
+                type="text"
+                inputMode="numeric"
+                onFocus={() => {
+                  lastPaymentBaseRef.current = parseMoney(watch("valuePaid"));
+                }}
+                {...register("lastPaymentAmount", {
+                  onChange: handleLastPaymentAmountChange,
+                })}
+              />
+            </div>
             <div className="space-y-2">
               <Label>Total Retornado (R$)</Label>
               <Input
@@ -391,6 +392,9 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
                 {...register("valuePaid", { onChange: handleMoneyMask })}
               />
             </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Próx. Mensalidade</Label>
               <Input type="date" {...register("nextPaymentDate")} required />
@@ -401,21 +405,6 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <Label>Último Valor Pago (R$)</Label>
-              <Input
-                type="text"
-                inputMode="numeric"
-                {...register("lastPaymentAmount", {
-                  onFocus: () => {
-                    lastPaymentBaseRef.current = parseMoney(watch("valuePaid"));
-                  },
-                  onChange: handleLastPaymentAmountChange,
-                })}
-              />
-            </div>
-          </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Controller
               name="confirmPayment"
