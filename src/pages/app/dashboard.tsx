@@ -5,6 +5,7 @@ import { Helmet } from "react-helmet-async";
 
 import { AnnualChart } from "@/components/dashboard/annual-chart";
 import { FinancialSummaryPie } from "@/components/dashboard/financial-sumary-pie";
+import { PaidOff } from "@/components/dashboard/paid-off-card";
 import { PieData } from "@/components/dashboard/pie-chart";
 import { Button } from "@/components/ui/button";
 
@@ -90,11 +91,12 @@ export function Dashboard() {
           </Button>
         </div>
 
-        <div className="grid gap-4 md:grid-cols-4 md:gap-4">
+        <div className="grid gap-4 md:grid-cols-5 md:gap-4">
           <MonthInterestCard refreshTrigger={cardsRefreshTrigger} />
           <TotalLoansOfMonth refreshTrigger={cardsRefreshTrigger} />
           <TotalValueReturned refreshTrigger={cardsRefreshTrigger} />
           <TotalCash refreshTrigger={cardsRefreshTrigger} />
+          <PaidOff refreshTrigger={cardsRefreshTrigger} />
         </div>
 
         <div className="grid gap-4 md:grid-cols-3 md:gap-4">
