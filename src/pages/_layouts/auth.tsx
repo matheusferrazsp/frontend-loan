@@ -17,12 +17,13 @@ export default function AuthLayout() {
       {/* ... seu código de branding e Landmark ... */}
       <div className="md:h-full border-b md:border-r md:border-b-0 border-foreground/5 md:bg-muted p-10 text-muted-foreground flex flex-col md:justify-between">
         <div className="flex items-center gap-3 text-lg font-medium text-foreground">
-          <img src="/logo.png" alt="LoanX Logo" className="h-5 w-5" />
-          <span className="font-semibold">LoanX</span>
+          <img src="/logo.png" alt="VeroFlux Logo" className="h-5 w-5" />
+          <span className="font-semibold">VeroFlux</span>
         </div>
 
         <footer className="hidden md:block text-sm">
-          Painel do usuário LoanX &copy; FerrazDev - {new Date().getFullYear()}
+          Painel do usuário VeroFlux &copy; FerrazDev -{" "}
+          {new Date().getFullYear()}
         </footer>
       </div>
 
@@ -32,7 +33,7 @@ export default function AuthLayout() {
 
       {/* Footer mobile */}
       <footer className="block md:hidden text-sm text-muted-foreground text-center p-4 mt-auto">
-        Painel do usuário LoanX &copy; Matheus Ferraz -{" "}
+        Painel do usuário VeroFlux &copy; Matheus Ferraz -{" "}
         {new Date().getFullYear()}
       </footer>
     </div>
