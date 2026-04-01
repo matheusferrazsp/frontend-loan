@@ -1,9 +1,5 @@
-import { Landmark } from "lucide-react";
-
 import { useEffect } from "react";
 import { Outlet, useNavigate } from "react-router";
-
-import { Pagination } from "@/components/ui/pagination";
 
 export default function AuthLayout() {
   const navigate = useNavigate();
