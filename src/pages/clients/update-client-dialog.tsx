@@ -118,6 +118,7 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
         lastPaymentDate: formatToInputDate(client.lastPaymentDate),
         monthlyFeePaid: String(client.monthlyFeePaid),
         totalDebtPaid: String(client.totalDebtPaid),
+        isDelinquent: Boolean(client.isDelinquent),
         value: formatToBRL(client.value),
         monthlyPaid: formatToBRL(client.monthlyPaid),
         valuePaid: formatToBRL(client.valuePaid),
@@ -237,6 +238,7 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
         phone: data.phone?.replace(/\D/g, ""),
         valuePaid: parseMoney(data.valuePaid),
         lastPaymentAmount: insertedLastPayment,
+        isDelinquent: Boolean(data.isDelinquent),
         // Inclui confirmPayment: true apenas se o usuário marcou a checkbox
         ...(confirmPayment && { confirmPayment: true }),
       };
@@ -372,7 +374,30 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Controller
+              name="isDelinquent"
+              control={control}
+              render={({ field }) => (
+                <div className="mb-4 flex items-center space-x-3 bg-rose-500/10 p-4 rounded-lg border border-rose-500/20">
+                  <Checkbox
+                    id="isDelinquent"
+                    checked={Boolean(field.value)}
+                    onCheckedChange={(checked: boolean) => {
+                      field.onChange(checked);
+                    }}
+                    className="w-5 h-5 data-[state=checked]:bg-rose-500 data-[state=checked]:border-rose-500 cursor-pointer"
+                  />
+                  <Label
+                    htmlFor="isDelinquent"
+                    className="font-semibold text-rose-700 dark:text-rose-400 cursor-pointer"
+                  >
+                    Cliente inadimplente
+                  </Label>
+                </div>
+              )}
+            />
+
             <Controller
               name="confirmPayment"
               control={control}

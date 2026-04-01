@@ -1,4 +1,10 @@
-import { ChartSpline, Menu, UserRoundPen, X } from "lucide-react";
+import {
+  AlertTriangle,
+  ChartSpline,
+  Menu,
+  UserRoundPen,
+  X,
+} from "lucide-react";
 
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router";
@@ -52,6 +58,11 @@ export function Header() {
             <UserRoundPen className="h-4 w-4" />
             <span>Empréstimos</span>
           </NavLink>
+
+          <NavLink to="/delinquent-clients">
+            <AlertTriangle className="h-4 w-4" />
+            <span>Inadimplentes</span>
+          </NavLink>
         </nav>
 
         <div className="ml-auto flex items-center gap-2">
@@ -103,6 +114,14 @@ export function Header() {
             >
               <UserRoundPen className="h-5 w-5" />
               <span>Empréstimos</span>
+            </NavLink>
+
+            <NavLink
+              to="/delinquent-clients"
+              className="rounded-md px-3 py-2 text-base hover:bg-accent"
+            >
+              <AlertTriangle className="h-5 w-5" />
+              <span>Inadimplentes</span>
             </NavLink>
           </nav>
         </div>

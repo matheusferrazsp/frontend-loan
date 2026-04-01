@@ -31,6 +31,14 @@ export function ClientsTableRow({ client, onDelete }: ClientsTableRowProps) {
   const [isDeleting, setIsDeleting] = useState(false);
 
   const getStatusDisplay = () => {
+    if (client.isDelinquent) {
+      return {
+        text: "Inadimplente",
+        textColor: "text-rose-500",
+        dotColor: "bg-rose-500",
+      };
+    }
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const dueDate = client.nextPaymentDate

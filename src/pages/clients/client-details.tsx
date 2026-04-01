@@ -48,6 +48,7 @@ export interface ClientDetailsProps {
   lastPaymentDate: string;
   monthlyFeePaid: boolean;
   totalDebtPaid: boolean;
+  isDelinquent: boolean;
   observations: string;
 }
 
@@ -158,10 +159,10 @@ export function ClientDetails(props: ClientDetailsProps) {
               <TableCell className="text-right">
                 <div className="flex items-center justify-end gap-2">
                   <span
-                    className={`h-2 w-2 rounded-full ${props.lateInstallments > 0 ? "bg-rose-500" : "bg-emerald-500"}`}
+                    className={`h-2 w-2 rounded-full ${props.isDelinquent ? "bg-rose-500" : "bg-emerald-500"}`}
                   />
                   <span className="font-medium text-sm">
-                    {props.lateInstallments > 0 ? "Atrasado" : "Em dia"}
+                    {props.isDelinquent ? "Inadimplente" : "Em dia"}
                   </span>
                 </div>
               </TableCell>

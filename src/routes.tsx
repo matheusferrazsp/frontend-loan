@@ -8,6 +8,7 @@ import { ResetPassword } from "./pages/auth/reset-password";
 import { SignIn } from "./pages/auth/sign-in";
 import { Register } from "./pages/auth/sign-up";
 import { Clients } from "./pages/clients/clients";
+import { DelinquentClients } from "./pages/clients/delinquent-clients";
 
 export const router = createBrowserRouter([
   {
@@ -16,6 +17,7 @@ export const router = createBrowserRouter([
     children: [
       { path: "/", element: <Dashboard /> },
       { path: "/clients", element: <Clients /> },
+      { path: "/delinquent-clients", element: <DelinquentClients /> },
     ],
   },
 

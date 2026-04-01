@@ -1,12 +1,8 @@
-import { Plus } from "lucide-react";
-// 1. IMPORTAÇÃO DO SOCKET.IO
 import { io } from "socket.io-client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
 
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Pagination } from "@/components/ui/pagination";
 import {
   Table,
@@ -21,9 +17,8 @@ import { api } from "@/lib/axios";
 import { ClientDetailsProps } from "./client-details";
 import { ClientTableFilters, FilterData } from "./client-table-filters";
 import { ClientsTableRow } from "./clients-table-row";
-import { CreateClientDialog } from "./create-client-dialog";
 
-export function Clients() {
+export function DelinquentClients() {
   const defaultFilters: FilterData = {
     name: "",
     date: "",
@@ -42,6 +37,10 @@ export function Clients() {
   const applyFilters = useCallback(
     (clientList: ClientDetailsProps[], data: FilterData) => {
       return clientList.filter((client) => {
+        if (!client.isDelinquent) {
+          return false;
+        }
+
         const matchName = client.name
           .toLowerCase()
           .includes(data.name.toLowerCase());
@@ -87,7 +86,6 @@ export function Clients() {
     [],
   );
 
-  // 1. Função de busca protegida com useCallback (Melhor prática React)
   const fetchClients = useCallback(async () => {
     try {
       setIsLoading(true);
@@ -96,7 +94,7 @@ export function Clients() {
       setClients(data);
       setFilteredClients(applyFilters(data, activeFiltersRef.current));
     } catch (error) {
-      console.error("Erro ao carregar clientes:", error);
+      console.error("Erro ao carregar clientes inadimplentes:", error);
       setClients([]);
       setFilteredClients([]);
     } finally {
@@ -107,17 +105,10 @@ export function Clients() {
   useEffect(() => {
     fetchClients();
 
-    // -- CONEXÃO WEBSOCKET --
-
     const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:3333";
     const socket = io(backendUrl);
 
-    socket.on("connect", () => {
-      console.log("🟢 Conectado ao servidor WebSocket no Frontend!");
-    });
-
     socket.on("clientesAtualizados", () => {
-      console.log("🔄 Atualização em tempo real recebida!");
       fetchClients();
     });
 
@@ -126,6 +117,7 @@ export function Clients() {
         fetchClients();
       }
     };
+
     document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
@@ -140,7 +132,6 @@ export function Clients() {
     return filteredClients.slice(start, end);
   }, [filteredClients, pageIndex]);
 
-  // Lógica de filtragem em tempo real
   const handleFilter = useCallback(
     (data: FilterData) => {
       activeFiltersRef.current = data;
@@ -159,10 +150,8 @@ export function Clients() {
     [applyFilters, clients],
   );
 
-  // Lógica de exclusão de cliente
   function onDeleteSuccess(clientId: string) {
     setClients((prev) => prev.filter((client) => client.id !== clientId));
-
     setFilteredClients((prev) =>
       prev.filter((client) => client.id !== clientId),
     );
@@ -174,29 +163,22 @@ export function Clients() {
 
   return (
     <div className="p-0 md:p-8 flex flex-col gap-4">
-      <Helmet title="Empréstimos" />
+      <Helmet title="Inadimplentes" />
 
-      <div className="flex flex-col gap-4">
-        <h1 className="text-3xl font-bold tracking-tight">Empréstimos</h1>
+      <div className="flex flex-col gap-2">
+        <h1 className="text-3xl font-bold tracking-tight">
+          Clientes inadimplentes
+        </h1>
+        <p className="text-sm text-muted-foreground">
+          Lista de clientes marcados manualmente como inadimplentes.
+        </p>
       </div>
 
       <div className="space-y-2.5 mt-4">
         <ClientTableFilters onFilter={handleFilter} />
       </div>
 
-      <div className="flex items-center justify-between mt-4 mb-4">
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button size="sm">
-              <Plus className="mr-2 h-4 w-4" />
-              Novo cliente
-            </Button>
-          </DialogTrigger>
-          <CreateClientDialog />
-        </Dialog>
-      </div>
-
-      <div className="-mx-5 md:mx-0 border-y md:border-x md:rounded-md overflow-hidden">
+      <div className="-mx-5 md:mx-0 border-y md:border-x md:rounded-md overflow-hidden mt-4">
         <Table>
           <TableHeader>
             <TableRow>
@@ -229,7 +211,7 @@ export function Clients() {
             ) : (
               <TableRow>
                 <TableCell colSpan={7} className="text-center py-10">
-                  Nenhum cliente.
+                  Nenhum cliente inadimplente.
                 </TableCell>
               </TableRow>
             )}
@@ -242,7 +224,6 @@ export function Clients() {
         totalCount={filteredClients.length}
         perPage={10}
         onPageChange={(page) => {
-          console.log("Indo para a página:", page);
           setPageIndex(page);
           window.scrollTo({ top: 0, behavior: "smooth" });
         }}
