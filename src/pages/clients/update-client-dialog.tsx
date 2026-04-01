@@ -32,9 +32,13 @@ import { ClientDetailsProps } from "./client-details";
 
 interface UpdateClientDialogProps {
   client: ClientDetailsProps;
+  setOpen: (open: boolean) => void;
 }
 
-export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
+export function UpdateClientDialog({
+  client,
+  setOpen,
+}: UpdateClientDialogProps) {
   const { register, handleSubmit, reset, control, watch, setValue } = useForm();
   const lastPaymentBaseRef = useRef(0);
 
@@ -225,6 +229,7 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
 
   async function handleUpdateClient(data: any) {
     // 1. Removemos o ID ou qualquer campo de controle extra
+    const clientId = client.id;
     const { confirmPayment, id, ...restOfData } = data;
 
     try {
@@ -243,8 +248,11 @@ export function UpdateClientDialog({ client }: UpdateClientDialogProps) {
         ...(confirmPayment && { confirmPayment: true }),
       };
 
-      await api.put(`/clients/${client.id}`, formattedData);
+      await api.put(`/clients/${clientId}`, formattedData);
       toast.success("Cliente atualizado com sucesso!");
+      setTimeout(() => {
+        setOpen(false);
+      }, 100);
     } catch (error: any) {
       console.error("ERRO:", error.response?.data);
       toast.error("Erro ao atualizar cliente.");

@@ -28,6 +28,7 @@ interface ClientsTableRowProps {
 }
 
 export function ClientsTableRow({ client, onDelete }: ClientsTableRowProps) {
+  const [isUpdateOpen, setIsUpdateOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
   const getStatusDisplay = () => {
@@ -152,14 +153,14 @@ export function ClientsTableRow({ client, onDelete }: ClientsTableRowProps) {
       </TableCell>
 
       <TableCell>
-        <Dialog>
+        <Dialog open={isUpdateOpen} onOpenChange={setIsUpdateOpen}>
           <DialogTrigger asChild>
             <Button variant="outline" size="sm">
               <UserCog className="md:mr-1 h-3 w-3" />
               <span className="hidden md:inline">Editar</span>
             </Button>
           </DialogTrigger>
-          <UpdateClientDialog client={client} />
+          <UpdateClientDialog client={client} setOpen={setIsUpdateOpen} />
         </Dialog>
       </TableCell>
 
