@@ -3,6 +3,8 @@ import { Landmark } from "lucide-react";
 import { useEffect } from "react";
 import { Outlet, useNavigate } from "react-router";
 
+import { Pagination } from "@/components/ui/pagination";
+
 export default function AuthLayout() {
   const navigate = useNavigate();
 
@@ -19,13 +21,12 @@ export default function AuthLayout() {
       {/* ... seu código de branding e Landmark ... */}
       <div className="md:h-full border-b md:border-r md:border-b-0 border-foreground/5 md:bg-muted p-10 text-muted-foreground flex flex-col md:justify-between">
         <div className="flex items-center gap-3 text-lg font-medium text-foreground">
-          <Landmark className="h-5 w-5" />
+          <img src="/logo.png" alt="LoanX Logo" className="h-5 w-5" />
           <span className="font-semibold">LoanX</span>
         </div>
 
         <footer className="hidden md:block text-sm">
-          Painel do usuário LoanX &copy; Matheus Ferraz -{" "}
-          {new Date().getFullYear()}
+          Painel do usuário LoanX &copy; FerrazDev - {new Date().getFullYear()}
         </footer>
       </div>
 

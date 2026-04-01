@@ -11,7 +11,7 @@ export function App() {
   return (
     <>
       <HelmetProvider>
-        <ThemeProvider storageKey="loanX-theme" defaultTheme="dark">
+        <ThemeProvider storageKey="loanX-theme" defaultTheme="system">
           <Helmet titleTemplate="%s | LoanX " />
           <Toaster richColors closeButton />
           <RouterProvider router={router} />
