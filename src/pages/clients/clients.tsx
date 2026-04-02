@@ -66,8 +66,8 @@ export function Clients() {
                   return dueDateZero.getTime() === today.getTime();
                 })()
               : data.status === "debtor"
-                ? client.isDelinquent
-                : !client.isDelinquent;
+                ? client.lateInstallments > 0
+                : client.lateInstallments === 0;
 
         const matchDate = data.date
           ? client.nextPaymentDate?.includes(data.date)
