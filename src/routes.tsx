@@ -6,7 +6,7 @@ import { Dashboard } from "./pages/app/dashboard";
 import { ForgotPassword } from "./pages/auth/forgot-password";
 import { ResetPassword } from "./pages/auth/reset-password";
 import { SignIn } from "./pages/auth/sign-in";
-import { Register } from "./pages/auth/sign-up";
+//import { Register } from "./pages/auth/sign-up";
 import { Clients } from "./pages/clients/clients";
 import { DelinquentClients } from "./pages/clients/delinquent-clients";
 
@@ -26,7 +26,7 @@ export const router = createBrowserRouter([
     element: <AuthLayout />,
     children: [
       { path: "/sign-in", element: <SignIn /> },
-      { path: "/sign-up", element: <Register /> },
+      //{ path: "/sign-up", element: <Register /> },
       { path: "/forgot-password", element: <ForgotPassword /> },
       { path: "/reset-password", element: <ResetPassword /> },
     ],
