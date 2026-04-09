@@ -1,5 +1,6 @@
 import { Building, ChevronDown, LogOut } from "lucide-react";
 
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 
 // Importe o navigate
@@ -17,9 +18,37 @@ import {
 export function AccountMenu() {
   const navigate = useNavigate();
 
-  // 1. Busca os dados do usuário salvos no SignIn
-  const userJson = localStorage.getItem("user");
-  const user = userJson ? JSON.parse(userJson) : { name: "Usuário", email: "" };
+  const readStoredUser = () => {
+    const userJson = localStorage.getItem("user");
+
+    if (!userJson) {
+      return { name: "Usuário", email: "" };
+    }
+
+    try {
+      const parsed = JSON.parse(userJson);
+      return {
+        name: parsed.name ?? "Usuário",
+        email: parsed.email ?? "",
+      };
+    } catch {
+      return { name: "Usuário", email: "" };
+    }
+  };
+
+  const [user, setUser] = useState(readStoredUser);
+
+  useEffect(() => {
+    const syncUser = () => setUser(readStoredUser());
+
+    window.addEventListener("storage", syncUser);
+    window.addEventListener("user-updated", syncUser);
+
+    return () => {
+      window.removeEventListener("storage", syncUser);
+      window.removeEventListener("user-updated", syncUser);
+    };
+  }, []);
 
   // 2. Função de Logout
   function handleSignOut() {
@@ -50,7 +79,10 @@ export function AccountMenu() {
 
         <DropdownMenuSeparator />
 
-        <DropdownMenuItem>
+        <DropdownMenuItem
+          onClick={() => navigate("/account")}
+          className="cursor-pointer"
+        >
           <Building className="mr-2 h-4 w-4" />
           <span>Perfil do usuário</span>
         </DropdownMenuItem>

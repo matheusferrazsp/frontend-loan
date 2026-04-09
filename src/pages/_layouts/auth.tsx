@@ -33,8 +33,7 @@ export default function AuthLayout() {
 
       {/* Footer mobile */}
       <footer className="block md:hidden text-sm text-muted-foreground text-center p-4 mt-auto">
-        Painel do usuário VeroFlux &copy; Matheus Ferraz -{" "}
-        {new Date().getFullYear()}
+        Painel do usuário VeroFlux &copy; FerrazDev - {new Date().getFullYear()}
       </footer>
     </div>
   );
