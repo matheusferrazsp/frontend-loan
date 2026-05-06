@@ -40,15 +40,27 @@ export function FinancialSummaryPie({
   const load = useCallback(async () => {
     try {
       setIsLoading(true);
-      setRenderData(null);
+      setRawData(null);
       const response = await api.get("/dashboard/monthly-summary");
-      setRawData(response.data);
+      const data = response.data;
+
+      if (
+        data &&
+        typeof data.totalIn === "number" &&
+        typeof data.totalOut === "number"
+      ) {
+        setRawData(data);
+      } else {
+        console.warn("Dados inválidos recebidos para financial-summary:", data);
+        setRawData({ totalIn: 0, totalOut: 0 });
+      }
 
       setTimeout(() => {
         setIsLoading(false);
       }, 300);
     } catch (error) {
-      console.error(error);
+      console.error("Erro ao carregar resumo financeiro:", error);
+      setRawData({ totalIn: 0, totalOut: 0 });
       setIsLoading(false);
     }
   }, []);

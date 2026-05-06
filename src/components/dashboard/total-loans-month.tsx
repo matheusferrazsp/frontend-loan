@@ -32,15 +32,23 @@ export function TotalLoansOfMonth({
   const load = useCallback(async () => {
     try {
       setIsLoading(true);
-      setRenderData(null);
-      const response = await api.get("/dashboard/total-outflow");
-      setRawData(response.data);
+      setRawData(null);
+      const response = await api.get("/dashboard/total-loans-month");
+      const data = response.data;
+
+      if (data && typeof data.count === "number") {
+        setRawData(data);
+      } else {
+        console.warn("Dados inválidos recebidos para total-loans-month:", data);
+        setRawData({ count: 0, diffPercentage: 0 });
+      }
 
       setTimeout(() => {
         setIsLoading(false);
       }, 300);
     } catch (error) {
-      console.error(error);
+      console.error("Erro ao carregar empréstimos do mês:", error);
+      setRawData({ count: 0, diffPercentage: 0 });
       setIsLoading(false);
     }
   }, []);

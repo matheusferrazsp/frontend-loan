@@ -23,6 +23,9 @@ export function Dashboard() {
     const socket = io(backendUrl, {
       transports: ["websocket"],
       reconnection: true,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
+      reconnectionAttempts: 5,
     });
 
     const triggerRefresh = (reason: string) => {
@@ -37,6 +40,10 @@ export function Dashboard() {
 
     socket.on("connect", () => {
       triggerRefresh("socket:connect");
+    });
+
+    socket.on("disconnect", () => {
+      console.log("🔴 Socket desconectado, tentando reconectar...");
     });
 
     socket.on("reconnect", () => {

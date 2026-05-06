@@ -50,15 +50,23 @@ export function AnnualChart({ refreshTrigger }: { refreshTrigger?: number }) {
   const load = useCallback(async () => {
     try {
       setIsLoading(true);
-      setRenderChartData([]);
+      setRawChartData([]);
       const response = await api.get("/dashboard/annual-stats");
-      setRawChartData(response.data);
+      const data = response.data;
+      
+      if (Array.isArray(data) && data.length > 0) {
+        setRawChartData(data);
+      } else {
+        console.warn("Dados inválidos recebidos para annual-chart:", data);
+        setRawChartData([]);
+      }
 
       setTimeout(() => {
         setIsLoading(false);
       }, 300);
     } catch (error) {
-      console.error(error);
+      console.error("Erro ao carregar gráfico anual:", error);
+      setRawChartData([]);
       setIsLoading(false);
     }
   }, []);

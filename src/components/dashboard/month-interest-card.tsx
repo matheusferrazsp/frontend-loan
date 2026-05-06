@@ -32,15 +32,26 @@ export function MonthInterestCard({
   const load = useCallback(async () => {
     try {
       setIsLoading(true);
-      setRenderData(null);
+      setRawData(null);
       const response = await api.get("/dashboard/total-loan-interest");
-      setRawData(response.data);
+      const data = response.data;
+
+      if (data && typeof data.totalInterest === "number") {
+        setRawData(data);
+      } else {
+        console.warn(
+          "Dados inválidos recebidos para month-interest-card:",
+          data,
+        );
+        setRawData({ totalInterest: 0, diffPercentage: 0 });
+      }
 
       setTimeout(() => {
         setIsLoading(false);
       }, 300);
     } catch (error) {
-      console.error(error);
+      console.error("Erro ao carregar juros mensais:", error);
+      setRawData({ totalInterest: 0, diffPercentage: 0 });
       setIsLoading(false);
     }
   }, []);

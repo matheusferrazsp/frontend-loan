@@ -29,9 +29,10 @@ import { api } from "@/lib/axios";
 
 interface CreateClientDialogProps {
   client?: any;
+  onSuccess?: () => void;
 }
 
-export function CreateClientDialog({}: CreateClientDialogProps) {
+export function CreateClientDialog({ onSuccess }: CreateClientDialogProps) {
   const { register, handleSubmit, control, watch, setValue, reset } = useForm();
   const lastPaymentBaseRef = useRef(0);
 
@@ -167,6 +168,7 @@ export function CreateClientDialog({}: CreateClientDialogProps) {
       await api.post("/clients", formattedData);
       toast.success("Cliente cadastrado com sucesso!");
       reset();
+      onSuccess?.();
     } catch (error: any) {
       console.error("ERRO:", error.response?.data);
       toast.error("Erro ao salvar cliente.");

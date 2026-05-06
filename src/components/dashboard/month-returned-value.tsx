@@ -27,15 +27,26 @@ export function TotalValueReturned({
   const load = useCallback(async () => {
     try {
       setIsLoading(true);
-      setRenderData(null);
-      const response = await api.get("/dashboard/total-returned");
-      setRawData(response.data);
+      setRawData(null);
+      const response = await api.get("/dashboard/total-value-returned");
+      const data = response.data;
+
+      if (data && typeof data.totalReturned === "number") {
+        setRawData(data);
+      } else {
+        console.warn(
+          "Dados inválidos recebidos para month-returned-value:",
+          data,
+        );
+        setRawData({ totalReturned: 0, diffPercentage: 0 });
+      }
 
       setTimeout(() => {
         setIsLoading(false);
       }, 300);
     } catch (error) {
-      console.error(error);
+      console.error("Erro ao carregar valor retornado:", error);
+      setRawData({ totalReturned: 0, diffPercentage: 0 });
       setIsLoading(false);
     }
   }, []);

@@ -42,6 +42,9 @@ export function Clients() {
   const applyFilters = useCallback(
     (clientList: ClientDetailsProps[], data: FilterData) => {
       return clientList.filter((client) => {
+        // Excluir clientes inadimplentes
+        if (client.isDelinquent) return false;
+
         const matchName = client.name
           .toLowerCase()
           .includes(data.name.toLowerCase());
@@ -110,10 +113,22 @@ export function Clients() {
     // -- CONEXÃO WEBSOCKET --
 
     const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:3333";
-    const socket = io(backendUrl);
+    const socket = io(backendUrl, {
+      transports: ["websocket"],
+      reconnection: true,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
+      reconnectionAttempts: 5,
+    });
 
     socket.on("connect", () => {
       console.log("🟢 Conectado ao servidor WebSocket no Frontend!");
+    });
+
+    socket.on("disconnect", () => {
+      console.log(
+        "🔴 Desconectado do servidor WebSocket, tentando reconectar...",
+      );
     });
 
     socket.on("clientesAtualizados", () => {
@@ -192,7 +207,7 @@ export function Clients() {
               Novo cliente
             </Button>
           </DialogTrigger>
-          <CreateClientDialog />
+          <CreateClientDialog onSuccess={fetchClients} />
         </Dialog>
       </div>
 
@@ -224,6 +239,7 @@ export function Clients() {
                   key={client.id}
                   client={client}
                   onDelete={onDeleteSuccess}
+                  onUpdate={fetchClients}
                 />
               ))
             ) : (

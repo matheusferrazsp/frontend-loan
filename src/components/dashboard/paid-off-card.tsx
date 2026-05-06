@@ -20,15 +20,23 @@ export function PaidOff({ refreshTrigger }: { refreshTrigger?: number }) {
   const load = useCallback(async () => {
     try {
       setIsLoading(true);
-      setRenderData(null);
+      setRawData(null);
       const response = await api.get("/dashboard/paid-off");
-      setRawData(response.data);
+      const data = response.data;
+
+      if (data && typeof data.totalLoanValuePaidOff === "number") {
+        setRawData(data);
+      } else {
+        console.warn("Dados inválidos recebidos para paid-off-card:", data);
+        setRawData({ totalLoanValuePaidOff: 0, diffPercentage: 0 });
+      }
 
       setTimeout(() => {
         setIsLoading(false);
       }, 300);
     } catch (error) {
-      console.error(error);
+      console.error("Erro ao carregar dados de quitação:", error);
+      setRawData({ totalLoanValuePaidOff: 0, diffPercentage: 0 });
       setIsLoading(false);
     }
   }, []);

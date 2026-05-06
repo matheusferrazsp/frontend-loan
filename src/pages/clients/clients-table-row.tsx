@@ -25,9 +25,14 @@ import { UpdateClientDialog } from "./update-client-dialog";
 interface ClientsTableRowProps {
   client: ClientDetailsProps;
   onDelete: (id: string) => void;
+  onUpdate?: () => void;
 }
 
-export function ClientsTableRow({ client, onDelete }: ClientsTableRowProps) {
+export function ClientsTableRow({
+  client,
+  onDelete,
+  onUpdate,
+}: ClientsTableRowProps) {
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -160,7 +165,11 @@ export function ClientsTableRow({ client, onDelete }: ClientsTableRowProps) {
               <span className="hidden md:inline">Editar</span>
             </Button>
           </DialogTrigger>
-          <UpdateClientDialog client={client} setOpen={setIsUpdateOpen} />
+          <UpdateClientDialog
+            client={client}
+            setOpen={setIsUpdateOpen}
+            onSuccess={onUpdate}
+          />
         </Dialog>
       </TableCell>
 

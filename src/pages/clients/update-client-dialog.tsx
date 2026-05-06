@@ -33,11 +33,13 @@ import { ClientDetailsProps } from "./client-details";
 interface UpdateClientDialogProps {
   client: ClientDetailsProps;
   setOpen: (open: boolean) => void;
+  onSuccess?: () => void;
 }
 
 export function UpdateClientDialog({
   client,
   setOpen,
+  onSuccess,
 }: UpdateClientDialogProps) {
   const { register, handleSubmit, reset, control, watch, setValue } = useForm();
   const lastPaymentBaseRef = useRef(0);
@@ -252,6 +254,7 @@ export function UpdateClientDialog({
       toast.success("Cliente atualizado com sucesso!");
       setTimeout(() => {
         setOpen(false);
+        onSuccess?.();
       }, 100);
     } catch (error: any) {
       console.error("ERRO:", error.response?.data);

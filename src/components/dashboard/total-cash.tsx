@@ -25,13 +25,22 @@ export function TotalCash({ refreshTrigger }: { refreshTrigger?: number }) {
       setIsLoading(true);
       setRenderData(null);
       const response = await api.get("/dashboard/total-circulating");
-      setRawData(response.data);
+      const data = response.data;
+
+      // Validar se os dados são válidos
+      if (data && typeof data.totalCirculating === "number") {
+        setRawData(data);
+      } else {
+        console.warn("Dados inválidos recebidos para total-cash:", data);
+        setRawData({ totalCirculating: 0, diffPercentage: 0 });
+      }
 
       setTimeout(() => {
         setIsLoading(false);
       }, 300);
     } catch (error) {
-      console.error(error);
+      console.error("Erro ao carregar total cash:", error);
+      setRawData({ totalCirculating: 0, diffPercentage: 0 });
       setIsLoading(false);
     }
   }, []);
