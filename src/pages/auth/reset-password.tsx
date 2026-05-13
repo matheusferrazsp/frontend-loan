@@ -48,7 +48,7 @@ export function ResetPassword() {
     }
 
     try {
-      await api.post("/api/reset-password", {
+      await api.post("/reset-password", {
         token: token, // O token que veio da URL
         password: data.password, // A nova senha validada pelo Zod
       });
@@ -58,7 +58,13 @@ export function ResetPassword() {
       // Redireciona para o login após o sucesso
       setTimeout(() => navigate("/sign-in"), 2000);
     } catch (error) {
-      toast.error("Erro ao redefinir a senha. Tente novamente.");
+      console.error("Erro ao redefinir senha:", error);
+
+      if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("Erro ao redefinir a senha. Tente novamente.");
+      }
     }
   }
 
