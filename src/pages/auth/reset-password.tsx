@@ -1,5 +1,4 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import axios from "axios";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -10,6 +9,7 @@ import { useNavigate } from "react-router";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { api } from "@/lib/axios";
 
 // 🧠 Validação das senhas
 const resetPasswordSchema = z
@@ -39,7 +39,7 @@ export function ResetPassword() {
 
   // Captura o token da URL manualmente
   const urlParams = new URLSearchParams(window.location.search);
-  const token = urlParams.get("email");
+  const token = urlParams.get("token");
 
   async function handleResetPassword(data: ResetPasswordForm) {
     if (!token) {
@@ -48,7 +48,7 @@ export function ResetPassword() {
     }
 
     try {
-      await axios.post("http://localhost:3333/api/reset-password", {
+      await api.post("/api/reset-password", {
         token: token, // O token que veio da URL
         password: data.password, // A nova senha validada pelo Zod
       });
