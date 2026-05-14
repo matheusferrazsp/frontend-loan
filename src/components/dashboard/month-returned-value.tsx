@@ -28,7 +28,7 @@ export function TotalValueReturned({
     try {
       setIsLoading(true);
       setRawData(null);
-      const response = await api.get("/dashboard/total-value-returned");
+      const response = await api.get("/dashboard/total-returned");
       const data = response.data;
 
       if (data && typeof data.totalReturned === "number") {

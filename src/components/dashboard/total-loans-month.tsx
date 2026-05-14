@@ -33,14 +33,17 @@ export function TotalLoansOfMonth({
     try {
       setIsLoading(true);
       setRawData(null);
-      const response = await api.get("/dashboard/total-loans-month");
+      const response = await api.get("/dashboard/total-outflow");
       const data = response.data;
 
-      if (data && typeof data.count === "number") {
+      if (data && typeof data.totalOutflow === "number") {
         setRawData(data);
       } else {
-        console.warn("Dados inválidos recebidos para total-loans-month:", data);
-        setRawData({ count: 0, diffPercentage: 0 });
+        console.warn(
+          "Dados inválidos recebidos para month-totalOutlow-value:",
+          data,
+        );
+        setRawData({ totalOutflow: 0, diffPercentage: 0 });
       }
 
       setTimeout(() => {
@@ -48,7 +51,7 @@ export function TotalLoansOfMonth({
       }, 300);
     } catch (error) {
       console.error("Erro ao carregar empréstimos do mês:", error);
-      setRawData({ count: 0, diffPercentage: 0 });
+      setRawData({ totalOutflow: 0, diffPercentage: 0 });
       setIsLoading(false);
     }
   }, []);
@@ -74,7 +77,6 @@ export function TotalLoansOfMonth({
     );
   }
 
-  // Se a porcentagem for positiva, significa que você emprestou MAIS dinheiro este mês
   const isIncrease = (renderData?.diffPercentage ?? 0) > 0;
 
   return (
@@ -87,7 +89,7 @@ export function TotalLoansOfMonth({
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold tracking-tight">
-          {Number(renderData?.totalOutflow || 0).toLocaleString("pt-BR", {
+          {renderData?.totalOutflow.toLocaleString("pt-BR", {
             style: "currency",
             currency: "BRL",
           })}
