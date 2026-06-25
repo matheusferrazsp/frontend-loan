@@ -8,11 +8,12 @@ import {
   Filter,
   HelpCircle,
   History,
-  Plus,
   Search,
   Sheet,
   Smartphone,
   UserRoundPen,
+  ArrowUp,
+  Plus,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
@@ -209,10 +210,23 @@ const SECTIONS: Section[] = [
 
 const EXTRA_IDS = ["referencia", "faq"];
 
+const SHORT_TITLES: Record<string, string> = {
+  cadastrar: "Cadastro",
+  detalhes: "Detalhes",
+  editar: "Edição",
+  filtros: "Filtros",
+  pagamentos: "Pagamentos",
+  inadimplentes: "Inadimplentes",
+  exportar: "Exportar",
+  celular: "Celular",
+  referencia: "Referência de botões",
+  faq: "Perguntas frequentes"
+};
+
 const ALL_NAV = [
-  ...SECTIONS.map((s) => ({ id: s.id, label: s.title, icon: s.icon, color: s.color })),
-  { id: "referencia", label: "Referência de botões", icon: <FileText className="h-4 w-4" />, color: "text-muted-foreground" },
-  { id: "faq", label: "Perguntas frequentes", icon: <HelpCircle className="h-4 w-4" />, color: "text-muted-foreground" },
+  ...SECTIONS.map((s) => ({ id: s.id, label: s.title, shortLabel: SHORT_TITLES[s.id], icon: s.icon, color: s.color })),
+  { id: "referencia", label: "Referência de botões", shortLabel: SHORT_TITLES["referencia"], icon: <FileText className="h-4 w-4" />, color: "text-muted-foreground" },
+  { id: "faq", label: "Perguntas frequentes", shortLabel: SHORT_TITLES["faq"], icon: <HelpCircle className="h-4 w-4" />, color: "text-muted-foreground" },
 ];
 
 const FAQS = [
@@ -245,7 +259,16 @@ const FAQS = [
 
 export function UserManual() {
   const [activeId, setActiveId] = useState<string>(SECTIONS[0].id);
+  const [showScrollTop, setShowScrollTop] = useState(false);
   const observerRef = useRef<IntersectionObserver | null>(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 300);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     const allIds = [...SECTIONS.map((s) => s.id), ...EXTRA_IDS];
@@ -274,6 +297,10 @@ export function UserManual() {
     const el = document.getElementById(id);
     if (!el) return;
     el.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function scrollToTop() {
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   return (
@@ -319,20 +346,20 @@ export function UserManual() {
           Tudo que você precisa saber para usar o VeroFlux com confiança.
         </p>
 
-        {/* Mobile quick-nav */}
+        {/* Mobile quick-nav (Grid) */}
         <div className="flex lg:hidden gap-2 flex-wrap mb-6">
           {ALL_NAV.map((item) => (
             <button
               key={item.id}
               onClick={() => scrollTo(item.id)}
-              className={`flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-medium transition-colors
+              className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[11px] font-medium transition-colors
                 ${activeId === item.id
                   ? "bg-primary text-primary-foreground border-primary"
-                  : "text-muted-foreground hover:bg-accent"
+                  : "bg-background text-muted-foreground hover:bg-accent border-border"
                 }`}
             >
               <span>{item.icon}</span>
-              {item.label.split(" ").slice(0, 2).join(" ")}
+              <span>{item.shortLabel}</span>
             </button>
           ))}
         </div>
@@ -414,6 +441,17 @@ export function UserManual() {
           </Accordion>
         </div>
       </div>
+
+      {/* Back to top button (Mobile only) */}
+      {showScrollTop && (
+        <button
+          onClick={scrollToTop}
+          className="fixed bottom-6 right-6 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform hover:scale-105 active:scale-95 lg:hidden"
+          aria-label="Voltar ao topo"
+        >
+          <ArrowUp className="h-6 w-6" />
+        </button>
+      )}
     </div>
   );
 }

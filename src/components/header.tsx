@@ -10,7 +10,7 @@ import {
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router";
 
-import { AccountMenu, SidebarAccountProfile, MobileUserGreeting } from "./account-menu";
+import { MobileUserGreeting, SidebarAccountProfile } from "./account-menu";
 import { NavLink } from "./nav-link";
 import { SidebarThemeToggle, ThemeToggle } from "./theme/theme-toggle";
 import { Button } from "./ui/button";
@@ -161,7 +161,7 @@ export function Header() {
               className="rounded-md px-3 py-2 text-base hover:bg-accent"
             >
               <BookOpen className="h-5 w-5" />
-              <span>Manual</span>
+              <span>Manual do usuário</span>
             </NavLink>
           </nav>
 

@@ -143,15 +143,19 @@ export function SidebarAccountProfile() {
           {initials}
         </div>
         <div className="flex flex-col overflow-hidden">
-          <span className="text-sm font-semibold text-foreground leading-tight truncate">{user.name}</span>
-          <span className="text-xs text-muted-foreground mt-0.5 hover:underline truncate">Meu perfil</span>
+          <span className="text-sm font-semibold text-foreground leading-tight truncate">
+            {user.name}
+          </span>
+          <span className="text-xs text-muted-foreground mt-0.5 hover:underline truncate">
+            Meu perfil
+          </span>
         </div>
       </div>
       <Button
         variant="ghost"
         size="icon"
         onClick={handleSignOut}
-        className="text-primary hover:bg-primary/10 hover:text-primary transition-colors shrink-0 ml-2"
+        className="text-rose-500 hover:bg-rose-500/10 hover:text-rose-500 transition-colors shrink-0 ml-2"
       >
         <LogOut className="h-5 w-5" />
       </Button>
