@@ -60,7 +60,7 @@ export function WhatsNewModal() {
         if (!v) handleClose();
       }}
     >
-      <DialogContent className="min-w-full sm:min-w-[460px] max-w-[90vw] gap-0 p-0 overflow-hidden">
+      <DialogContent className="w-90 sm:min-w-[360px] max-w-[90vw] gap-0 p-0 overflow-hidden">
         {/* Header */}
         <div className="relative bg-gradient-to-br from-primary/20 via-primary/10 to-transparent px-5 pt-5 pb-4">
           <div className="flex items-center gap-1.5 mb-1">
