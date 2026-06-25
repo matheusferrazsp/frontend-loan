@@ -7,12 +7,16 @@ import { Dashboard } from "./pages/app/dashboard";
 import { ForgotPassword } from "./pages/auth/forgot-password";
 import { ResetPassword } from "./pages/auth/reset-password";
 import { SignIn } from "./pages/auth/sign-in";
-import { Register } from "./pages/auth/sign-up";
 import { Clients } from "./pages/clients/clients";
 import { DelinquentClients } from "./pages/clients/delinquent-clients";
+import { LandingPage } from "./pages/landing/landing-page";
 import { UserManual } from "./pages/app/user-manual";
 
 export const router = createBrowserRouter([
+  {
+    path: "/landing",
+    element: <LandingPage />,
+  },
   {
     path: "/",
     element: <AppLayout />,
@@ -30,7 +34,6 @@ export const router = createBrowserRouter([
     element: <AuthLayout />,
     children: [
       { path: "/sign-in", element: <SignIn /> },
-      { path: "/sign-up", element: <Register /> },
       { path: "/forgot-password", element: <ForgotPassword /> },
       { path: "/reset-password", element: <ResetPassword /> },
     ],

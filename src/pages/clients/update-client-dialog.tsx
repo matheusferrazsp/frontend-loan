@@ -571,7 +571,7 @@ export function UpdateClientDialog({
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Última Data Paga</Label>
+              <Label>Última Data de Pagamento</Label>
               <div className="relative">
                 <Calendar
                   className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground cursor-pointer z-20 pointer-events-auto"

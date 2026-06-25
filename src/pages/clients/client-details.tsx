@@ -76,6 +76,21 @@ export function ClientDetails(props: ClientDetailsProps) {
       .replace(/(\d)(\d{4})$/, "$1-$2");
   };
 
+  const getStatusDisplay = () => {
+    if (props.isDelinquent) return { text: "Inadimplente", htmlClass: "badge-err", dot: "bg-rose-500", textClass: "text-rose-500" };
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const dueDate = props.nextPaymentDate ? new Date(props.nextPaymentDate) : null;
+
+    if (dueDate) {
+      const dueDateZero = new Date(dueDate.getUTCFullYear(), dueDate.getUTCMonth(), dueDate.getUTCDate());
+      if (dueDateZero.getTime() === today.getTime()) return { text: "Vence hoje", htmlClass: "badge-ok", dot: "bg-amber-500", textClass: "text-amber-500" };
+      if (dueDateZero < today || props.lateInstallments > 0) return { text: "Atrasado", htmlClass: "badge-err", dot: "bg-rose-500", textClass: "text-rose-500" };
+    }
+    return { text: "Em dia", htmlClass: "badge-ok", dot: "bg-emerald-500", textClass: "text-emerald-500" };
+  };
+
   const formatDate = (dateString: string) => {
     if (!dateString) return "---";
     return new Date(dateString).toLocaleDateString("pt-BR", {
@@ -126,7 +141,7 @@ export function ClientDetails(props: ClientDetailsProps) {
 
         <p class="section-title">Dados Pessoais</p>
         <table>
-          <tr><td class="label">Status</td><td class="value ${props.isDelinquent ? "badge-err" : "badge-ok"}">${props.isDelinquent ? "Inadimplente" : "Em dia"}</td></tr>
+          <tr><td class="label">Status</td><td class="value ${status.htmlClass}">${status.text}</td></tr>
           <tr><td class="label">Nome</td><td class="value">${props.name}</td></tr>
           <tr><td class="label">Telefone</td><td class="value">${formatPhoneDisplay(props.phone)}</td></tr>
           <tr><td class="label">E-mail</td><td class="value">${props.email || "---"}</td></tr>
@@ -273,11 +288,9 @@ export function ClientDetails(props: ClientDetailsProps) {
               </TableCell>
               <TableCell className="text-right">
                 <div className="flex items-center justify-end gap-2">
-                  <span
-                    className={`h-2 w-2 rounded-full ${props.isDelinquent ? "bg-rose-500" : "bg-emerald-500"}`}
-                  />
-                  <span className="font-medium text-sm">
-                    {props.isDelinquent ? "Inadimplente" : "Em dia"}
+                  <span className={`h-2 w-2 rounded-full ${getStatusDisplay().dot}`} />
+                  <span className={`font-medium text-sm ${getStatusDisplay().textClass}`}>
+                    {getStatusDisplay().text}
                   </span>
                 </div>
               </TableCell>

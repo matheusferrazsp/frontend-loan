@@ -1,5 +1,6 @@
 import {
   AlertTriangle,
+  Bell,
   BookOpen,
   ChartSpline,
   Menu,
@@ -8,12 +9,195 @@ import {
 } from "lucide-react";
 
 import { useEffect, useState } from "react";
-import { useLocation } from "react-router";
+import { useNavigate, useLocation } from "react-router";
 
 import { MobileUserGreeting, SidebarAccountProfile } from "./account-menu";
 import { NavLink } from "./nav-link";
 import { SidebarThemeToggle, ThemeToggle } from "./theme/theme-toggle";
 import { Button } from "./ui/button";
+import { api } from "@/lib/axios";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "./ui/dialog";
+
+interface NotificationItem {
+  id: string;
+  clientId: string;
+  clientName: string;
+  title: string;
+  type: "warning" | "urgent" | "info";
+  isDelinquent?: boolean;
+}
+
+function NotificationBell() {
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.hash === "#notifications") {
+      setIsOpen(true);
+    }
+  }, [location.hash]);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const response = await api.get("/clients");
+        const clients = Array.isArray(response.data) ? response.data : [];
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const newNotifs: NotificationItem[] = [];
+
+        clients.forEach((client: any) => {
+          if (client.totalDebtPaid === true || client.totalDebtPaid === "true") return;
+
+          const dueDate = client.nextPaymentDate ? new Date(client.nextPaymentDate) : null;
+          let dueDateZero = null;
+          let daysDiff = 0;
+
+          if (dueDate) {
+            dueDateZero = new Date(dueDate.getUTCFullYear(), dueDate.getUTCMonth(), dueDate.getUTCDate());
+            const diffTime = dueDateZero.getTime() - today.getTime();
+            daysDiff = Math.round(diffTime / (1000 * 60 * 60 * 24));
+          }
+
+          const isPast = dueDateZero && dueDateZero < today;
+
+          if (client.isDelinquent || isPast || client.lateInstallments > 0) {
+            const daysLate = isPast ? Math.abs(daysDiff) : (client.lateInstallments > 0 ? "alguns" : 0);
+            
+            let title = "Pagamento atrasado";
+            if (client.isDelinquent) {
+              title = "Cliente Inadimplente";
+            } else if (isPast) {
+              title = `Pagamento atrasado há ${daysLate} dias`;
+            } else if (client.lateInstallments > 0) {
+              title = `Possui ${client.lateInstallments} parcelas atrasadas`;
+            }
+
+            newNotifs.push({
+              id: `urgent-${client.id}`,
+              clientId: client.id,
+              clientName: client.name,
+              title,
+              type: "urgent",
+              isDelinquent: client.isDelinquent
+            });
+          } else if (dueDateZero) {
+            if (daysDiff === 0) {
+              newNotifs.push({
+                id: `due-${client.id}`,
+                clientId: client.id,
+                clientName: client.name,
+                title: "Pagamento vencendo hoje",
+                type: "warning"
+              });
+            } else if (daysDiff > 0 && daysDiff <= 3) {
+              newNotifs.push({
+                id: `upcoming-${client.id}`,
+                clientId: client.id,
+                clientName: client.name,
+                title: `Pagamento vencendo em ${daysDiff} dias`,
+                type: "info"
+              });
+            }
+          }
+        });
+
+        setNotifications(newNotifs);
+      } catch (err) {
+        console.error("Failed to load notifications", err);
+      }
+    }
+    load();
+  }, []);
+
+  const hasUnread = notifications.length > 0;
+
+  const handleNotificationClick = (notif: NotificationItem) => {
+    setIsOpen(false);
+    if (location.hash === "#notifications") {
+      navigate(location.pathname + location.search, { replace: true });
+    }
+
+    setTimeout(() => {
+      if (notif.isDelinquent) {
+        navigate(`/delinquent-clients?clientName=${encodeURIComponent(notif.clientName)}&openClientId=${notif.clientId}`);
+      } else {
+        navigate(`/clients?clientName=${encodeURIComponent(notif.clientName)}&openClientId=${notif.clientId}`);
+      }
+    }, 200);
+  };
+
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open);
+    if (!open && location.hash === "#notifications") {
+      navigate(location.pathname + location.search, { replace: true });
+    }
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+      <DialogTrigger asChild>
+        <Button variant="ghost" size="icon" className="relative">
+          <Bell className="h-5 w-5" />
+          {hasUnread && (
+            <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-red-500 animate-pulse" />
+          )}
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="w-[90vw] sm:w-[400px] !max-w-[400px] flex flex-col max-h-[80vh] p-0 rounded-xl">
+        <DialogHeader className="px-6 pt-6 pb-2">
+          <DialogTitle>Notificações {hasUnread ? `(${notifications.length})` : ""}</DialogTitle>
+          <DialogDescription>
+            Acompanhe o status dos clientes em tempo real.
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div className="flex-1 overflow-y-auto px-2 pb-6 scrollbar-thin">
+          {!hasUnread ? (
+            <div className="p-8 text-center text-sm text-muted-foreground">
+              Nenhuma notificação no momento
+            </div>
+          ) : (
+            <div className="flex flex-col gap-2 px-4">
+              {notifications.map((notif) => (
+                <div 
+                  key={notif.id} 
+                  className="flex flex-col items-start gap-1 p-4 cursor-pointer border rounded-lg bg-card hover:bg-muted/50 transition-colors"
+                  onClick={() => handleNotificationClick(notif)}
+                >
+                  <span className="text-sm font-semibold">{notif.clientName}</span>
+                  <span className="text-xs text-muted-foreground mb-1">{notif.title}</span>
+                  <div>
+                    {notif.type === "urgent" && (
+                      <span className="text-[10px] font-medium text-red-500 bg-red-500/10 px-2 py-0.5 rounded-full">Urgente</span>
+                    )}
+                    {notif.type === "warning" && (
+                      <span className="text-[10px] font-medium text-yellow-500 bg-yellow-500/10 px-2 py-0.5 rounded-full">Atenção</span>
+                    )}
+                    {notif.type === "info" && (
+                      <span className="text-[10px] font-medium text-blue-500 bg-blue-500/10 px-2 py-0.5 rounded-full">Aviso</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -49,10 +233,11 @@ export function Header() {
           <Menu className="h-10 w-10" />
         </Button>
 
-        <div className="hidden md:flex items-center gap-3 w-full px-2 mb-2">
+        <div className="hidden md:flex items-center justify-between w-full px-2 mb-2">
           <span className="font-bold text-xl tracking-tight text-primary">
             VeroFlux
           </span>
+          <NotificationBell />
         </div>
 
         <nav className="hidden md:flex md:flex-col items-start space-x-0 md:space-x-0 space-y-0 md:space-y-2 w-full">
@@ -97,7 +282,8 @@ export function Header() {
         </div>
 
         {/* Versão Mobile: Saudação e Tema na Topbar */}
-        <div className="ml-auto flex md:hidden items-center gap-2">
+        <div className="ml-auto flex md:hidden items-center gap-1">
+          <NotificationBell />
           <MobileUserGreeting />
           <ThemeToggle />
         </div>

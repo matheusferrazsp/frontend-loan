@@ -1,17 +1,32 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { Outlet, useNavigate } from "react-router";
+import { toast } from "sonner";
 
 import { Header } from "@/components/header";
 import { WhatsNewModal } from "@/components/whats-new-modal";
 
 export default function AppLayout() {
   const navigate = useNavigate();
+  const hasToasted = useRef(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
 
     if (!token) {
       navigate("/sign-in", { replace: true });
+    } else if (!hasToasted.current) {
+      // Dispara o toast amigável se estiver logado
+      setTimeout(() => {
+        toast("Você tem notificações importantes", {
+          description: "2 clientes com pagamento pendente hoje.",
+          action: {
+            label: "Ver",
+            onClick: () => navigate("#notifications"),
+          },
+          icon: "⚠️",
+        });
+      }, 1000);
+      hasToasted.current = true;
     }
   }, [navigate]);
 

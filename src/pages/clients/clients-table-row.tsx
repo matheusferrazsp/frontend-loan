@@ -1,8 +1,8 @@
 import { Loader2, Search, Trash2, UserCog } from "lucide-react";
 import { toast } from "sonner";
 
-import { useState } from "react";
-
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -35,6 +35,25 @@ export function ClientsTableRow({
 }: ClientsTableRowProps) {
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const openClientId = searchParams.get("openClientId");
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+
+  useEffect(() => {
+    if (openClientId === client.id) {
+      setIsDetailsOpen(true);
+    }
+  }, [openClientId, client.id]);
+
+  const handleOpenChange = (open: boolean) => {
+    setIsDetailsOpen(open);
+    if (!open && openClientId === client.id) {
+      searchParams.delete("openClientId");
+      searchParams.delete("clientName");
+      setSearchParams(searchParams, { replace: true });
+    }
+  };
 
   const getStatusDisplay = () => {
     if (client.isDelinquent) {
@@ -109,7 +128,7 @@ export function ClientsTableRow({
   return (
     <TableRow>
       <TableCell>
-        <Dialog>
+        <Dialog open={isDetailsOpen} onOpenChange={handleOpenChange}>
           <DialogTrigger asChild>
             <Button variant="outline" size="xs" className="-ml-2 md:ml-0">
               <Search className="h-3 w-3 md:size-4" />

@@ -2,6 +2,7 @@ import { Calendar, X } from "lucide-react";
 
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
+import { useSearchParams } from "react-router";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,10 +26,13 @@ export interface FilterData {
 }
 
 export function ClientTableFilters({ onFilter }: FilterProps) {
+  const [searchParams] = useSearchParams();
+  const initialName = searchParams.get("clientName") || "";
+
   const { register, control, watch, reset, getValues, setValue } =
     useForm<FilterData>({
       defaultValues: {
-        name: "",
+        name: initialName,
         date: "",
         status: "all",
         debtStatus: "pending",
@@ -79,7 +83,7 @@ export function ClientTableFilters({ onFilter }: FilterProps) {
             {...register("date")}
             type="text"
             inputMode="numeric"
-            placeholder="Data"
+            placeholder="Vencimento"
             onInput={handleDateMask}
             className="flex-1 bg-transparent border-0 outline-none w-full text-foreground placeholder:text-muted-foreground pr-6 relative z-10"
             style={{ minWidth: 0, appearance: "none" }}
