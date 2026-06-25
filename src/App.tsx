@@ -11,7 +11,7 @@ export function App() {
   return (
     <>
       <HelmetProvider>
-        <ThemeProvider storageKey="loanX-theme" defaultTheme="system">
+        <ThemeProvider storageKey="loanX-theme" defaultTheme="light">
           <Helmet titleTemplate="%s | VeroFlux " />
           <Toaster richColors closeButton />
           <RouterProvider router={router} />
