@@ -1,4 +1,4 @@
-import { FileDown, ScrollText, Sheet, Sparkles, X } from "lucide-react";
+import { BellRing, LayoutTemplate, MonitorSmartphone, Rocket, Sparkles, X } from "lucide-react";
 
 import { useEffect, useState } from "react";
 
@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 
 // Incrementar esta chave sempre que quiser exibir o modal novamente
-const WHATS_NEW_KEY = "whatsNew_v1.3";
+const WHATS_NEW_KEY = "whatsNew_v1.4";
 
 interface Feature {
   icon: React.ReactNode;
@@ -23,24 +23,31 @@ interface Feature {
 
 const FEATURES: Feature[] = [
   {
-    icon: <FileDown className="h-4 w-4 text-blue-400" />,
-    title: "Imprimir Tabela como PDF",
+    icon: <Rocket className="h-4 w-4 text-emerald-400" />,
+    title: "Nova Landing Page",
     description:
-      "Salve a lista de empréstimos como PDF, com Vencimento e Última Data de Pagamento.",
+      "Apresentação completa do sistema com grade de funcionalidades e cabeçalho flutuante.",
     badge: "Novo",
   },
   {
-    icon: <Sheet className="h-4 w-4 text-emerald-400" />,
-    title: "Exportar para CSV",
+    icon: <MonitorSmartphone className="h-4 w-4 text-violet-400" />,
+    title: "Layout de Login Premium",
     description:
-      "Exporte os dados dos clientes filtrados para Excel (.csv) com todos os campos.",
-    badge: "Novo",
+      "Tela de acesso renovada com novo design visual para uma melhor experiência de entrada.",
+    badge: "Melhoria",
   },
   {
-    icon: <ScrollText className="h-4 w-4 text-violet-400" />,
-    title: "PDF completo no detalhe do cliente",
+    icon: <BellRing className="h-4 w-4 text-amber-400" />,
+    title: "Nova Central de Notificações",
     description:
-      "Gera um PDF com todos os dados do cliente e histórico de pagamentos, sem cortes de scroll.",
+      "As notificações agora abrem em um painel central moderno e muito mais legível.",
+    badge: "Melhoria",
+  },
+  {
+    icon: <LayoutTemplate className="h-4 w-4 text-blue-400" />,
+    title: "Redirecionamento Inteligente",
+    description:
+      "Clicar em uma notificação agora filtra a tabela e abre os detalhes do cliente automaticamente.",
     badge: "Novo",
   },
 ];
