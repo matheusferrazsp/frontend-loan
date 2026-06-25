@@ -98,3 +98,96 @@ export function AccountMenu() {
     </DropdownMenu>
   );
 }
+
+export function SidebarAccountProfile() {
+  const navigate = useNavigate();
+
+  const readStoredUser = () => {
+    const userJson = localStorage.getItem("user");
+    if (!userJson) return { name: "Usuário", email: "" };
+    try {
+      const parsed = JSON.parse(userJson);
+      return { name: parsed.name ?? "Usuário", email: parsed.email ?? "" };
+    } catch {
+      return { name: "Usuário", email: "" };
+    }
+  };
+
+  const [user, setUser] = useState(readStoredUser);
+
+  useEffect(() => {
+    const syncUser = () => setUser(readStoredUser());
+    window.addEventListener("storage", syncUser);
+    window.addEventListener("user-updated", syncUser);
+    return () => {
+      window.removeEventListener("storage", syncUser);
+      window.removeEventListener("user-updated", syncUser);
+    };
+  }, []);
+
+  function handleSignOut() {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/sign-in", { replace: true });
+  }
+
+  const initials = user.name.charAt(0).toUpperCase();
+
+  return (
+    <div className="flex items-center justify-between w-full py-4 px-2 border-t mt-auto">
+      <div
+        className="flex items-center gap-3 cursor-pointer"
+        onClick={() => navigate("/account")}
+      >
+        <div className="flex items-center justify-center h-10 w-10 rounded-full border-2 border-primary/60 text-primary font-bold bg-primary/5 shrink-0">
+          {initials}
+        </div>
+        <div className="flex flex-col overflow-hidden">
+          <span className="text-sm font-semibold text-foreground leading-tight truncate">{user.name}</span>
+          <span className="text-xs text-muted-foreground mt-0.5 hover:underline truncate">Meu perfil</span>
+        </div>
+      </div>
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={handleSignOut}
+        className="text-primary hover:bg-primary/10 hover:text-primary transition-colors shrink-0 ml-2"
+      >
+        <LogOut className="h-5 w-5" />
+      </Button>
+    </div>
+  );
+}
+
+export function MobileUserGreeting() {
+  const readStoredUser = () => {
+    const userJson = localStorage.getItem("user");
+    if (!userJson) return { name: "Usuário", email: "" };
+    try {
+      const parsed = JSON.parse(userJson);
+      return { name: parsed.name ?? "Usuário", email: parsed.email ?? "" };
+    } catch {
+      return { name: "Usuário", email: "" };
+    }
+  };
+
+  const [user, setUser] = useState(readStoredUser);
+
+  useEffect(() => {
+    const syncUser = () => setUser(readStoredUser());
+    window.addEventListener("storage", syncUser);
+    window.addEventListener("user-updated", syncUser);
+    return () => {
+      window.removeEventListener("storage", syncUser);
+      window.removeEventListener("user-updated", syncUser);
+    };
+  }, []);
+
+  const firstName = user.name.split(" ")[0];
+
+  return (
+    <span className="text-sm font-medium mr-1 truncate max-w-[120px]">
+      Olá, {firstName}
+    </span>
+  );
+}

@@ -10,6 +10,7 @@ import { SignIn } from "./pages/auth/sign-in";
 import { Register } from "./pages/auth/sign-up";
 import { Clients } from "./pages/clients/clients";
 import { DelinquentClients } from "./pages/clients/delinquent-clients";
+import { UserManual } from "./pages/app/user-manual";
 
 export const router = createBrowserRouter([
   {
@@ -20,6 +21,7 @@ export const router = createBrowserRouter([
       { path: "/account", element: <AccountDetails /> },
       { path: "/clients", element: <Clients /> },
       { path: "/delinquent-clients", element: <DelinquentClients /> },
+      { path: "/manual", element: <UserManual /> },
     ],
   },
 

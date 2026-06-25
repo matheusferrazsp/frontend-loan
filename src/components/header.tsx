@@ -1,5 +1,6 @@
 import {
   AlertTriangle,
+  BookOpen,
   ChartSpline,
   Menu,
   UserRoundPen,
@@ -9,9 +10,9 @@ import {
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router";
 
-import { AccountMenu } from "./account-menu";
+import { AccountMenu, SidebarAccountProfile, MobileUserGreeting } from "./account-menu";
 import { NavLink } from "./nav-link";
-import { ThemeToggle } from "./theme/theme-toggle";
+import { SidebarThemeToggle, ThemeToggle } from "./theme/theme-toggle";
 import { Button } from "./ui/button";
 
 export function Header() {
@@ -36,8 +37,8 @@ export function Header() {
   }, [isMobileMenuOpen]);
 
   return (
-    <div className="border-b">
-      <div className="flex h-20 items-center px-5 md:px-6 gap-2 md:gap-4">
+    <div className="border-b md:border-b-0 md:border-r md:w-64 md:shrink-0 md:h-screen md:sticky md:top-0 bg-background z-30">
+      <div className="flex h-20 md:h-full md:flex-col items-center md:items-start px-5 md:px-6 md:py-8 gap-2 md:gap-6">
         <Button
           variant="ghost"
           size="icon"
@@ -48,26 +49,57 @@ export function Header() {
           <Menu className="h-10 w-10" />
         </Button>
 
-        <nav className="hidden md:flex items-center space-x-4 lg:space-x-6">
-          <NavLink to="/">
-            <ChartSpline className="h-4 w-4" />
+        <div className="hidden md:flex items-center gap-3 w-full px-2 mb-2">
+          <span className="font-bold text-xl tracking-tight text-primary">
+            VeroFlux
+          </span>
+        </div>
+
+        <nav className="hidden md:flex md:flex-col items-start space-x-0 md:space-x-0 space-y-0 md:space-y-2 w-full">
+          <NavLink
+            to="/"
+            className="w-full justify-start px-3 py-2.5 rounded-md hover:bg-accent hover:text-accent-foreground data-[current=true]:bg-accent data-[current=true]:text-accent-foreground transition-colors"
+          >
+            <ChartSpline className="h-4 w-4 mr-2" />
             <span>Dashboard</span>
           </NavLink>
 
-          <NavLink to="/clients">
-            <UserRoundPen className="h-4 w-4" />
+          <NavLink
+            to="/clients"
+            className="w-full justify-start px-3 py-2.5 rounded-md hover:bg-accent hover:text-accent-foreground data-[current=true]:bg-accent data-[current=true]:text-accent-foreground transition-colors"
+          >
+            <UserRoundPen className="h-4 w-4 mr-2" />
             <span>Empréstimos</span>
           </NavLink>
 
-          <NavLink to="/delinquent-clients">
-            <AlertTriangle className="h-4 w-4" />
+          <NavLink
+            to="/delinquent-clients"
+            className="w-full justify-start px-3 py-2.5 rounded-md hover:bg-accent hover:text-accent-foreground data-[current=true]:bg-accent data-[current=true]:text-accent-foreground transition-colors"
+          >
+            <AlertTriangle className="h-4 w-4 mr-2" />
             <span>Inadimplentes</span>
           </NavLink>
+
+          <NavLink
+            to="/manual"
+            className="w-full justify-start px-3 py-2.5 rounded-md hover:bg-accent hover:text-accent-foreground data-[current=true]:bg-accent data-[current=true]:text-accent-foreground transition-colors"
+          >
+            <BookOpen className="h-4 w-4 mr-2" />
+            <span>Manual do Usuário</span>
+          </NavLink>
+
+          <SidebarThemeToggle />
         </nav>
 
-        <div className="ml-auto flex items-center gap-2">
+        {/* Versão Desktop: Perfil do usuário tipo cartão no rodapé */}
+        <div className="hidden md:flex mt-auto w-full">
+          <SidebarAccountProfile />
+        </div>
+
+        {/* Versão Mobile: Saudação e Tema na Topbar */}
+        <div className="ml-auto flex md:hidden items-center gap-2">
+          <MobileUserGreeting />
           <ThemeToggle />
-          <AccountMenu />
         </div>
       </div>
 
@@ -80,7 +112,7 @@ export function Header() {
         onClick={() => setIsMobileMenuOpen(false)}
       >
         <div
-          className={`h-full w-1/2 bg-background border-r p-4 transition-transform duration-300 ease-in-out ${
+          className={`h-full w-3/4 md:w-1/2 bg-background border-r p-4 transition-transform duration-300 ease-in-out flex flex-col ${
             isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
           }`}
           onClick={(event) => event.stopPropagation()}
@@ -123,7 +155,20 @@ export function Header() {
               <AlertTriangle className="h-5 w-5" />
               <span>Inadimplentes</span>
             </NavLink>
+
+            <NavLink
+              to="/manual"
+              className="rounded-md px-3 py-2 text-base hover:bg-accent"
+            >
+              <BookOpen className="h-5 w-5" />
+              <span>Manual</span>
+            </NavLink>
           </nav>
+
+          <div className="mt-auto hidden md:block" />
+          <div className="md:hidden mt-auto -mx-2">
+            <SidebarAccountProfile />
+          </div>
         </div>
       </div>
     </div>
