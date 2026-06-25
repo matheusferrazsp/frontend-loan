@@ -1,4 +1,4 @@
-import { Plus } from "lucide-react";
+import { FileDown, Plus, Sheet } from "lucide-react";
 // 1. IMPORTAÇÃO DO SOCKET.IO
 import { io } from "socket.io-client";
 
@@ -17,6 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { api } from "@/lib/axios";
+import { exportarCSV } from "@/lib/exportCSV";
 
 import { ClientDetailsProps } from "./client-details";
 import { ClientTableFilters, FilterData } from "./client-table-filters";
@@ -191,24 +192,122 @@ export function Clients() {
     <div className="p-0 md:p-8 flex flex-col gap-4">
       <Helmet title="Empréstimos" />
 
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 print:hidden">
         <h1 className="text-3xl font-bold tracking-tight">Empréstimos</h1>
       </div>
 
-      <div className="space-y-2.5 mt-4">
+      <div className="space-y-2.5 mt-4 print:hidden">
         <ClientTableFilters onFilter={handleFilter} />
       </div>
 
-      <div className="flex items-center justify-between mt-4 mb-4">
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button size="sm">
-              <Plus className="mr-2 h-4 w-4" />
-              Novo cliente
-            </Button>
-          </DialogTrigger>
-          <CreateClientDialog onSuccess={fetchClients} />
-        </Dialog>
+      <div className="flex items-center justify-between mt-4 mb-4 print:hidden">
+        <div className="flex gap-2">
+          <Button size="sm" variant="outline" onClick={() => window.print()}>
+            <FileDown className="h-4 w-4 mr-1.5" />
+            <span className="md:hidden">PDF</span>
+            <span className="hidden md:inline">Imprimir Tabela</span>
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() =>
+              exportarCSV(
+                filteredClients,
+                [
+                  { titulo: "Nome", chave: "name" },
+                  { titulo: "CPF", chave: "cpf" },
+                  { titulo: "Telefone", chave: "phone" },
+                  { titulo: "E-mail", chave: "email" },
+                  { titulo: "Endereço", chave: "address" },
+                  {
+                    titulo: "Valor do Empréstimo",
+                    formatar: (c) =>
+                      Number(c.value).toLocaleString("pt-BR", {
+                        style: "currency",
+                        currency: "BRL",
+                      }),
+                  },
+                  {
+                    titulo: "Mensalidade",
+                    formatar: (c) =>
+                      Number(c.monthlyPaid).toLocaleString("pt-BR", {
+                        style: "currency",
+                        currency: "BRL",
+                      }),
+                  },
+                  { titulo: "Parcelas", chave: "installments" },
+                  { titulo: "Parcelas Pagas", chave: "installmentsPaid" },
+                  { titulo: "Parcelas em Atraso", chave: "lateInstallments" },
+                  {
+                    titulo: "Valor Pago",
+                    formatar: (c) =>
+                      Number(c.valuePaid).toLocaleString("pt-BR", {
+                        style: "currency",
+                        currency: "BRL",
+                      }),
+                  },
+                  {
+                    titulo: "Data do Empréstimo",
+                    formatar: (c) =>
+                      c.loanDate
+                        ? new Date(c.loanDate).toLocaleDateString("pt-BR", {
+                            timeZone: "UTC",
+                          })
+                        : "",
+                  },
+                  {
+                    titulo: "Próximo Vencimento",
+                    formatar: (c) =>
+                      c.nextPaymentDate
+                        ? new Date(c.nextPaymentDate).toLocaleDateString(
+                            "pt-BR",
+                            { timeZone: "UTC" },
+                          )
+                        : "",
+                  },
+                  {
+                    titulo: "Última Data de Pagamento",
+                    formatar: (c) =>
+                      c.lastPaymentDate
+                        ? new Date(c.lastPaymentDate).toLocaleDateString(
+                            "pt-BR",
+                            { timeZone: "UTC" },
+                          )
+                        : "",
+                  },
+                  {
+                    titulo: "Status",
+                    formatar: (c) =>
+                      c.isDelinquent ? "Inadimplente" : "Em dia",
+                  },
+                  {
+                    titulo: "Dívida Quitada",
+                    formatar: (c) => (c.totalDebtPaid ? "Sim" : "Não"),
+                  },
+                ],
+                "clientes.csv",
+              )
+            }
+          >
+            <Sheet className="h-4 w-4 mr-1.5" />
+            <span className="md:hidden">CSV</span>
+            <span className="hidden md:inline">Exportar CSV</span>
+          </Button>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button size="sm">
+                <Plus className="h-4 w-4 mr-1.5" />
+                <span className="md:hidden">Novo</span>
+                <span className="hidden md:inline">Novo cliente</span>
+              </Button>
+            </DialogTrigger>
+            <CreateClientDialog onSuccess={fetchClients} />
+          </Dialog>
+        </div>
+      </div>
+
+      <div className="hidden print:block mb-4">
+        <h1 className="text-2xl font-bold">Relatório de Empréstimos</h1>
       </div>
 
       <div className="-mx-5 md:mx-0 border-y md:border-x md:rounded-md overflow-hidden">
@@ -222,8 +321,9 @@ export function Clients() {
               </TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Vencimento</TableHead>
-              <TableHead className="w-[164px]">Editar</TableHead>
-              <TableHead className="w-[132px]">Excluir</TableHead>
+              <TableHead className="hidden print:table-cell">Últ. Pagamento</TableHead>
+              <TableHead className="w-[164px] print:hidden">Editar</TableHead>
+              <TableHead className="w-[132px] print:hidden">Excluir</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -253,16 +353,18 @@ export function Clients() {
         </Table>
       </div>
 
-      <Pagination
-        pageIndex={pageIndex}
-        totalCount={filteredClients.length}
-        perPage={10}
-        onPageChange={(page) => {
-          console.log("Indo para a página:", page);
-          setPageIndex(page);
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        }}
-      />
+      <div className="print:hidden">
+        <Pagination
+          pageIndex={pageIndex}
+          totalCount={filteredClients.length}
+          perPage={10}
+          onPageChange={(page) => {
+            console.log("Indo para a página:", page);
+            setPageIndex(page);
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
+        />
+      </div>
     </div>
   );
 }

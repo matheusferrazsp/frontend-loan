@@ -1,4 +1,4 @@
-import { Loader2, MessageCircle, Trash2 } from "lucide-react";
+import { Loader2, MessageCircle, Trash2, FileDown } from "lucide-react";
 import { toast } from "sonner";
 
 import { useEffect, useState } from "react";
@@ -142,10 +142,18 @@ export function ClientDetails(props: ClientDetailsProps) {
   return (
     <DialogContent className="sm:max-w-[500px] w-[98vw] h-[85vh] p-0 flex flex-col rounded-lg overflow-x-hidden">
       <DialogHeader className="pt-8 px-6 pb-2">
-        <DialogTitle className="break-all text-lg">
-          Cliente: {props.name}
-        </DialogTitle>
-        <DialogDescription>Detalhes financeiros e cadastrais</DialogDescription>
+        <div className="flex items-start justify-between pr-6">
+          <div className="flex flex-col gap-1.5 text-left">
+            <DialogTitle className="break-all text-lg">
+              Cliente: {props.name}
+            </DialogTitle>
+            <DialogDescription>Detalhes financeiros e cadastrais</DialogDescription>
+          </div>
+          <Button size="sm" variant="outline" onClick={() => window.print()} className="print:hidden shrink-0">
+            <FileDown className="mr-2 h-4 w-4" />
+            Salvar PDF
+          </Button>
+        </div>
       </DialogHeader>
 
       <div className="w-full flex-1 overflow-y-auto px-2 pb-6 scrollbar-thin ">
@@ -191,7 +199,7 @@ export function ClientDetails(props: ClientDetailsProps) {
                   <Button
                     asChild
                     size="sm"
-                    className="bg-emerald-600 h-7 px-2 text-[10px] gap-1"
+                    className="bg-emerald-600 h-7 px-2 text-[10px] gap-1 print:hidden"
                   >
                     <a
                       href={whatsappLink}
@@ -395,7 +403,7 @@ export function ClientDetails(props: ClientDetailsProps) {
                 <TableRow>
                   <TableHead>Data</TableHead>
                   <TableHead className="text-right">Valor pago</TableHead>
-                  <TableHead className="w-[60px]"></TableHead>
+                  <TableHead className="w-[60px] print:hidden"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -426,7 +434,7 @@ export function ClientDetails(props: ClientDetailsProps) {
                       <TableCell className="text-right text-sm font-medium text-emerald-600">
                         {formatCurrency(Number(payment.amount) || 0)}
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-right print:hidden">
                         <Button
                           variant="ghost"
                           size="sm"

@@ -148,16 +148,31 @@ export function ClientsTableRow({
       </TableCell>
 
       <TableCell>
-        <Button variant="ghost" size="xs" className="w-full md:w-fit ">
+        <Button variant="ghost" size="xs" className="w-full md:w-fit print:hidden">
           {client.nextPaymentDate
             ? new Date(client.nextPaymentDate).toLocaleDateString("pt-BR", {
                 timeZone: "UTC",
               })
             : "---"}
         </Button>
+        <span className="hidden print:inline text-sm">
+          {client.nextPaymentDate
+            ? new Date(client.nextPaymentDate).toLocaleDateString("pt-BR", {
+                timeZone: "UTC",
+              })
+            : "---"}
+        </span>
       </TableCell>
 
-      <TableCell>
+      <TableCell className="hidden print:table-cell text-sm">
+        {client.lastPaymentDate
+          ? new Date(client.lastPaymentDate).toLocaleDateString("pt-BR", {
+              timeZone: "UTC",
+            })
+          : "---"}
+      </TableCell>
+
+      <TableCell className="print:hidden">
         <Dialog open={isUpdateOpen} onOpenChange={setIsUpdateOpen}>
           <DialogTrigger asChild>
             <Button variant="outline" size="sm">
@@ -173,7 +188,7 @@ export function ClientsTableRow({
         </Dialog>
       </TableCell>
 
-      <TableCell>
+      <TableCell className="print:hidden">
         {/* COMPONENTE DE CONFIRMAÇÃO DO SHADCN */}
         <AlertDialog>
           <AlertDialogTrigger asChild>
