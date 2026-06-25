@@ -65,11 +65,29 @@ export function ClientTableFilters({ onFilter }: FilterProps) {
         <div className="order-3 relative flex items-center h-9 md:w-[150px] w-[150px] rounded-md border border-input bg-transparent px-2 text-xs shadow-sm transition-colors focus-within:ring-1 focus-within:ring-ring">
           <input
             {...register("date")}
-            type="date"
+            type={watch("date") ? "date" : "text"}
+            placeholder="Data"
+            onFocus={(e) => {
+              e.target.type = "date";
+            }}
+            onBlur={(e) => {
+              if (!e.target.value) e.target.type = "text";
+            }}
             className="custom-date-input flex-1 bg-transparent border-0 outline-none w-full text-foreground placeholder:text-muted-foreground pr-6 relative z-10"
             style={{ minWidth: 0, appearance: "none" }}
           />
-          <Calendar className="absolute right-2.5 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none z-0" />
+          <Calendar
+            className="absolute right-2.5 top-2.5 h-4 w-4 text-muted-foreground cursor-pointer z-20 pointer-events-auto"
+            onClick={(e) => {
+              const input = e.currentTarget.parentElement?.querySelector("input") as HTMLInputElement;
+              if (input) {
+                if (input.type !== "date") input.type = "date";
+                if (typeof input.showPicker === "function") {
+                  try { input.showPicker(); } catch (err) {}
+                }
+              }
+            }}
+          />
         </div>
 
         <Controller

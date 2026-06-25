@@ -1,5 +1,20 @@
 "use-client";
 
+import {
+  AlertTriangle,
+  AlignLeft,
+  Calendar,
+  CheckCircle2,
+  CheckSquare,
+  CreditCard,
+  DollarSign,
+  Hash,
+  Mail,
+  MapPin,
+  Percent,
+  Phone,
+  User,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { useEffect } from "react";
@@ -195,48 +210,90 @@ export function CreateClientDialog({ onSuccess }: CreateClientDialogProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2 overflow-x-hidden rounded-md">
               <Label>Data do Empréstimo</Label>
-              <Input
-                className=" "
-                type="date"
-                {...register("loanDate")}
-                required
-              />
+              <div className="relative">
+                <Calendar
+                  className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground cursor-pointer z-20 pointer-events-auto"
+                  onClick={(e) => {
+                    const input = e.currentTarget.parentElement?.querySelector(
+                      "input",
+                    ) as HTMLInputElement;
+                    if (input && typeof input.showPicker === "function") {
+                      try {
+                        input.showPicker();
+                      } catch (err) {}
+                    }
+                  }}
+                />
+                <Input
+                  className="pl-9 custom-date-input"
+                  type="date"
+                  {...register("loanDate")}
+                  required
+                />
+              </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="name">Nome</Label>
-              <Input id="name" {...register("name")} required />
+              <div className="relative">
+                <User className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="name"
+                  className="pl-9"
+                  {...register("name")}
+                  required
+                />
+              </div>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="email">E-mail</Label>
-              <Input id="email" type="email" {...register("email")} />
+              <div className="relative">
+                <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="email"
+                  type="email"
+                  className="pl-9"
+                  {...register("email")}
+                />
+              </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="cpf">CPF</Label>
-              <Input
-                inputMode="numeric"
-                maxLength={14}
-                {...register("cpf")}
-                onInput={handleCPFMask}
-              />
+              <div className="relative">
+                <CreditCard className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  inputMode="numeric"
+                  maxLength={14}
+                  className="pl-9"
+                  {...register("cpf")}
+                  onInput={handleCPFMask}
+                />
+              </div>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="phone">Telefone</Label>
-              <Input
-                inputMode="numeric"
-                maxLength={15}
-                {...register("phone")}
-                onInput={handlePhoneMask}
-              />
+              <div className="relative">
+                <Phone className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  inputMode="numeric"
+                  maxLength={15}
+                  className="pl-9"
+                  {...register("phone")}
+                  onInput={handlePhoneMask}
+                />
+              </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="address">Endereço</Label>
-              <Input id="address" {...register("address")} />
+              <div className="relative">
+                <MapPin className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input id="address" className="pl-9" {...register("address")} />
+              </div>
             </div>
           </div>
 
@@ -245,84 +302,164 @@ export function CreateClientDialog({ onSuccess }: CreateClientDialogProps) {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label>Valor Empréstimo (R$)</Label>
-              <Input
-                type="text"
-                inputMode="numeric"
-                placeholder="0,00"
-                {...register("value", { onChange: handleMoneyMask })}
-                required
-              />
+              <div className="relative">
+                <DollarSign className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="0,00"
+                  className="pl-9"
+                  {...register("value", { onChange: handleMoneyMask })}
+                  required
+                />
+              </div>
             </div>
             <div className="space-y-2">
               <Label>Juros (%)</Label>
-              <Input
-                type="number"
-                step="0.01"
-                {...register("loanInterest")}
-                required
-              />
+              <div className="relative">
+                <Percent className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="number"
+                  step="0.01"
+                  className="pl-9"
+                  {...register("loanInterest")}
+                  required
+                />
+              </div>
             </div>
             <div className="space-y-2">
               <Label>Juros Mensal (R$)</Label>
-              <Input
-                type="text"
-                inputMode="numeric"
-                placeholder="0,00"
-                {...register("monthlyPaid", { onChange: handleMoneyMask })}
-                required
-              />
+              <div className="relative">
+                <DollarSign className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="0,00"
+                  className="pl-9"
+                  {...register("monthlyPaid", { onChange: handleMoneyMask })}
+                  required
+                />
+              </div>
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label>Total Parcelas</Label>
-              <Input type="number" {...register("installments")} />
+              <div className="relative">
+                <Hash className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="number"
+                  className="pl-9"
+                  {...register("installments")}
+                />
+              </div>
             </div>
             <div className="space-y-2">
-              <Label>Pagas</Label>
-              <Input type="number" {...register("installmentsPaid")} />
+              <Label>Mensalidades Pagas</Label>
+              <div className="relative">
+                <CheckCircle2 className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="number"
+                  className="pl-9"
+                  {...register("installmentsPaid")}
+                />
+              </div>
             </div>
             <div className="space-y-2">
-              <Label>Atrasadas</Label>
-              <Input type="number" {...register("lateInstallments")} />
+              <Label>Mensalidades Atrasadas</Label>
+              <div className="relative">
+                <AlertTriangle className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="number"
+                  className="pl-9"
+                  {...register("lateInstallments")}
+                />
+              </div>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label>Total Retornado (R$)</Label>
-              <Input
-                type="text"
-                inputMode="numeric"
-                placeholder="0,00"
-                {...register("valuePaid", { onChange: handleMoneyMask })}
-              />
+              <div className="relative">
+                <DollarSign className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="0,00"
+                  className="pl-9"
+                  {...register("valuePaid", { onChange: handleMoneyMask })}
+                />
+              </div>
             </div>
             <div className="space-y-2 overflow-x-hidden rounded-md">
               <Label>Próx. Mensalidade</Label>
-              <Input type="date" {...register("nextPaymentDate")} required />
+              <div className="relative">
+                <Calendar
+                  className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground cursor-pointer z-20 pointer-events-auto"
+                  onClick={(e) => {
+                    const input = e.currentTarget.parentElement?.querySelector(
+                      "input",
+                    ) as HTMLInputElement;
+                    if (input && typeof input.showPicker === "function") {
+                      try {
+                        input.showPicker();
+                      } catch (err) {}
+                    }
+                  }}
+                />
+                <Input
+                  type="date"
+                  className="pl-9 custom-date-input"
+                  {...register("nextPaymentDate")}
+                  required
+                />
+              </div>
             </div>
             <div className="space-y-2 overflow-x-hidden rounded-md">
               <Label>Última Data Paga</Label>
-              <Input type="date" {...register("lastPaymentDate")} />
+              <div className="relative">
+                <Calendar
+                  className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground cursor-pointer z-20 pointer-events-auto"
+                  onClick={(e) => {
+                    const input = e.currentTarget.parentElement?.querySelector(
+                      "input",
+                    ) as HTMLInputElement;
+                    if (input && typeof input.showPicker === "function") {
+                      try {
+                        input.showPicker();
+                      } catch (err) {}
+                    }
+                  }}
+                />
+                <Input
+                  type="date"
+                  className="pl-9 custom-date-input"
+                  {...register("lastPaymentDate")}
+                />
+              </div>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label>Último Valor Pago (R$)</Label>
-              <Input
-                type="text"
-                inputMode="numeric"
-                placeholder="0,00"
-                {...register("lastPaymentAmount", {
-                  onChange: handleLastPaymentAmountChange,
-                })}
-                onFocus={() => {
-                  lastPaymentBaseRef.current = parseMoney(watch("valuePaid"));
-                }}
-              />
+              <div className="relative">
+                <DollarSign className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="0,00"
+                  className="pl-9"
+                  {...register("lastPaymentAmount", {
+                    onChange: handleLastPaymentAmountChange,
+                  })}
+                  onFocus={() => {
+                    lastPaymentBaseRef.current = parseMoney(watch("valuePaid"));
+                  }}
+                />
+              </div>
             </div>
             <div className="space-y-2">
               <Label>Status Mensalidade</Label>
@@ -336,12 +473,17 @@ export function CreateClientDialog({ onSuccess }: CreateClientDialogProps) {
                     value={String(field.value)}
                   >
                     <SelectTrigger
-                      className={
+                      className={`pl-9 relative ${
                         field.value === false || field.value === "false"
                           ? "text-rose-500"
                           : "text-emerald-500"
-                      }
+                      }`}
                     >
+                      {field.value === false || field.value === "false" ? (
+                        <AlertTriangle className="absolute left-3 top-2.5 h-4 w-4 text-rose-500" />
+                      ) : (
+                        <CheckCircle2 className="absolute left-3 top-2.5 h-4 w-4 text-emerald-500" />
+                      )}
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -363,7 +505,12 @@ export function CreateClientDialog({ onSuccess }: CreateClientDialogProps) {
                     onValueChange={field.onChange}
                     value={String(field.value)}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="pl-9 relative">
+                      {field.value === true || field.value === "true" ? (
+                        <CheckCircle2 className="absolute left-3 top-2.5 h-4 w-4 text-emerald-500" />
+                      ) : (
+                        <AlertTriangle className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+                      )}
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -378,11 +525,15 @@ export function CreateClientDialog({ onSuccess }: CreateClientDialogProps) {
 
           <div className="space-y-2">
             <Label htmlFor="observations">Observações</Label>
-            <Input
-              id="observations"
-              {...register("observations")}
-              placeholder="Notas extras..."
-            />
+            <div className="relative">
+              <AlignLeft className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                id="observations"
+                className="pl-9"
+                {...register("observations")}
+                placeholder="Notas extras..."
+              />
+            </div>
           </div>
         </div>
 
