@@ -25,14 +25,15 @@ export interface FilterData {
 }
 
 export function ClientTableFilters({ onFilter }: FilterProps) {
-  const { register, control, watch, reset, getValues } = useForm<FilterData>({
-    defaultValues: {
-      name: "",
-      date: "",
-      status: "all",
-      debtStatus: "pending",
-    },
-  });
+  const { register, control, watch, reset, getValues, setValue } =
+    useForm<FilterData>({
+      defaultValues: {
+        name: "",
+        date: "",
+        status: "all",
+        debtStatus: "pending",
+      },
+    });
 
   // "Assiste" todos os campos em tempo real
 
@@ -46,6 +47,17 @@ export function ClientTableFilters({ onFilter }: FilterProps) {
     });
     return () => subscription.unsubscribe();
   }, [watch, onFilter]);
+
+  const handleDateMask = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let value = e.target.value.replace(/\D/g, "");
+    if (value.length > 8) value = value.substring(0, 8);
+    if (value.length > 4) {
+      value = value.replace(/^(\d{2})(\d{2})(\d+)/, "$1/$2/$3");
+    } else if (value.length > 2) {
+      value = value.replace(/^(\d{2})(\d+)/, "$1/$2");
+    }
+    e.target.value = value;
+  };
 
   return (
     <>
@@ -65,29 +77,29 @@ export function ClientTableFilters({ onFilter }: FilterProps) {
         <div className="order-3 relative flex items-center h-9 md:w-[150px] w-[150px] rounded-md border border-input bg-transparent px-2 text-xs shadow-sm transition-colors focus-within:ring-1 focus-within:ring-ring">
           <input
             {...register("date")}
-            type={watch("date") ? "date" : "text"}
+            type="text"
+            inputMode="numeric"
             placeholder="Data"
-            onFocus={(e) => {
-              e.target.type = "date";
-            }}
-            onBlur={(e) => {
-              if (!e.target.value) e.target.type = "text";
-            }}
-            className="custom-date-input flex-1 bg-transparent border-0 outline-none w-full text-foreground placeholder:text-muted-foreground pr-6 relative z-10"
+            onInput={handleDateMask}
+            className="flex-1 bg-transparent border-0 outline-none w-full text-foreground placeholder:text-muted-foreground pr-6 relative z-10"
             style={{ minWidth: 0, appearance: "none" }}
           />
-          <Calendar
-            className="absolute right-2.5 top-2.5 h-4 w-4 text-muted-foreground cursor-pointer z-20 pointer-events-auto"
-            onClick={(e) => {
-              const input = e.currentTarget.parentElement?.querySelector("input") as HTMLInputElement;
-              if (input) {
-                if (input.type !== "date") input.type = "date";
-                if (typeof input.showPicker === "function") {
-                  try { input.showPicker(); } catch (err) {}
+          <div className="absolute right-2 top-1/2 -translate-y-1/2 h-5 w-5 flex items-center justify-center z-20 cursor-pointer">
+            <input
+              type="date"
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+              onChange={(e) => {
+                if (e.target.value) {
+                  const [y, m, d] = e.target.value.split("-");
+                  setValue("date", `${d}/${m}/${y}`, {
+                    shouldValidate: true,
+                    shouldDirty: true,
+                  });
                 }
-              }
-            }}
-          />
+              }}
+            />
+            <Calendar className="h-4 w-4 text-muted-foreground pointer-events-none" />
+          </div>
         </div>
 
         <Controller

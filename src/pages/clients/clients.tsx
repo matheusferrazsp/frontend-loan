@@ -75,7 +75,18 @@ export function Clients() {
                 : client.lateInstallments === 0;
 
         const matchDate = data.date
-          ? client.nextPaymentDate?.includes(data.date)
+          ? (() => {
+              let searchDate = data.date;
+              if (searchDate.includes("/")) {
+                const parts = searchDate.split("/");
+                if (parts.length === 3) {
+                  searchDate = `${parts[2]}-${parts[1]}-${parts[0]}`;
+                } else if (parts.length === 2) {
+                  searchDate = `${parts[1]}-${parts[0]}`;
+                }
+              }
+              return client.nextPaymentDate?.includes(searchDate);
+            })()
           : true;
 
         const clientDebtPaid =

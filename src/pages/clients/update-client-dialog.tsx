@@ -1,21 +1,21 @@
 "use-client";
 
-import { toast } from "sonner";
-import { 
-  AlertTriangle, 
-  AlignLeft, 
-  Calendar, 
-  CheckCircle2, 
-  CheckSquare, 
-  CreditCard, 
-  DollarSign, 
-  Hash, 
-  Mail, 
-  MapPin, 
-  Percent, 
-  Phone, 
-  User 
+import {
+  AlertTriangle,
+  AlignLeft,
+  Calendar,
+  CheckCircle2,
+  CheckSquare,
+  CreditCard,
+  DollarSign,
+  Hash,
+  Mail,
+  MapPin,
+  Percent,
+  Phone,
+  User,
 } from "lucide-react";
+import { toast } from "sonner";
 
 import { useEffect } from "react";
 import React from "react";
@@ -299,9 +299,13 @@ export function UpdateClientDialog({
                 <Calendar
                   className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground cursor-pointer z-20 pointer-events-auto"
                   onClick={(e) => {
-                    const input = e.currentTarget.parentElement?.querySelector("input") as HTMLInputElement;
+                    const input = e.currentTarget.parentElement?.querySelector(
+                      "input",
+                    ) as HTMLInputElement;
                     if (input && typeof input.showPicker === "function") {
-                      try { input.showPicker(); } catch (err) {}
+                      try {
+                        input.showPicker();
+                      } catch (err) {}
                     }
                   }}
                 />
@@ -417,18 +421,26 @@ export function UpdateClientDialog({
               <Label>Total Parcelas</Label>
               <div className="relative">
                 <Hash className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input type="number" className="pl-9" {...register("installments")} />
+                <Input
+                  type="number"
+                  className="pl-9"
+                  {...register("installments")}
+                />
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Pagas</Label>
+              <Label>Mensalidades Pagas</Label>
               <div className="relative">
                 <CheckCircle2 className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input type="number" className="pl-9" {...register("installmentsPaid")} />
+                <Input
+                  type="number"
+                  className="pl-9"
+                  {...register("installmentsPaid")}
+                />
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Atrasadas</Label>
+              <Label>Mensalidades Atrasadas</Label>
               <div className="relative">
                 <AlertTriangle className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -540,13 +552,22 @@ export function UpdateClientDialog({
                 <Calendar
                   className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground cursor-pointer z-20 pointer-events-auto"
                   onClick={(e) => {
-                    const input = e.currentTarget.parentElement?.querySelector("input") as HTMLInputElement;
+                    const input = e.currentTarget.parentElement?.querySelector(
+                      "input",
+                    ) as HTMLInputElement;
                     if (input && typeof input.showPicker === "function") {
-                      try { input.showPicker(); } catch (err) {}
+                      try {
+                        input.showPicker();
+                      } catch (err) {}
                     }
                   }}
                 />
-                <Input type="date" className="pl-9 custom-date-input" {...register("nextPaymentDate")} required />
+                <Input
+                  type="date"
+                  className="pl-9 custom-date-input"
+                  {...register("nextPaymentDate")}
+                  required
+                />
               </div>
             </div>
             <div className="space-y-2">
@@ -555,13 +576,21 @@ export function UpdateClientDialog({
                 <Calendar
                   className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground cursor-pointer z-20 pointer-events-auto"
                   onClick={(e) => {
-                    const input = e.currentTarget.parentElement?.querySelector("input") as HTMLInputElement;
+                    const input = e.currentTarget.parentElement?.querySelector(
+                      "input",
+                    ) as HTMLInputElement;
                     if (input && typeof input.showPicker === "function") {
-                      try { input.showPicker(); } catch (err) {}
+                      try {
+                        input.showPicker();
+                      } catch (err) {}
                     }
                   }}
                 />
-                <Input type="date" className="pl-9 custom-date-input" {...register("lastPaymentDate")} />
+                <Input
+                  type="date"
+                  className="pl-9 custom-date-input"
+                  {...register("lastPaymentDate")}
+                />
               </div>
             </div>
           </div>
