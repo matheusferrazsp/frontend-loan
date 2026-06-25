@@ -62,11 +62,17 @@ export function ClientTableFilters({ onFilter }: FilterProps) {
           placeholder="Nome "
           className="order-1 text-xs md:w-[320px] w-[150px]"
         />
-        <Input
-          {...register("date")}
-          type="date"
-          className="order-3 text-xs md:w-[150px] w-[150px]"
-        />
+        <div className="order-3 flex items-center h-9 md:w-[240px] w-[150px] rounded-md border border-input bg-transparent px-2 text-xs shadow-sm transition-colors focus-within:ring-1 focus-within:ring-ring">
+          <span className="text-muted-foreground font-medium mr-1.5 whitespace-nowrap">
+            Data de vencimento:
+          </span>
+          <input
+            {...register("date")}
+            type="date"
+            className="flex-1 bg-transparent border-0 outline-none w-full text-foreground placeholder:text-muted-foreground"
+            style={{ minWidth: 0, appearance: "none" }}
+          />
+        </div>
 
         <Controller
           name="status"

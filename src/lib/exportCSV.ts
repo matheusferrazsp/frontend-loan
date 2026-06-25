@@ -53,6 +53,21 @@ export function exportarCSV<T>(
     type: "text/csv;charset=utf-8;",
   });
 
+  const file = new File([blob], nomeArquivo, { type: "text/csv" });
+
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+  if (isMobile && navigator.canShare && navigator.canShare({ files: [file] })) {
+    navigator.share({
+      files: [file],
+      title: "Exportar Dados",
+    }).catch((err) => {
+      console.log("Erro no compartilhamento ou cancelado:", err);
+    });
+    return;
+  }
+
+  // Fallback para navegadores Desktop ou quando a Share API não estiver disponível
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;

@@ -37,7 +37,7 @@ export function Header() {
   }, [isMobileMenuOpen]);
 
   return (
-    <div className="border-b md:border-b-0 md:border-r md:w-64 md:shrink-0 md:h-screen md:sticky md:top-0 bg-background z-30">
+    <div className="border-b md:border-b-0 md:border-r md:w-64 md:shrink-0 md:h-screen sticky top-0 bg-background z-30">
       <div className="flex h-20 md:h-full md:flex-col items-center md:items-start px-5 md:px-6 md:py-8 gap-2 md:gap-6">
         <Button
           variant="ghost"

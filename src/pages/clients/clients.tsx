@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/table";
 import { api } from "@/lib/axios";
 import { exportarCSV } from "@/lib/exportCSV";
+import { printHtml } from "@/lib/printHtml";
 
 import { ClientDetailsProps } from "./client-details";
 import { ClientTableFilters, FilterData } from "./client-table-filters";
@@ -263,12 +264,7 @@ export function Clients() {
       </body>
       </html>`;
 
-    const win = window.open("", "_blank");
-    if (!win) return;
-    win.document.write(html);
-    win.document.close();
-    win.focus();
-    setTimeout(() => { win.print(); }, 300);
+    printHtml(html);
   }
 
   return (

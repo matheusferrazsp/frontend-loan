@@ -20,6 +20,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { api } from "@/lib/axios";
+import { printHtml } from "@/lib/printHtml";
 
 interface ClientPayment {
   id: string;
@@ -156,29 +157,32 @@ export function ClientDetails(props: ClientDetailsProps) {
           <tr><td class="label">\u00daltimo Pagamento</td><td class="value">${formatDate(props.lastPaymentDate)}</td></tr>
         </table>
 
-        ${props.observations ? `
+        ${
+          props.observations
+            ? `
         <p class="section-title">Observa\u00e7\u00f5es</p>
         <p style="font-size:12px;color:#374151;font-style:italic;padding:8px 10px">${props.observations}</p>
-        ` : ""}
+        `
+            : ""
+        }
 
         <p class="section-title">Hist\u00f3rico de Pagamentos</p>
-        ${payments.length > 0 ? `
+        ${
+          payments.length > 0
+            ? `
         <table>
           <thead><tr><th>Data</th><th style="text-align:right">Valor Pago</th><th>Observa\u00e7\u00e3o</th></tr></thead>
           <tbody>${paymentsRows}</tbody>
         </table>
-        ` : `<p style="font-size:12px;color:#6b7280;padding:8px 10px">Nenhum pagamento registrado.</p>`}
+        `
+            : `<p style="font-size:12px;color:#6b7280;padding:8px 10px">Nenhum pagamento registrado.</p>`
+        }
 
         <p class="footer">VeroFlux \u00b7 ${window.location.hostname}</p>
       </body>
       </html>`;
 
-    const win = window.open("", "_blank");
-    if (!win) return;
-    win.document.write(html);
-    win.document.close();
-    win.focus();
-    setTimeout(() => { win.print(); }, 300);
+    printHtml(html);
   }
 
   const handleDeletePayment = async (paymentId: string) => {
@@ -236,7 +240,7 @@ export function ClientDetails(props: ClientDetailsProps) {
   }, [props.id]);
 
   return (
-    <DialogContent className="sm:w-[70vw] w-[95vw] h-[85vh] p-0 flex flex-col rounded-lg overflow-x-hidden">
+    <DialogContent className="sm:w-[70vw] w-[95vw] md:w-[50vw] md:h-[95vh] h-[85vh] p-0 flex flex-col rounded-lg overflow-x-hidden">
       <DialogHeader className="pt-8 px-6 pb-2">
         <div className="flex items-start justify-between pr-6">
           <div className="flex flex-col gap-1.5 text-left">
