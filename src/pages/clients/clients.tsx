@@ -188,6 +188,89 @@ export function Clients() {
     }
   }
 
+  function printClientsTable() {
+    const formatCurrency = (value: number) =>
+      Number(value).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+
+    const formatDate = (dateString: string) => {
+      if (!dateString) return "---";
+      return new Date(dateString).toLocaleDateString("pt-BR", { timeZone: "UTC" });
+    };
+
+    const getStatus = (client: (typeof filteredClients)[0]) => {
+      if (client.isDelinquent) return { text: "Inadimplente", color: "#dc2626" };
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (client.nextPaymentDate) {
+        const due = new Date(client.nextPaymentDate);
+        const dueZero = new Date(due.getUTCFullYear(), due.getUTCMonth(), due.getUTCDate());
+        if (dueZero.getTime() === today.getTime()) return { text: "Vence hoje", color: "#d97706" };
+        if (dueZero < today || client.lateInstallments > 0) return { text: "Atrasado", color: "#dc2626" };
+      }
+      return { text: "Em dia", color: "#16a34a" };
+    };
+
+    const rows = filteredClients
+      .map((c) => {
+        const status = getStatus(c);
+        return `
+        <tr>
+          <td>${c.name}</td>
+          <td style="text-align:right">${formatCurrency(c.monthlyPaid)}</td>
+          <td style="color:${status.color};font-weight:600">${status.text}</td>
+          <td style="text-align:right">${formatDate(c.nextPaymentDate)}</td>
+          <td style="text-align:right">${formatDate(c.lastPaymentDate)}</td>
+        </tr>`;
+      })
+      .join("");
+
+    const html = `
+      <!DOCTYPE html>
+      <html lang="pt-BR">
+      <head>
+        <meta charset="UTF-8" />
+        <title>Relat\u00f3rio de Empr\u00e9stimos</title>
+        <style>
+          * { box-sizing: border-box; margin: 0; padding: 0; }
+          body { font-family: Arial, sans-serif; font-size: 13px; color: #111; padding: 32px; }
+          h1 { font-size: 18px; margin-bottom: 4px; }
+          .subtitle { color: #6b7280; font-size: 12px; margin-bottom: 24px; }
+          table { width: 100%; border-collapse: collapse; }
+          th { text-align: left; background: #f9fafb; color: #6b7280; font-size: 11px; font-weight: 600; padding: 8px 10px; border-bottom: 2px solid #e5e7eb; }
+          td { padding: 8px 10px; border-bottom: 1px solid #f3f4f6; font-size: 12px; }
+          tr:hover td { background: #f9fafb; }
+          .footer { margin-top: 32px; font-size: 10px; color: #9ca3af; text-align: right; }
+          .count { font-size: 12px; color: #6b7280; margin-bottom: 16px; }
+        </style>
+      </head>
+      <body>
+        <h1>Relat\u00f3rio de Empr\u00e9stimos</h1>
+        <p class="subtitle">Gerado em ${new Date().toLocaleString("pt-BR")}</p>
+        <p class="count">${filteredClients.length} cliente(s) listado(s)</p>
+        <table>
+          <thead>
+            <tr>
+              <th>Cliente</th>
+              <th style="text-align:right">Mensalidade</th>
+              <th>Status</th>
+              <th style="text-align:right">Vencimento</th>
+              <th style="text-align:right">\u00dalt. Pagamento</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>
+        <p class="footer">VeroFlux \u00b7 ${window.location.hostname}</p>
+      </body>
+      </html>`;
+
+    const win = window.open("", "_blank");
+    if (!win) return;
+    win.document.write(html);
+    win.document.close();
+    win.focus();
+    setTimeout(() => { win.print(); }, 300);
+  }
+
   return (
     <div className="p-0 md:p-8 flex flex-col gap-4">
       <Helmet title="Empréstimos" />
@@ -202,7 +285,7 @@ export function Clients() {
 
       <div className="flex items-center justify-between mt-4 mb-4 print:hidden">
         <div className="flex gap-2">
-          <Button size="sm" variant="outline" onClick={() => window.print()}>
+          <Button size="sm" variant="outline" onClick={printClientsTable}>
             <FileDown className="h-4 w-4 mr-1.5" />
             <span className="md:hidden">PDF</span>
             <span className="hidden md:inline">Imprimir Tabela</span>

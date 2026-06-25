@@ -1,4 +1,4 @@
-import { Loader2, MessageCircle, Trash2, FileDown } from "lucide-react";
+import { FileDown, Loader2, MessageCircle, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { useEffect, useState } from "react";
@@ -85,6 +85,102 @@ export function ClientDetails(props: ClientDetailsProps) {
   const whatsappNumber = props.phone.replace(/\D/g, "");
   const whatsappLink = `https://wa.me/55${whatsappNumber}`;
 
+  function printClientDetails() {
+    const paymentsRows = payments
+      .map(
+        (p) => `
+        <tr>
+          <td>${formatDate(p.date)}</td>
+          <td style="text-align:right;color:#16a34a;font-weight:600">${formatCurrency(Number(p.amount) || 0)}</td>
+          <td style="color:#6b7280;font-size:11px">${p.note ?? "\u2014"}</td>
+        </tr>`,
+      )
+      .join("");
+
+    const html = `
+      <!DOCTYPE html>
+      <html lang="pt-BR">
+      <head>
+        <meta charset="UTF-8" />
+        <title>Ficha \u2013 ${props.name}</title>
+        <style>
+          * { box-sizing: border-box; margin: 0; padding: 0; }
+          body { font-family: Arial, sans-serif; font-size: 13px; color: #111; padding: 32px; }
+          h1 { font-size: 18px; margin-bottom: 4px; }
+          .subtitle { color: #6b7280; font-size: 12px; margin-bottom: 24px; }
+          .section-title { font-size: 13px; font-weight: 700; margin: 20px 0 8px; border-bottom: 1px solid #e5e7eb; padding-bottom: 4px; }
+          table { width: 100%; border-collapse: collapse; }
+          td, th { padding: 7px 10px; border-bottom: 1px solid #f3f4f6; font-size: 12px; }
+          th { text-align: left; color: #6b7280; font-weight: 600; font-size: 11px; background: #f9fafb; }
+          .label { color: #6b7280; width: 45%; }
+          .value { font-weight: 500; text-align: right; }
+          .badge-ok { color: #16a34a; font-weight: 700; }
+          .badge-err { color: #dc2626; font-weight: 700; }
+          .footer { margin-top: 32px; font-size: 10px; color: #9ca3af; text-align: right; }
+        </style>
+      </head>
+      <body>
+        <h1>Ficha do Cliente: ${props.name}</h1>
+        <p class="subtitle">Detalhes financeiros e cadastrais \u00b7 Gerado em ${new Date().toLocaleString("pt-BR")}</p>
+
+        <p class="section-title">Dados Pessoais</p>
+        <table>
+          <tr><td class="label">Status</td><td class="value ${props.isDelinquent ? "badge-err" : "badge-ok"}">${props.isDelinquent ? "Inadimplente" : "Em dia"}</td></tr>
+          <tr><td class="label">Nome</td><td class="value">${props.name}</td></tr>
+          <tr><td class="label">Telefone</td><td class="value">${formatPhoneDisplay(props.phone)}</td></tr>
+          <tr><td class="label">E-mail</td><td class="value">${props.email || "---"}</td></tr>
+          <tr><td class="label">CPF</td><td class="value">${props.cpf || "---"}</td></tr>
+          <tr><td class="label">Endere\u00e7o</td><td class="value">${props.address || "---"}</td></tr>
+        </table>
+
+        <p class="section-title">Financeiro</p>
+        <table>
+          <tr><td class="label">Total do Empr\u00e9stimo</td><td class="value">${formatCurrency(props.value)}</td></tr>
+          <tr><td class="label">Juros / Mensalidade</td><td class="value">${props.loanInterest}% (${formatCurrency(props.monthlyPaid)})</td></tr>
+          <tr><td class="label">Total Pago</td><td class="value badge-ok">${formatCurrency(props.valuePaid)}</td></tr>
+          <tr><td class="label">\u00daltimo Valor Pago</td><td class="value badge-ok">${formatCurrency(props.lastPaymentAmount)}</td></tr>
+        </table>
+
+        <p class="section-title">Parcelas</p>
+        <table>
+          <tr><td class="label">Pagas / Total</td><td class="value">${props.installmentsPaid} de ${props.installments}</td></tr>
+          <tr><td class="label">Em Atraso</td><td class="value ${props.lateInstallments > 0 ? "badge-err" : ""}">${props.lateInstallments}</td></tr>
+          <tr><td class="label">Mensalidade Paga?</td><td class="value">${props.monthlyFeePaid ? "Sim" : "N\u00e3o"}</td></tr>
+          <tr><td class="label">D\u00edvida Quitada?</td><td class="value">${props.totalDebtPaid ? "Sim" : "N\u00e3o"}</td></tr>
+        </table>
+
+        <p class="section-title">Datas</p>
+        <table>
+          <tr><td class="label">Contrata\u00e7\u00e3o</td><td class="value">${formatDate(props.loanDate)}</td></tr>
+          <tr><td class="label">Pr\u00f3x. Vencimento</td><td class="value">${formatDate(props.nextPaymentDate)}</td></tr>
+          <tr><td class="label">\u00daltimo Pagamento</td><td class="value">${formatDate(props.lastPaymentDate)}</td></tr>
+        </table>
+
+        ${props.observations ? `
+        <p class="section-title">Observa\u00e7\u00f5es</p>
+        <p style="font-size:12px;color:#374151;font-style:italic;padding:8px 10px">${props.observations}</p>
+        ` : ""}
+
+        <p class="section-title">Hist\u00f3rico de Pagamentos</p>
+        ${payments.length > 0 ? `
+        <table>
+          <thead><tr><th>Data</th><th style="text-align:right">Valor Pago</th><th>Observa\u00e7\u00e3o</th></tr></thead>
+          <tbody>${paymentsRows}</tbody>
+        </table>
+        ` : `<p style="font-size:12px;color:#6b7280;padding:8px 10px">Nenhum pagamento registrado.</p>`}
+
+        <p class="footer">VeroFlux \u00b7 ${window.location.hostname}</p>
+      </body>
+      </html>`;
+
+    const win = window.open("", "_blank");
+    if (!win) return;
+    win.document.write(html);
+    win.document.close();
+    win.focus();
+    setTimeout(() => { win.print(); }, 300);
+  }
+
   const handleDeletePayment = async (paymentId: string) => {
     try {
       setDeletingPaymentId(paymentId);
@@ -140,16 +236,23 @@ export function ClientDetails(props: ClientDetailsProps) {
   }, [props.id]);
 
   return (
-    <DialogContent className="sm:max-w-[500px] w-[98vw] h-[85vh] p-0 flex flex-col rounded-lg overflow-x-hidden">
+    <DialogContent className="sm:w-[70vw] w-[95vw] h-[85vh] p-0 flex flex-col rounded-lg overflow-x-hidden">
       <DialogHeader className="pt-8 px-6 pb-2">
         <div className="flex items-start justify-between pr-6">
           <div className="flex flex-col gap-1.5 text-left">
             <DialogTitle className="break-all text-lg">
               Cliente: {props.name}
             </DialogTitle>
-            <DialogDescription>Detalhes financeiros e cadastrais</DialogDescription>
+            <DialogDescription>
+              Detalhes financeiros e cadastrais
+            </DialogDescription>
           </div>
-          <Button size="sm" variant="outline" onClick={() => window.print()} className="print:hidden shrink-0">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={printClientDetails}
+            className="print:hidden shrink-0"
+          >
             <FileDown className="mr-2 h-4 w-4" />
             Salvar PDF
           </Button>

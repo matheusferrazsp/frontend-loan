@@ -1,4 +1,4 @@
-import { FileDown, Sheet, Sparkles, X } from "lucide-react";
+import { FileDown, ScrollText, Sheet, Sparkles, X } from "lucide-react";
 
 import { useEffect, useState } from "react";
 
@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 
 // Incrementar esta chave sempre que quiser exibir o modal novamente
-const WHATS_NEW_KEY = "whatsNew_v1.2";
+const WHATS_NEW_KEY = "whatsNew_v1.3";
 
 interface Feature {
   icon: React.ReactNode;
@@ -34,6 +34,13 @@ const FEATURES: Feature[] = [
     title: "Exportar para CSV",
     description:
       "Exporte os dados dos clientes filtrados para Excel (.csv) com todos os campos.",
+    badge: "Novo",
+  },
+  {
+    icon: <ScrollText className="h-4 w-4 text-violet-400" />,
+    title: "PDF completo no detalhe do cliente",
+    description:
+      "Gera um PDF com todos os dados do cliente e histórico de pagamentos, sem cortes de scroll.",
     badge: "Novo",
   },
 ];
