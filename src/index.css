@@ -119,6 +119,17 @@
   }
 }
 
+/* Custom date input */
+.custom-date-input::-webkit-calendar-picker-indicator {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
 .dark input[type="date"]::-webkit-calendar-picker-indicator {
   filter: invert(1) !important;
   cursor: pointer;

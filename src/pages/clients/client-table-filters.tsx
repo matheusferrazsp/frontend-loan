@@ -1,4 +1,4 @@
-import { X } from "lucide-react";
+import { Calendar, X } from "lucide-react";
 
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -62,16 +62,14 @@ export function ClientTableFilters({ onFilter }: FilterProps) {
           placeholder="Nome "
           className="order-1 text-xs md:w-[320px] w-[150px]"
         />
-        <div className="order-3 flex items-center h-9 md:w-[240px] w-[150px] rounded-md border border-input bg-transparent px-2 text-xs shadow-sm transition-colors focus-within:ring-1 focus-within:ring-ring">
-          <span className="text-muted-foreground font-medium mr-1.5 whitespace-nowrap">
-            Data de vencimento:
-          </span>
+        <div className="order-3 relative flex items-center h-9 md:w-[150px] w-[150px] rounded-md border border-input bg-transparent px-2 text-xs shadow-sm transition-colors focus-within:ring-1 focus-within:ring-ring">
           <input
             {...register("date")}
             type="date"
-            className="flex-1 bg-transparent border-0 outline-none w-full text-foreground placeholder:text-muted-foreground"
+            className="custom-date-input flex-1 bg-transparent border-0 outline-none w-full text-foreground placeholder:text-muted-foreground pr-6 relative z-10"
             style={{ minWidth: 0, appearance: "none" }}
           />
+          <Calendar className="absolute right-2.5 top-2.5 h-4 w-4 text-muted-foreground pointer-events-none z-0" />
         </div>
 
         <Controller
