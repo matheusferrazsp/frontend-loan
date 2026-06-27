@@ -240,7 +240,9 @@ export function UpdateClientDialog({
         setValue("nextPaymentDate", `${nextY}-${nextM}-${nextD}`);
       }
 
-      toast.success("Pagamento registrado e parcelas ajustadas!");
+      toast.success("Pagamento registrado e parcelas ajustadas!", {
+        position: "top-center"
+      });
     }
   };
 
@@ -266,14 +268,18 @@ export function UpdateClientDialog({
       };
 
       await api.put(`/clients/${clientId}`, formattedData);
-      toast.success("Cliente atualizado com sucesso!");
+      toast.success("Cliente atualizado com sucesso!", {
+        position: "top-center"
+      });
       setTimeout(() => {
         setOpen(false);
         onSuccess?.();
       }, 100);
     } catch (error: any) {
       console.error("ERRO:", error.response?.data);
-      toast.error("Erro ao atualizar cliente.");
+      toast.error("Erro ao atualizar cliente.", {
+        position: "top-center"
+      });
     }
   }
 
@@ -609,7 +615,9 @@ export function UpdateClientDialog({
                       if (value === "true") {
                         // Se mudou para Em Dia, zera as parcelas
                         setValue("lateInstallments", 0);
-                        toast.info("Mensalidades atrasadas zeradas.");
+                        toast.info("Mensalidades atrasadas zeradas.", {
+                          position: "top-center"
+                        });
                       } else if (value === "false") {
                         // Se mudou para Atrasada, garante que tenha pelo menos 1 atraso
                         const currentLate =

@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 
 // Incrementar esta chave sempre que quiser exibir o modal novamente
-const WHATS_NEW_KEY = "whatsNew_v1.4";
+const WHATS_NEW_KEY = "whatsNew_v1.5";
 
 interface Feature {
   icon: React.ReactNode;
@@ -23,32 +23,32 @@ interface Feature {
 
 const FEATURES: Feature[] = [
   {
-    icon: <Rocket className="h-4 w-4 text-emerald-400" />,
-    title: "Nova Landing Page",
+    icon: <BellRing className="h-4 w-4 text-emerald-400" />,
+    title: "Notificações Precisas e em Tempo Real",
     description:
-      "Apresentação completa do sistema com grade de funcionalidades e cabeçalho flutuante.",
-    badge: "Novo",
+      "O alerta do sino agora mostra o número exato de pendências e atualiza sozinho sem precisar recarregar a página.",
+    badge: "Correção",
   },
   {
     icon: <MonitorSmartphone className="h-4 w-4 text-violet-400" />,
-    title: "Layout de Login Premium",
+    title: "Fim dos Alertas Duplicados",
     description:
-      "Tela de acesso renovada com novo design visual para uma melhor experiência de entrada.",
-    badge: "Melhoria",
-  },
-  {
-    icon: <BellRing className="h-4 w-4 text-amber-400" />,
-    title: "Nova Central de Notificações",
-    description:
-      "As notificações agora abrem em um painel central moderno e muito mais legível.",
-    badge: "Melhoria",
+      "Corrigido o problema que fazia os avisos de novas notificações aparecerem duas vezes na tela.",
+    badge: "Correção",
   },
   {
     icon: <LayoutTemplate className="h-4 w-4 text-blue-400" />,
-    title: "Redirecionamento Inteligente",
+    title: "Posicionamento dos Avisos",
     description:
-      "Clicar em uma notificação agora filtra a tabela e abre os detalhes do cliente automaticamente.",
-    badge: "Novo",
+      "Os avisos de sucesso ao salvar clientes agora aparecem centralizados, facilitando a leitura.",
+    badge: "Melhoria",
+  },
+  {
+    icon: <Rocket className="h-4 w-4 text-amber-400" />,
+    title: "Interação e Acessibilidade",
+    description:
+      "Agora é possível fechar os avisos mesmo com formulários abertos e botões desativados mostram o cursor de bloqueio.",
+    badge: "Correção",
   },
 ];
 
