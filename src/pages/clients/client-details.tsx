@@ -342,7 +342,7 @@ export function ClientDetails(props: ClientDetailsProps) {
   return (
     <DialogContent className="sm:w-[70vw] w-[95vw] md:w-[50vw] md:h-[95vh] h-[85vh] p-0 flex flex-col rounded-lg overflow-x-hidden">
       <DialogHeader className="pt-8 px-6 pb-2">
-        <div className="flex items-start justify-between pr-6">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between pr-6 gap-4 sm:gap-0">
           <div className="flex flex-col gap-1.5 text-left">
             <DialogTitle className="break-all text-lg">
               Cliente: {props.name}

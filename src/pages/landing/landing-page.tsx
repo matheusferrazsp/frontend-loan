@@ -272,64 +272,77 @@ export function LandingPage() {
                       VeroFlux - Painel
                     </div>
                   </div>
-                  {/* Window Content */}
-                  <div className="p-4 md:p-6 grid gap-4 grid-cols-1 md:grid-cols-4 h-full bg-card">
-                    {/* Sidebar Fake */}
-                    <div className="hidden md:flex flex-col gap-2 border-r pr-4 text-sm font-medium">
-                      <div className="flex items-center gap-2 text-primary bg-primary/10 px-3 py-2 rounded-md">
-                        <LayoutDashboard className="h-4 w-4" /> Dashboard
+                  {/* Window Content (Native Simulation) */}
+                  <div className="w-full h-[400px] bg-background flex text-foreground font-sans text-sm border-t overflow-hidden">
+                    {/* Sidebar */}
+                    <div className="hidden sm:flex w-36 bg-card border-r flex-col p-2 gap-1.5 shrink-0">
+                      <div className="flex items-center gap-2 mb-3 px-2 py-1 text-primary">
+                        <TrendingUp className="h-5 w-5 shrink-0" />
+                        <span className="font-bold text-sm truncate">VeroFlux</span>
                       </div>
-                      <div className="flex items-center gap-2 text-muted-foreground px-3 py-2 hover:bg-muted/50 rounded-md">
-                        <UserRoundPen className="h-4 w-4" /> Empréstimos
+                      <div className="flex items-center gap-2 px-2 py-1.5 rounded-md bg-primary/10 text-primary">
+                        <LayoutDashboard className="h-4 w-4 shrink-0" /> <span className="text-[11px] font-medium truncate">Dashboard</span>
                       </div>
-                      <div className="flex items-center gap-2 text-muted-foreground px-3 py-2 hover:bg-muted/50 rounded-md">
-                        <AlertTriangle className="h-4 w-4" /> Inadimplentes
+                      <div className="flex items-center gap-2 px-2 py-1.5 rounded-md text-muted-foreground hover:bg-muted/50">
+                        <UserRoundPen className="h-4 w-4 shrink-0" /> <span className="text-[11px] font-medium truncate">Empréstimos</span>
                       </div>
-                      <div className="flex items-center gap-2 text-muted-foreground px-3 py-2 hover:bg-muted/50 rounded-md">
-                        <BookOpen className="h-4 w-4" /> Manual do Usuário
+                      <div className="flex items-center gap-2 px-2 py-1.5 rounded-md text-muted-foreground hover:bg-muted/50">
+                        <AlertTriangle className="h-4 w-4 shrink-0" /> <span className="text-[11px] font-medium truncate">Inadimplentes</span>
                       </div>
                     </div>
-                    {/* Main View Fake */}
-                    <div className="md:col-span-3 flex flex-col gap-3 overflow-hidden">
-                      <div className="flex items-center justify-between">
-                        <h2 className="text-lg font-bold">Dashboard</h2>
+                    {/* Main Content */}
+                    <div className="flex-1 p-3 sm:p-5 flex flex-col gap-3 sm:gap-4 overflow-hidden bg-muted/10 min-w-0">
+                      <h3 className="font-bold text-base sm:text-lg">Dashboard</h3>
+                      
+                      {/* Top Cards */}
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
+                        {/* Card 1 */}
+                        <div className="bg-card border rounded-lg p-2.5 shadow-sm flex flex-col gap-0.5 overflow-hidden">
+                          <span className="text-[8px] sm:text-[9px] text-muted-foreground uppercase font-bold truncate">Total de Juros</span>
+                          <span className="font-bold text-sm text-[#00c48c] truncate">R$ 11.700,00</span>
+                          <span className="text-[8px] text-[#00c48c] bg-[#00c48c]/10 w-fit px-1 rounded mt-1 truncate">+100%</span>
+                        </div>
+                        {/* Card 2 */}
+                        <div className="bg-card border rounded-lg p-2.5 shadow-sm flex flex-col gap-0.5 overflow-hidden">
+                          <span className="text-[8px] sm:text-[9px] text-muted-foreground uppercase font-bold truncate">Total de Saídas</span>
+                          <span className="font-bold text-sm text-rose-500 truncate">R$ 55.000,00</span>
+                          <span className="text-[8px] text-rose-500 bg-rose-500/10 w-fit px-1 rounded mt-1 truncate">-147%</span>
+                        </div>
+                        {/* Card 3 */}
+                        <div className="bg-card border rounded-lg p-2.5 shadow-sm flex flex-col gap-0.5 overflow-hidden">
+                          <span className="text-[8px] sm:text-[9px] text-muted-foreground uppercase font-bold truncate">Total Entradas</span>
+                          <span className="font-bold text-sm text-[#00c48c] truncate">R$ 11.000,00</span>
+                          <span className="text-[8px] text-[#00c48c] bg-[#00c48c]/10 w-fit px-1 rounded mt-1 truncate">+10%</span>
+                        </div>
+                        {/* Card 4 */}
+                        <div className="bg-card border rounded-lg p-2.5 shadow-sm flex flex-col gap-0.5 overflow-hidden">
+                          <span className="text-[8px] sm:text-[9px] text-muted-foreground uppercase font-bold truncate">Total Circulando</span>
+                          <span className="font-bold text-sm text-amber-500 truncate">R$ 58.500,00</span>
+                          <span className="text-[8px] text-amber-500 bg-amber-500/10 w-fit px-1 rounded mt-1 truncate">~100%</span>
+                        </div>
                       </div>
-                      {/* Top Cards Fake */}
-                      <div className="flex gap-2 overflow-hidden pb-1">
-                        {[1, 2, 3, 4].map((i) => (
-                          <div
-                            key={i}
-                            className={`min-w-[130px] flex-1 rounded-md border bg-background p-3 flex flex-col shadow-sm ${i === 4 ? "hidden lg:flex" : ""}`}
-                          >
-                            <div className="flex justify-between items-center w-full">
-                              <div className="h-2 w-16 bg-muted rounded-full"></div>
-                              <div className="h-3 w-3 bg-muted rounded-full"></div>
+
+                      {/* Charts Area */}
+                      <div className="grid grid-cols-2 gap-4 flex-1">
+                        <div className="bg-card border rounded-lg p-4 shadow-sm flex flex-col items-center justify-center relative">
+                          <span className="absolute top-3 left-4 text-xs font-semibold">Gráfico de clientes</span>
+                          <div className="w-24 h-24 rounded-full border-[6px] border-rose-500 flex items-center justify-center border-l-[#00c48c] border-b-[#00c48c] rotate-45">
+                            <div className="w-full h-full rounded-full flex flex-col items-center justify-center -rotate-45">
+                              <span className="text-xl font-bold">1</span>
+                              <span className="text-[9px] text-muted-foreground">Atrasados</span>
                             </div>
-                            <div className="h-4 w-24 bg-foreground/20 rounded mt-3"></div>
-                            <div className="h-1.5 w-12 bg-muted rounded-full mt-2"></div>
                           </div>
-                        ))}
-                      </div>
-                      {/* Detailed Chart Fake */}
-                      <div className="rounded-xl border bg-muted/20 p-4 shadow-inner flex flex-col gap-3 mt-1">
-                        <div className="flex justify-between items-center mb-2">
-                          <div className="h-3 w-24 bg-foreground/40 rounded-full"></div>
-                          <div className="h-3 w-12 bg-muted rounded-full"></div>
                         </div>
-                        <div className="flex items-end gap-2 h-28">
-                          <div className="flex-1 bg-[#00c48c]/20 h-[30%] rounded-t-sm transition-all" />
-                          <div className="flex-1 bg-[#00c48c]/30 h-[45%] rounded-t-sm transition-all" />
-                          <div className="flex-1 bg-[#00c48c]/50 h-[40%] rounded-t-sm transition-all" />
-                          <div className="flex-1 bg-[#00c48c]/70 h-[60%] rounded-t-sm transition-all hover:h-[70%]" />
-                          <div className="flex-1 bg-[#00c48c]/90 h-[75%] rounded-t-sm transition-all hover:h-[80%]" />
-                          <div className="flex-1 bg-[#ff3366]/60 h-[40%] rounded-t-sm transition-all" />
-                          <div className="flex-1 bg-[#00c48c] h-[95%] rounded-t-sm transition-all shadow-[0_0_10px_rgba(0,196,140,0.5)]" />
-                        </div>
-                        <div className="flex justify-between items-center pt-2 border-t border-border/50">
-                          <div className="h-2 w-10 bg-muted rounded-full"></div>
-                          <div className="h-2 w-10 bg-muted rounded-full"></div>
-                          <div className="h-2 w-10 bg-muted rounded-full"></div>
-                          <div className="h-2 w-10 bg-muted rounded-full"></div>
+                        <div className="bg-card border rounded-lg p-4 shadow-sm flex flex-col justify-end relative">
+                          <span className="absolute top-3 left-4 text-xs font-semibold">Desempenho</span>
+                          {/* Mini Bar Chart */}
+                          <div className="flex items-end justify-between h-20 gap-2 w-full pt-4">
+                            <div className="w-full bg-[#00c48c]/20 h-[30%] rounded-t-sm" />
+                            <div className="w-full bg-[#00c48c]/40 h-[50%] rounded-t-sm" />
+                            <div className="w-full bg-[#00c48c]/60 h-[70%] rounded-t-sm" />
+                            <div className="w-full bg-rose-500/80 h-[40%] rounded-t-sm" />
+                            <div className="w-full bg-[#00c48c] h-[90%] rounded-t-sm shadow-[0_0_8px_rgba(0,196,140,0.4)]" />
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -492,45 +505,62 @@ export function LandingPage() {
         >
           <div className="container mx-auto px-4 md:px-6">
             <div className="grid gap-12 lg:grid-cols-2 items-center">
-              {/* Left Side: Abstract Mobile Mockup */}
-              <div className="relative mx-auto w-full max-w-[280px] aspect-[1/2.1] rounded-[40px] border-[8px] border-muted bg-card shadow-2xl overflow-hidden flex flex-col transform lg:-rotate-6 hover:rotate-0 transition-transform duration-500">
-                {/* Notch */}
-                <div className="absolute top-0 inset-x-0 h-6 w-32 mx-auto bg-muted rounded-b-3xl z-10" />
-                <div className="p-4 pt-10 flex flex-col gap-4 h-full relative z-0">
-                  <div className="flex justify-between items-center">
-                    <div className="h-6 w-6 rounded-full bg-[#00c48c]/20 flex items-center justify-center">
-                      <UserRoundPen className="h-3 w-3 text-[#00c48c]" />
+              {/* Left Side: Mobile Screenshot */}
+              <div className="relative mx-auto w-full max-w-[260px] aspect-[9/19] rounded-[32px] border-[6px] border-muted bg-black shadow-2xl overflow-hidden flex flex-col transform lg:-rotate-6 hover:rotate-0 transition-transform duration-500">
+                {/* Fake Notch */}
+                <div className="absolute top-0 inset-x-0 h-5 w-24 mx-auto bg-muted rounded-b-xl z-10" />
+                <div className="w-full h-full bg-background flex flex-col text-sm pt-6 overflow-hidden">
+                  {/* Mobile Header */}
+                  <div className="flex items-center justify-between px-4 py-2 border-b bg-card">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-[10px]">J</div>
+                      <span className="font-semibold text-xs">Olá, João</span>
                     </div>
-                    <div className="h-3 w-3 rounded-full bg-muted" />
+                    <Bell className="h-4 w-4 text-muted-foreground" />
                   </div>
-                  <div className="h-8 w-24 bg-foreground/40 rounded-full mt-2" />
-                  <div className="h-3 w-16 bg-muted rounded-full" />
+                  {/* Mobile Content */}
+                  <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3 bg-muted/10">
+                    <div className="w-full py-1.5 border border-primary/20 text-primary text-center rounded-md font-medium text-[10px] bg-primary/5 uppercase">
+                      NOVO EMPRÉSTIMO
+                    </div>
+                    
+                    {/* Card 1 */}
+                    <div className="bg-card border rounded-lg p-3 shadow-sm flex flex-col gap-1">
+                      <div className="flex justify-between items-center text-[10px] text-muted-foreground uppercase font-semibold">
+                        <span>Total de Juros (Mês)</span>
+                        <TrendingUp className="h-3 w-3 text-[#00c48c]" />
+                      </div>
+                      <span className="font-bold text-lg text-[#00c48c]">R$ 11.700,00</span>
+                      <span className="text-[9px] text-[#00c48c]">+100% em relação ao mês passado</span>
+                    </div>
 
-                  {/* Fake Chart in mobile */}
-                  <div className="mt-4 p-3 bg-muted/20 rounded-xl">
-                    <div className="flex items-end gap-1.5 h-24 mb-3">
-                      <div className="w-1/5 bg-[#00c48c]/40 h-[40%] rounded-t-sm" />
-                      <div className="w-1/5 bg-[#00c48c]/60 h-[60%] rounded-t-sm" />
-                      <div className="w-1/5 bg-[#00c48c]/80 h-[50%] rounded-t-sm" />
-                      <div className="w-1/5 bg-[#ff3366]/60 h-[30%] rounded-t-sm" />
-                      <div className="w-1/5 bg-[#00c48c] h-[90%] rounded-t-sm" />
+                    {/* Card 2 */}
+                    <div className="bg-card border rounded-lg p-3 shadow-sm flex flex-col gap-1">
+                      <div className="flex justify-between items-center text-[10px] text-muted-foreground uppercase font-semibold">
+                        <span>Total de Saídas (Mês)</span>
+                        <TrendingUp className="h-3 w-3 text-rose-500" />
+                      </div>
+                      <span className="font-bold text-lg text-rose-500">R$ 55.000,00</span>
+                      <span className="text-[9px] text-rose-500">+1471% em relação ao mês passado</span>
                     </div>
-                    <div className="flex justify-between">
-                      <div className="h-2 w-8 bg-muted rounded-full" />
-                      <div className="h-2 w-8 bg-muted rounded-full" />
-                    </div>
-                  </div>
 
-                  <div className="flex flex-col gap-2 mt-auto pb-4">
-                    <div className="h-10 w-full bg-[#00c48c]/10 border border-[#00c48c]/20 rounded-lg flex items-center px-3">
-                      <div className="h-3 w-3 rounded-full bg-[#00c48c]" />
-                      <div className="h-2 w-16 bg-foreground/50 rounded-full ml-3" />
-                      <div className="h-2 w-8 bg-foreground/80 rounded-full ml-auto" />
+                    {/* Card 3 */}
+                    <div className="bg-card border rounded-lg p-3 shadow-sm flex flex-col gap-1">
+                      <div className="flex justify-between items-center text-[10px] text-muted-foreground uppercase font-semibold">
+                        <span>Total Entradas (Mês)</span>
+                        <TrendingUp className="h-3 w-3 text-[#00c48c]" />
+                      </div>
+                      <span className="font-bold text-lg text-[#00c48c]">R$ 11.000,00</span>
+                      <span className="text-[9px] text-[#00c48c]">+100% em relação ao mês passado</span>
                     </div>
-                    <div className="h-10 w-full bg-muted/20 rounded-lg flex items-center px-3">
-                      <div className="h-3 w-3 rounded-full bg-muted" />
-                      <div className="h-2 w-20 bg-foreground/30 rounded-full ml-3" />
-                      <div className="h-2 w-10 bg-foreground/50 rounded-full ml-auto" />
+
+                    {/* Card 4 */}
+                    <div className="bg-card border rounded-lg p-3 shadow-sm flex flex-col gap-1">
+                      <div className="flex justify-between items-center text-[10px] text-muted-foreground uppercase font-semibold">
+                        <span>Total Circulando</span>
+                        <TrendingUp className="h-3 w-3 text-amber-500" />
+                      </div>
+                      <span className="font-bold text-lg text-amber-500">R$ 58.500,00</span>
                     </div>
                   </div>
                 </div>
@@ -621,13 +651,24 @@ export function LandingPage() {
                   <ChevronRight className="h-4 w-4 ml-1" />
                 </div>
 
-                {/* Graphic 1: Bar chart growing */}
-                <div className="mt-auto h-48 w-full bg-card border rounded-t-2xl shadow-inner relative flex items-end justify-around p-4 pb-0">
-                  <div className="w-12 bg-muted rounded-t-lg h-[30%] group-hover:bg-[#00c48c]/40 transition-colors" />
-                  <div className="w-12 bg-muted rounded-t-lg h-[45%] group-hover:bg-[#00c48c]/60 transition-colors" />
-                  <div className="w-12 bg-muted rounded-t-lg h-[60%] group-hover:bg-[#00c48c]/80 transition-colors" />
-                  <div className="w-12 bg-muted rounded-t-lg h-[80%] group-hover:bg-[#ff3366]/60 transition-colors" />
-                  <div className="w-12 bg-[#00c48c] rounded-t-lg h-[100%] shadow-[0_0_15px_rgba(0,196,140,0.3)] transition-all group-hover:shadow-[0_0_25px_rgba(0,196,140,0.6)]" />
+                <div className="mt-auto w-full bg-card/50 border-t rounded-t-2xl shadow-inner relative overflow-hidden h-64 flex items-center justify-center p-4">
+                  {/* Toast Mockup */}
+                  <div className="w-full max-w-sm bg-background border border-border shadow-xl rounded-lg p-4 flex items-start gap-4 transform group-hover:scale-105 transition-transform duration-500">
+                    <div className="flex-1 flex flex-col gap-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">⚠️</span>
+                        <span className="font-semibold text-sm">Você tem notificações importantes</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1 pl-6">1 cliente com pendências hoje.</p>
+                      <div className="flex items-center justify-between mt-2 pt-2 border-t">
+                        <span className="text-[10px] text-muted-foreground">Agora mesmo</span>
+                        <div className="text-xs font-bold text-primary cursor-pointer hover:underline bg-primary/10 px-3 py-1 rounded-md">Ver</div>
+                      </div>
+                    </div>
+                    <button className="text-muted-foreground hover:text-foreground">
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -636,12 +677,11 @@ export function LandingPage() {
                 <div className="inline-block px-3 py-1 rounded-full bg-[#00c48c]/10 text-[#00c48c] text-xs font-medium w-fit mb-6">
                   Exclusividade
                 </div>
-                <h3 className="text-2xl lg:text-3xl font-bold mb-4">
-                  Ferramentas Exclusivas
+                <h3 className="text-2xl font-bold mb-3">
+                  Gestão de Empréstimos
                 </h3>
-                <p className="text-muted-foreground text-lg mb-8 max-w-sm">
-                  Dashboard em tempo real para visualizar o saldo dos seus
-                  empréstimos e o capital girando no mercado.
+                <p className="text-muted-foreground mb-6">
+                  Acompanhe todos os seus clientes, valores a receber, vencimentos e status de pagamento em uma tabela inteligente.
                 </p>
                 <div className="flex items-center text-[#00c48c] font-medium mb-12">
                   <Link to="/sign-up" className="hover:underline">
@@ -650,53 +690,43 @@ export function LandingPage() {
                   <ChevronRight className="h-4 w-4 ml-1" />
                 </div>
 
-                {/* Graphic 2: SVG Area Chart */}
-                <div className="mt-auto h-48 w-full absolute bottom-0 left-0 right-0 pointer-events-none">
-                  <svg
-                    viewBox="0 0 400 150"
-                    className="w-full h-full"
-                    preserveAspectRatio="none"
-                  >
-                    <path
-                      d="M0,150 L0,100 C50,80 100,120 150,70 C200,20 250,90 300,50 C350,10 400,30 400,30 L400,150 Z"
-                      fill="rgba(0, 196, 140, 0.05)"
-                      className="group-hover:fill-emerald-500/10 transition-colors"
-                    />
-                    <path
-                      d="M0,100 C50,80 100,120 150,70 C200,20 250,90 300,50 C350,10 400,30 400,30"
-                      fill="none"
-                      stroke="#00c48c"
-                      strokeWidth="3"
-                    />
-                    {/* Data Points */}
-                    <circle
-                      cx="150"
-                      cy="70"
-                      r="4"
-                      fill="var(--color-background)"
-                      stroke="#00c48c"
-                      strokeWidth="3"
-                      className="group-hover:r-[6px] transition-all duration-300"
-                    />
-                    <circle
-                      cx="300"
-                      cy="50"
-                      r="4"
-                      fill="var(--color-background)"
-                      stroke="#00c48c"
-                      strokeWidth="3"
-                      className="group-hover:r-[6px] transition-all duration-300"
-                    />
-                    <circle
-                      cx="400"
-                      cy="30"
-                      r="4"
-                      fill="var(--color-background)"
-                      stroke="#00c48c"
-                      strokeWidth="3"
-                      className="group-hover:r-[6px] transition-all duration-300"
-                    />
-                  </svg>
+                <div className="mt-auto w-full bg-card/50 border-t rounded-t-2xl shadow-inner relative overflow-hidden h-64 p-4 flex flex-col justify-end">
+                  {/* Table Mockup */}
+                  <div className="w-[110%] bg-background border border-border shadow-2xl rounded-lg overflow-hidden transform translate-y-4 translate-x-2 group-hover:translate-y-2 transition-transform duration-500">
+                    <div className="flex items-center justify-between p-3 border-b bg-muted/20">
+                      <h4 className="text-sm font-semibold flex items-center gap-2"><UserRoundPen className="h-4 w-4" /> Empréstimos</h4>
+                      <div className="flex gap-2">
+                        <div className="h-6 w-24 bg-muted rounded-md" />
+                        <div className="h-6 w-16 bg-primary/20 rounded-md" />
+                      </div>
+                    </div>
+                    <div className="w-full text-left text-xs">
+                      <div className="grid grid-cols-4 font-semibold text-muted-foreground p-2 border-b">
+                        <div>Cliente</div>
+                        <div>Valor (R$)</div>
+                        <div>Status</div>
+                        <div>Vencimento</div>
+                      </div>
+                      <div className="grid grid-cols-4 p-2 border-b items-center hover:bg-muted/10 transition-colors">
+                        <div className="font-medium">João Silva</div>
+                        <div>R$ 1.500,00</div>
+                        <div><span className="bg-rose-500/10 text-rose-500 px-2 py-0.5 rounded-full text-[10px] font-bold">Atrasado</span></div>
+                        <div className="text-rose-500">20/06/2026</div>
+                      </div>
+                      <div className="grid grid-cols-4 p-2 border-b items-center hover:bg-muted/10 transition-colors">
+                        <div className="font-medium">Maria Souza</div>
+                        <div>R$ 3.200,00</div>
+                        <div><span className="bg-[#00c48c]/10 text-[#00c48c] px-2 py-0.5 rounded-full text-[10px] font-bold">Em dia</span></div>
+                        <div>25/06/2026</div>
+                      </div>
+                      <div className="grid grid-cols-4 p-2 items-center hover:bg-muted/10 transition-colors">
+                        <div className="font-medium">Carlos Mendes</div>
+                        <div>R$ 800,00</div>
+                        <div><span className="bg-[#00c48c]/10 text-[#00c48c] px-2 py-0.5 rounded-full text-[10px] font-bold">Em dia</span></div>
+                        <div>30/06/2026</div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
