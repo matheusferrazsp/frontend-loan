@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AxiosError } from "axios";
-import { CreditCard, ExternalLink, Loader2, ShoppingCart } from "lucide-react";
+import { CreditCard, ExternalLink, Loader2, ShoppingCart, Info } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -149,6 +149,7 @@ export function AccountDetails() {
   }, [resetProfile]);
 
   const [isVerifyingPayment, setIsVerifyingPayment] = useState(false);
+  const [isSendingForgot, setIsSendingForgot] = useState(false);
   const [isPortalLoading, setIsPortalLoading] = useState(false);
   const [subscriptionData, setSubscriptionData] = useState<any>(() => {
     try {
@@ -275,6 +276,23 @@ export function AccountDetails() {
     }
   }
 
+  async function handleForgotPassword() {
+    try {
+      setIsSendingForgot(true);
+      await api.post("/forgot-password", { email: storedUser.email });
+      toast.success("Link de redefinição de senha enviado para o seu e-mail!");
+    } catch (error: unknown) {
+      toast.error(
+        extractApiErrorMessage(
+          error,
+          "Erro ao solicitar redefinição. Tente novamente.",
+        ),
+      );
+    } finally {
+      setIsSendingForgot(false);
+    }
+  }
+
   const isBlocked =
     subscriptionData &&
     !subscriptionData.isLifetime &&
@@ -376,6 +394,27 @@ export function AccountDetails() {
                   </div>
                 </div>
 
+                <div className="flex flex-col gap-3 w-full my-2">
+                  {subscriptionData?.subscriptionStatus === 'trialing' && (
+                    <div className="flex items-start gap-3 p-4 border rounded-lg w-full bg-blue-500/10 border-blue-500/20 text-blue-700 dark:text-blue-400 text-sm">
+                      <Info className="w-5 h-5 shrink-0 mt-0.5" />
+                      <p>
+                        Você está no seu <strong>período de teste gratuito</strong>. Nenhuma cobrança foi realizada no momento.
+                      </p>
+                    </div>
+                  )}
+
+                  {(!subscriptionData || !["active", "trialing"].includes(subscriptionData.subscriptionStatus)) && (
+                    <div className="flex items-start gap-3 p-4 border rounded-lg w-full bg-amber-500/10 border-amber-500/20 text-amber-700 dark:text-amber-400 text-sm">
+                      <Info className="w-5 h-5 shrink-0 mt-0.5" />
+                      <p>
+                        <strong>Fique tranquilo!</strong> Seus dados de cartão são usados apenas para pagamentos futuros. 
+                        <strong> Você não será cobrado</strong> durante os dias de teste gratuito.
+                      </p>
+                    </div>
+                  )}
+                </div>
+
                 <div className="flex flex-col sm:flex-row gap-3 w-full">
                   {(!subscriptionData || !["active", "trialing"].includes(subscriptionData.subscriptionStatus)) && (
                     <Button
@@ -439,6 +478,8 @@ export function AccountDetails() {
                   id="email"
                   type="email"
                   autoComplete="email"
+                  disabled
+                  className="bg-muted/50 cursor-not-allowed"
                   {...registerProfile("email")}
                 />
                 {profileErrors.email && (
@@ -519,7 +560,16 @@ export function AccountDetails() {
                 )}
               </div>
 
-              <div className="flex justify-end">
+              <div className="flex justify-between items-center mt-4">
+                <Button
+                  type="button"
+                  variant="link"
+                  className="px-0 text-blue-500 hover:text-blue-600"
+                  onClick={handleForgotPassword}
+                  disabled={isSendingForgot}
+                >
+                  {isSendingForgot ? "Enviando..." : "Esqueci minha senha"}
+                </Button>
                 <Button
                   type="submit"
                   disabled={isSubmittingPassword}
