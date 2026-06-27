@@ -1,20 +1,23 @@
 import {
   AlertTriangle,
+  Bell,
   BookOpen,
   ChevronRight,
+  Download,
+  FileText,
   LayoutDashboard,
+  Menu,
+  MessageCircle,
   MessageCircleQuestion,
+  PieChart,
   ShieldCheck,
   TrendingUp,
   UserRoundPen,
-  Bell,
-  FileText,
-  MessageCircle,
-  PieChart,
-  Download,
-  Wallet
+  Wallet,
+  X,
 } from "lucide-react";
 
+import { useEffect, useState } from "react";
 import { Link } from "react-router";
 
 import { ThemeToggle } from "@/components/theme/theme-toggle";
@@ -27,6 +30,17 @@ import {
 import { Button } from "@/components/ui/button";
 
 export function LandingPage() {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isMobileMenuOpen) return;
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, [isMobileMenuOpen]);
+
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col font-sans">
       {/* HEADER FLUTUANTE */}
@@ -39,31 +53,123 @@ export function LandingPage() {
             </span>
           </div>
           <nav className="hidden md:flex items-center gap-8">
-            <a href="#funcionalidades" className="text-sm font-semibold text-muted-foreground hover:text-[#00c48c] transition-colors">
+            <a
+              href="#funcionalidades"
+              className="text-sm font-semibold text-muted-foreground hover:text-[#00c48c] transition-colors"
+            >
               Funcionalidades
             </a>
-            <a href="#vantagens" className="text-sm font-semibold text-muted-foreground hover:text-[#00c48c] transition-colors">
+            <a
+              href="#vantagens"
+              className="text-sm font-semibold text-muted-foreground hover:text-[#00c48c] transition-colors"
+            >
               Vantagens
             </a>
-            <a href="#faq" className="text-sm font-semibold text-muted-foreground hover:text-[#00c48c] transition-colors">
+            <a
+              href="#faq"
+              className="text-sm font-semibold text-muted-foreground hover:text-[#00c48c] transition-colors"
+            >
               Dúvidas Frequentes
             </a>
           </nav>
           <div className="flex items-center gap-3">
             <ThemeToggle />
             <div className="hidden sm:flex items-center gap-3">
-              <Button variant="ghost" className="font-semibold text-muted-foreground hover:text-foreground rounded-full" asChild>
+              <Button
+                variant="ghost"
+                className="font-semibold text-muted-foreground hover:text-foreground rounded-full"
+                asChild
+              >
                 <Link to="/sign-in">Entrar</Link>
               </Button>
-              <Button className="rounded-full bg-[#00c48c] hover:bg-[#00c48c]/90 text-white font-bold shadow-md shadow-[#00c48c]/20" asChild>
-                <a href="https://wa.me/5511921848879?text=Olá,%20gostaria%20de%20fazer%20um%20teste%20gratuito!" target="_blank" rel="noreferrer">
-                  Começar Grátis
-                </a>
+              <Button
+                className="rounded-full bg-[#00c48c] hover:bg-[#00c48c]/90 text-white font-bold shadow-md shadow-[#00c48c]/20"
+                asChild
+              >
+                <Link to="/sign-up">Começar Grátis</Link>
               </Button>
             </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden rounded-full ml-1"
+              onClick={() => setIsMobileMenuOpen(true)}
+              aria-label="Abrir menu"
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
           </div>
         </div>
       </header>
+
+      {/* MOBILE MENU OVERLAY */}
+      <div
+        className={`fixed inset-0 z-[60] bg-black/40 transition-opacity duration-300 md:hidden ${
+          isMobileMenuOpen
+            ? "opacity-100 pointer-events-auto"
+            : "opacity-0 pointer-events-none"
+        }`}
+        onClick={() => setIsMobileMenuOpen(false)}
+      >
+        <div
+          className={`h-full w-3/4 max-w-sm bg-background border-r p-6 transition-transform duration-300 ease-in-out flex flex-col ${
+            isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="flex items-center justify-between mb-8">
+            <div className="flex items-center gap-2">
+              <TrendingUp className="h-6 w-6 text-[#00c48c]" />
+              <span className="text-xl font-extrabold tracking-tight text-foreground">
+                VeroFlux
+              </span>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              <X className="h-5 w-5" />
+            </Button>
+          </div>
+          <nav className="flex flex-col gap-4">
+            <a
+              href="#funcionalidades"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="text-lg font-medium hover:text-[#00c48c]"
+            >
+              Funcionalidades
+            </a>
+            <a
+              href="#vantagens"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="text-lg font-medium hover:text-[#00c48c]"
+            >
+              Vantagens
+            </a>
+            <a
+              href="#faq"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="text-lg font-medium hover:text-[#00c48c]"
+            >
+              Dúvidas Frequentes
+            </a>
+          </nav>
+          <div className="mt-auto flex flex-col gap-4">
+            <Button variant="outline" className="w-full" asChild>
+              <Link to="/sign-in">Entrar</Link>
+            </Button>
+            <Button
+              className="w-full bg-[#00c48c] hover:bg-[#00c48c]/90 text-white font-bold shadow-md shadow-[#00c48c]/20"
+              asChild
+            >
+              <Link to="/sign-up" onClick={() => setIsMobileMenuOpen(false)}>
+                Começar Grátis
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </div>
 
       <main className="flex-1 pt-24">
         {/* HERO SECTION */}
@@ -135,13 +241,7 @@ export function LandingPage() {
                     className="w-full sm:w-auto text-base h-12 px-8 rounded-full bg-[#00c48c] hover:bg-[#00c48c]/90 text-white"
                     asChild
                   >
-                    <a
-                      href="https://wa.me/5511921848879?text=Olá,%20gostaria%20de%20fazer%20um%20teste%20gratuito!"
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      Falar agora com um consultor
-                    </a>
+                    <Link to="/sign-up">Teste Grátis por 3 Dias</Link>
                   </Button>
                   <Button
                     size="lg"
@@ -149,9 +249,9 @@ export function LandingPage() {
                     className="w-full sm:w-auto text-base h-12 px-8 rounded-full border-muted/50 hover:bg-muted/20"
                     asChild
                   >
-                    <Link to="/sign-in">
+                    <a href="#planos">
                       Saber mais <ChevronRight className="ml-1 h-4 w-4" />
-                    </Link>
+                    </a>
                   </Button>
                 </div>
               </div>
@@ -281,7 +381,9 @@ export function LandingPage() {
                 Tudo o que você precisa em um só lugar
               </h2>
               <p className="text-lg text-muted-foreground">
-                Deixe as planilhas para trás. O VeroFlux automatiza todo o trabalho duro para você focar no que importa: fazer o seu negócio crescer.
+                Deixe as planilhas para trás. O VeroFlux automatiza todo o
+                trabalho duro para você focar no que importa: fazer o seu
+                negócio crescer.
               </p>
             </div>
 
@@ -291,9 +393,13 @@ export function LandingPage() {
                 <div className="h-12 w-12 rounded-xl bg-[#00c48c]/10 flex items-center justify-center mb-6 text-[#00c48c] group-hover:scale-110 transition-transform">
                   <Wallet className="h-6 w-6" />
                 </div>
-                <h3 className="text-xl font-bold mb-3">Controle de Empréstimos</h3>
+                <h3 className="text-xl font-bold mb-3">
+                  Controle de Empréstimos
+                </h3>
                 <p className="text-muted-foreground">
-                  Cadastre clientes, defina valores, taxas de juros, e calcule automaticamente o número de parcelas e os recebimentos futuros.
+                  Cadastre clientes, defina valores, taxas de juros, e calcule
+                  automaticamente o número de parcelas e os recebimentos
+                  futuros.
                 </p>
               </div>
 
@@ -302,9 +408,12 @@ export function LandingPage() {
                 <div className="h-12 w-12 rounded-xl bg-rose-500/10 flex items-center justify-center mb-6 text-rose-500 group-hover:scale-110 transition-transform">
                   <AlertTriangle className="h-6 w-6" />
                 </div>
-                <h3 className="text-xl font-bold mb-3">Gestão de Inadimplência</h3>
+                <h3 className="text-xl font-bold mb-3">
+                  Gestão de Inadimplência
+                </h3>
                 <p className="text-muted-foreground">
-                  Monitoramento contínuo de parcelas vencidas. O sistema aponta automaticamente atrasos e permite marcar devedores crônicos.
+                  Monitoramento contínuo de parcelas vencidas. O sistema aponta
+                  automaticamente atrasos e permite marcar devedores crônicos.
                 </p>
               </div>
 
@@ -313,9 +422,12 @@ export function LandingPage() {
                 <div className="h-12 w-12 rounded-xl bg-amber-500/10 flex items-center justify-center mb-6 text-amber-500 group-hover:scale-110 transition-transform">
                   <Bell className="h-6 w-6" />
                 </div>
-                <h3 className="text-xl font-bold mb-3">Notificações Inteligentes</h3>
+                <h3 className="text-xl font-bold mb-3">
+                  Notificações Inteligentes
+                </h3>
                 <p className="text-muted-foreground">
-                  Uma central de alertas avisa em tempo real sobre vencimentos do dia e pagamentos em atraso, para você agir rápido.
+                  Uma central de alertas avisa em tempo real sobre vencimentos
+                  do dia e pagamentos em atraso, para você agir rápido.
                 </p>
               </div>
 
@@ -326,7 +438,8 @@ export function LandingPage() {
                 </div>
                 <h3 className="text-xl font-bold mb-3">Fichas em PDF</h3>
                 <p className="text-muted-foreground">
-                  Gere extratos e relatórios profissionais com apenas um clique para enviar ao seu cliente ou guardar no seu controle interno.
+                  Gere extratos e relatórios profissionais com apenas um clique
+                  para enviar ao seu cliente ou guardar no seu controle interno.
                 </p>
               </div>
 
@@ -335,9 +448,12 @@ export function LandingPage() {
                 <div className="h-12 w-12 rounded-xl bg-green-500/10 flex items-center justify-center mb-6 text-green-500 group-hover:scale-110 transition-transform">
                   <MessageCircle className="h-6 w-6" />
                 </div>
-                <h3 className="text-xl font-bold mb-3">Cobrança via WhatsApp</h3>
+                <h3 className="text-xl font-bold mb-3">
+                  Cobrança via WhatsApp
+                </h3>
                 <p className="text-muted-foreground">
-                  Integração nativa com o WhatsApp. Crie templates de cobrança e inicie conversas com seus devedores sem precisar salvar números.
+                  Integração nativa com o WhatsApp. Inicie conversas com seus
+                  devedores sem precisar salvar números cadastrados no app.
                 </p>
               </div>
 
@@ -348,7 +464,9 @@ export function LandingPage() {
                 </div>
                 <h3 className="text-xl font-bold mb-3">Dashboard Analítico</h3>
                 <p className="text-muted-foreground max-w-2xl">
-                  Painéis visuais para entender a saúde do seu negócio: veja seu capital emprestado rodando no mercado, lucro no mês, total pago e projeções financeiras em um piscar de olhos.
+                  Painéis visuais para entender a saúde do seu negócio: veja seu
+                  capital emprestado rodando no mercado, lucro no mês, total
+                  pago e projeções financeiras em um piscar de olhos.
                 </p>
               </div>
 
@@ -359,10 +477,10 @@ export function LandingPage() {
                 </div>
                 <h3 className="text-xl font-bold mb-3">Exportação CSV</h3>
                 <p className="text-muted-foreground">
-                  Precisa cruzar dados ou enviar para contabilidade? Exporte sua base de clientes completa em formato CSV facilmente.
+                  Precisa cruzar dados ou enviar para contabilidade? Exporte sua
+                  base de clientes completa em formato CSV facilmente.
                 </p>
               </div>
-
             </div>
           </div>
         </section>
@@ -497,12 +615,9 @@ export function LandingPage() {
                   decisões antes que o atraso vire prejuízo.
                 </p>
                 <div className="flex items-center text-[#00c48c] font-medium mb-12">
-                  <a
-                    href="https://wa.me/5511921848879?text=Ol%C3%A1,%20gostaria%20de%20fazer%20um%20teste%20gratuito!"
-                    className="hover:underline"
-                  >
-                    Conheça nosso método
-                  </a>
+                  <Link to="/sign-up" className="hover:underline">
+                    Comece agora
+                  </Link>
                   <ChevronRight className="h-4 w-4 ml-1" />
                 </div>
 
@@ -529,12 +644,9 @@ export function LandingPage() {
                   empréstimos e o capital girando no mercado.
                 </p>
                 <div className="flex items-center text-[#00c48c] font-medium mb-12">
-                  <a
-                    href="https://wa.me/5511921848879?text=Ol%C3%A1,%20gostaria%20de%20fazer%20um%20teste%20gratuito!"
-                    className="hover:underline"
-                  >
-                    Conheça nosso painel
-                  </a>
+                  <Link to="/sign-up" className="hover:underline">
+                    Comece agora
+                  </Link>
                   <ChevronRight className="h-4 w-4 ml-1" />
                 </div>
 
@@ -613,13 +725,7 @@ export function LandingPage() {
                 className="w-full sm:w-auto text-base h-12 px-8 rounded-full bg-[#00c48c] hover:bg-[#00c48c]/90 text-white"
                 asChild
               >
-                <a
-                  href="https://wa.me/5511921848879?text=Olá,%20gostaria%20de%20fazer%20um%20teste%20gratuito!"
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  Falar agora com um consultor
-                </a>
+                <Link to="/sign-up">Começar Teste Grátis</Link>
               </Button>
             </div>
 
@@ -672,6 +778,67 @@ export function LandingPage() {
                   Relatórios em PDF prontos para envio ao cliente e suporte
                   especializado na palma da mão.
                 </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* PREÇOS SECTION */}
+        <section id="planos" className="py-24 bg-background border-t">
+          <div className="container mx-auto px-4 md:px-6">
+            <div className="text-center mb-16 max-w-3xl mx-auto">
+              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl lg:text-5xl mb-4">
+                Planos e Preços
+              </h2>
+              <p className="text-lg text-muted-foreground">
+                Tudo que você precisa por um valor justo e sem surpresas.
+              </p>
+            </div>
+
+            <div className="max-w-md mx-auto">
+              <div className="flex flex-col rounded-3xl border-2 border-[#00c48c] bg-background p-8 shadow-xl relative">
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#00c48c] text-white px-4 py-1 rounded-full text-sm font-bold tracking-wide">
+                  MAIS POPULAR
+                </div>
+                <div className="mb-6">
+                  <h3 className="text-2xl font-bold text-center">
+                    Assinatura VeroFlux
+                  </h3>
+                  <div className="mt-4 flex items-baseline justify-center gap-1">
+                    <span className="text-4xl font-extrabold">R$ 49,90</span>
+                    <span className="text-muted-foreground font-medium">
+                      /mês
+                    </span>
+                  </div>
+                </div>
+                <ul className="space-y-4 mb-8">
+                  <li className="flex items-center gap-3">
+                    <ShieldCheck className="h-5 w-5 text-[#00c48c]" />
+                    <span>Acesso completo ao sistema</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <ShieldCheck className="h-5 w-5 text-[#00c48c]" />
+                    <span>Gestão ilimitada de clientes</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <ShieldCheck className="h-5 w-5 text-[#00c48c]" />
+                    <span>Empréstimos e parcelas sem limite</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <ShieldCheck className="h-5 w-5 text-[#00c48c]" />
+                    <span>Alertas automáticos de atrasos</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <ShieldCheck className="h-5 w-5 text-[#00c48c]" />
+                    <span>3 dias de teste grátis</span>
+                  </li>
+                </ul>
+                <Button
+                  className="w-full bg-[#00c48c] hover:bg-[#00c48c]/90 text-white h-12 text-lg rounded-xl font-bold"
+                  asChild
+                >
+                  <Link to="/sign-up">Iniciar Teste Grátis</Link>
+                </Button>
               </div>
             </div>
           </div>

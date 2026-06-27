@@ -126,10 +126,10 @@ export function SignIn() {
           <p className="text-sm text-muted-foreground text-center">
             Não tem uma conta?{" "}
             <a
-              href="https://wa.me/5511921848879?text=Olá,%20gostaria%20de%20fazer%20um%20teste%20gratuito!"
+              href="/landing"
               className="text-blue-500 hover:underline"
             >
-              Entre em contato com a gente e faça um teste gratuito!
+              Conheça nossos planos e inicie seu teste grátis
             </a>
           </p>
         </form>

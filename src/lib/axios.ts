@@ -14,3 +14,16 @@ api.interceptors.request.use((config) => {
 
   return config;
 });
+
+// Interceptor de Resposta
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 403 && error.response?.data?.code === 'SUBSCRIPTION_PAST_DUE') {
+      if (window.location.pathname !== '/account') {
+        window.location.href = '/account';
+      }
+    }
+    return Promise.reject(error);
+  }
+);

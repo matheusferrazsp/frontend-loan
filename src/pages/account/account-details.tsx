@@ -1,9 +1,10 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AxiosError } from "axios";
+import { CreditCard, ExternalLink, Loader2, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useForm } from "react-hook-form";
 
@@ -147,6 +148,70 @@ export function AccountDetails() {
     resetProfile(readStoredUser());
   }, [resetProfile]);
 
+  const [isVerifyingPayment, setIsVerifyingPayment] = useState(false);
+  const [isPortalLoading, setIsPortalLoading] = useState(false);
+  const [subscriptionData, setSubscriptionData] = useState<any>(() => {
+    try {
+      const stored = localStorage.getItem(USER_STORAGE_KEY);
+      return stored ? JSON.parse(stored) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  useEffect(() => {
+    const userId = getAuthenticatedUserId();
+    if (userId) {
+      api
+        .get(`/users/${userId}`)
+        .then((res) => {
+          setSubscriptionData(res.data);
+          
+          // Atualiza o cache local para evitar flicker nos próximos reloads
+          const stored = localStorage.getItem(USER_STORAGE_KEY);
+          if (stored) {
+            try {
+              const parsed = JSON.parse(stored);
+              localStorage.setItem(USER_STORAGE_KEY, JSON.stringify({ ...parsed, ...res.data }));
+            } catch (e) {
+              console.error(e);
+            }
+          }
+        })
+        .catch(console.error);
+    }
+  }, []);
+
+  async function handleOpenPortal() {
+    try {
+      setIsPortalLoading(true);
+      const response = await api.post("/api/billing-portal");
+      if (response.data?.url) {
+        window.location.href = response.data.url;
+      }
+    } catch (error) {
+      toast.error(
+        "Erro ao abrir portal do cliente. Verifique se você já possui uma assinatura.",
+      );
+    } finally {
+      setIsPortalLoading(false);
+    }
+  }
+
+  async function handleCheckout() {
+    try {
+      setIsPortalLoading(true);
+      const response = await api.post("/api/checkout");
+      if (response.data?.url) {
+        window.location.href = response.data.url;
+      }
+    } catch (error) {
+      toast.error("Erro ao iniciar checkout.");
+    } finally {
+      setIsPortalLoading(false);
+    }
+  }
+
   async function onSaveProfile(data: ProfileFormData) {
     const userId = getAuthenticatedUserId();
 
@@ -210,6 +275,33 @@ export function AccountDetails() {
     }
   }
 
+  const isBlocked =
+    subscriptionData &&
+    !subscriptionData.isLifetime &&
+    ["pending", "past_due", "canceled", "unpaid"].includes(
+      subscriptionData.subscriptionStatus,
+    );
+
+  async function handleVerifyPayment() {
+    try {
+      setIsVerifyingPayment(true);
+      const userId = getAuthenticatedUserId();
+      const response = await api.get(`/users/${userId}/status-check`);
+      if (response.data?.subscriptionStatus === "active") {
+        localStorage.setItem("user", JSON.stringify(response.data));
+        setSubscriptionData(response.data);
+        toast.success("Assinatura confirmada! Acesso liberado.");
+        window.location.href = "/";
+      } else {
+        toast.error("O pagamento ainda não foi processado ou está pendente.");
+      }
+    } catch (e) {
+      toast.error("Erro ao verificar assinatura.");
+    } finally {
+      setIsVerifyingPayment(false);
+    }
+  }
+
   return (
     <>
       <Helmet>
@@ -217,6 +309,27 @@ export function AccountDetails() {
       </Helmet>
 
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
+        {isBlocked && (
+          <div className="bg-rose-500/10 border border-rose-500/20 text-rose-500 rounded-lg p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div>
+              <h2 className="font-bold text-lg">Acesso Restrito</h2>
+              <p className="text-sm opacity-90">
+                Sua assinatura encontra-se com o pagamento pendente ou inativo.
+                Por favor, regularize sua situação abaixo para acessar as demais
+                funcionalidades.
+              </p>
+            </div>
+            <Button
+              onClick={handleVerifyPayment}
+              disabled={isVerifyingPayment}
+              variant="default"
+              className="bg-rose-600 hover:bg-rose-700 text-white shrink-0"
+            >
+              Já paguei / Verificar Sistema
+            </Button>
+          </div>
+        )}
+
         <div>
           <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
             Minha conta
@@ -225,6 +338,77 @@ export function AccountDetails() {
             Edite seus dados pessoais e altere sua senha.
           </p>
         </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Assinatura e Cobrança</CardTitle>
+            <CardDescription>
+              Gerencie sua assinatura, atualize seu cartão de crédito e
+              visualize o histórico de faturas.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-4 items-start">
+            {subscriptionData?.isLifetime ? (
+              <div className="flex items-center gap-3 p-4 border rounded-lg w-full bg-green-500/10 border-green-500/20">
+                <div className="flex flex-col">
+                  <span className="font-semibold text-green-700 dark:text-green-400">
+                    Acesso Vitalício Ativo
+                  </span>
+                  <span className="text-sm text-green-600 dark:text-green-500 mt-1">
+                    Você é um cliente vitalício. Nenhuma cobrança é necessária e
+                    seu acesso é garantido para sempre.
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-4 w-full">
+                <div className="flex items-center gap-3 p-4 border rounded-lg w-full bg-muted/30">
+                  <div className="bg-primary/10 p-3 rounded-full">
+                    <CreditCard className="w-6 h-6 text-primary" />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="font-semibold text-foreground">
+                      Assinatura VeroFlux
+                    </span>
+                    <span className="text-sm text-muted-foreground">
+                      R$ 49,90 / mês
+                    </span>
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-3 w-full">
+                  {(!subscriptionData || !["active", "trialing"].includes(subscriptionData.subscriptionStatus)) && (
+                    <Button
+                      onClick={handleCheckout}
+                      disabled={isPortalLoading}
+                      className="w-full sm:w-auto gap-2"
+                    >
+                      {isPortalLoading ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <ShoppingCart className="w-4 h-4" />
+                      )}
+                      Assinar Plano
+                    </Button>
+                  )}
+                  <Button
+                    onClick={handleOpenPortal}
+                    disabled={isPortalLoading}
+                    variant="outline"
+                    className="w-full sm:w-auto gap-2"
+                  >
+                    {isPortalLoading ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <ExternalLink className="w-4 h-4" />
+                    )}
+                    Gerenciar Assinatura (Portal)
+                  </Button>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         <Card>
           <CardHeader>

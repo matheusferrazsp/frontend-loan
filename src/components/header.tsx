@@ -6,6 +6,7 @@ import {
   Menu,
   UserRoundPen,
   X,
+  Shield,
 } from "lucide-react";
 import { io } from "socket.io-client";
 import { toast } from "sonner";
@@ -268,6 +269,15 @@ export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { pathname } = useLocation();
 
+  const userJson = localStorage.getItem("user");
+  const storedUser = userJson ? JSON.parse(userJson) : null;
+  const adminEmails = [
+    "contatomatheus.oferraz@gmail.com",
+    "matheusf.tecnologia@gmail.com",
+    "matheusferraz@gmail.com"
+  ];
+  const isAdmin = storedUser?.email && adminEmails.includes(storedUser.email.toLowerCase());
+
   useEffect(() => {
     setIsMobileMenuOpen(false);
   }, [pathname]);
@@ -337,6 +347,16 @@ export function Header() {
             <BookOpen className="h-4 w-4 mr-2" />
             <span>Manual do Usuário</span>
           </NavLink>
+
+          {isAdmin && (
+            <NavLink
+              to="/admin"
+              className="w-full justify-start px-3 py-2.5 rounded-md hover:bg-accent hover:text-accent-foreground data-[current=true]:bg-accent data-[current=true]:text-accent-foreground transition-colors"
+            >
+              <Shield className="h-4 w-4 mr-2" />
+              <span>Painel Admin</span>
+            </NavLink>
+          )}
 
           <SidebarThemeToggle />
         </nav>
@@ -414,6 +434,16 @@ export function Header() {
               <BookOpen className="h-5 w-5" />
               <span>Manual do usuário</span>
             </NavLink>
+
+            {isAdmin && (
+              <NavLink
+                to="/admin"
+                className="rounded-md px-3 py-2 text-base hover:bg-accent"
+              >
+                <Shield className="h-5 w-5" />
+                <span>Painel Admin</span>
+              </NavLink>
+            )}
           </nav>
 
           <div className="mt-auto hidden md:block" />

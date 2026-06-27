@@ -11,6 +11,8 @@ import { Clients } from "./pages/clients/clients";
 import { DelinquentClients } from "./pages/clients/delinquent-clients";
 import { LandingPage } from "./pages/landing/landing-page";
 import { UserManual } from "./pages/app/user-manual";
+import { AdminDashboard } from "./pages/admin/admin-dashboard";
+import { SignUp } from "./pages/auth/sign-up";
 
 export const router = createBrowserRouter([
   {
@@ -26,14 +28,15 @@ export const router = createBrowserRouter([
       { path: "/clients", element: <Clients /> },
       { path: "/delinquent-clients", element: <DelinquentClients /> },
       { path: "/manual", element: <UserManual /> },
+      { path: "/admin", element: <AdminDashboard /> },
     ],
   },
-
   {
     path: "/",
     element: <AuthLayout />,
     children: [
       { path: "/sign-in", element: <SignIn /> },
+      { path: "/sign-up", element: <SignUp /> },
       { path: "/forgot-password", element: <ForgotPassword /> },
       { path: "/reset-password", element: <ResetPassword /> },
     ],
