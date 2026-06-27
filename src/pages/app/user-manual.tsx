@@ -13,6 +13,8 @@ import {
   Smartphone,
   UserRoundPen,
   ArrowUp,
+  Crown,
+  Settings,
   Plus,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -206,6 +208,42 @@ const SECTIONS: Section[] = [
       },
     ],
   },
+  {
+    id: "configuracoes",
+    icon: <Settings className="h-4 w-4" />,
+    title: "Configurações da Conta",
+    color: "text-slate-500",
+    steps: [
+      {
+        title: "Acessar configurações",
+        description: "No menu lateral, clique na sua foto de perfil ou nome e selecione 'Configurações'.",
+      },
+      {
+        title: "Alterar dados pessoais",
+        description: "Atualize seu nome de exibição, número de WhatsApp para recebimento de alertas e prefêrencia de tema (Claro/Escuro).",
+      },
+    ],
+  },
+  {
+    id: "vip",
+    icon: <Crown className="h-4 w-4" />,
+    title: "Recursos VIP (Sócio Vitalício)",
+    color: "text-amber-500",
+    steps: [
+      {
+        title: "Score de Crédito Interno",
+        description: "Clientes recebem uma nota automática de A a D na sua ficha de detalhes. A nota é baseada no histórico de pagamentos e número de parcelas em atraso.",
+      },
+      {
+        title: "Simulador de Renegociação",
+        description: "Dentro dos detalhes do cliente, você terá acesso a um painel dourado 'Simulador VIP de Renegociação'. Ele permite calcular novos juros e parcelas em cima do saldo devedor atual.",
+      },
+      {
+        title: "Efetivar Renegociação",
+        description: "Com um clique no simulador, você pode aplicar a nova simulação diretamente ao banco de dados do cliente, quitando atrasos e atualizando o valor devido automaticamente.",
+      },
+    ],
+  },
 ];
 
 const EXTRA_IDS = ["referencia", "faq"];
@@ -219,6 +257,8 @@ const SHORT_TITLES: Record<string, string> = {
   inadimplentes: "Inadimplentes",
   exportar: "Exportar",
   celular: "Celular",
+  configuracoes: "Configurações",
+  vip: "Sócio Vitalício",
   referencia: "Referência de botões",
   faq: "Perguntas frequentes"
 };

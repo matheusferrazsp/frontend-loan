@@ -3,6 +3,7 @@ import {
   Bell,
   BookOpen,
   ChartSpline,
+  Crown,
   Menu,
   UserRoundPen,
   X,
@@ -309,9 +310,16 @@ export function Header() {
         </Button>
 
         <div className="hidden md:flex items-center justify-between w-full px-2 mb-2">
-          <span className="font-bold text-xl tracking-tight text-primary">
-            VeroFlux
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="font-bold text-xl tracking-tight text-primary">
+              VeroFlux
+            </span>
+            {storedUser?.isLifetime && (
+              <div title="Sócio Vitalício" className="flex items-center justify-center bg-amber-500/10 text-amber-500 p-1 rounded-md border border-amber-500/20">
+                <Crown className="h-4 w-4" />
+              </div>
+            )}
+          </div>
           <NotificationBell />
         </div>
 

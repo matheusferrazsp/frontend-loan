@@ -1,4 +1,4 @@
-import { FileDown, Loader2, MessageCircle, Trash2 } from "lucide-react";
+import { Calculator, FileDown, Loader2, MessageCircle, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { useEffect, useState } from "react";
@@ -11,6 +11,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Table,
   TableBody,
@@ -60,6 +62,22 @@ export function ClientDetails(props: ClientDetailsProps) {
   const [deletingPaymentId, setDeletingPaymentId] = useState<string | null>(
     null,
   );
+  
+  const [showSimulator, setShowSimulator] = useState(false);
+  const [simInterest, setSimInterest] = useState("30");
+  const [simInstallments, setSimInstallments] = useState("10");
+
+  const readStoredUser = () => {
+    const userJson = localStorage.getItem("user");
+    if (!userJson) return { isLifetime: false };
+    try {
+      const parsed = JSON.parse(userJson);
+      return { isLifetime: parsed.isLifetime ?? false };
+    } catch {
+      return { isLifetime: false };
+    }
+  };
+  const [user] = useState(readStoredUser);
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("pt-BR", {
@@ -91,6 +109,22 @@ export function ClientDetails(props: ClientDetailsProps) {
     return { text: "Em dia", htmlClass: "badge-ok", dot: "bg-emerald-500", textClass: "text-emerald-500" };
   };
 
+  const getCreditScore = () => {
+    if (props.isDelinquent || props.lateInstallments > 4) {
+      return { grade: "D", text: "Ruim", color: "text-rose-500", bg: "bg-rose-500/10", border: "border-rose-500/20" };
+    }
+    if (props.lateInstallments >= 3) {
+      return { grade: "C", text: "Regular", color: "text-yellow-500", bg: "bg-yellow-500/10", border: "border-yellow-500/20" };
+    }
+    if (props.lateInstallments >= 1) {
+      return { grade: "B", text: "Bom", color: "text-emerald-400", bg: "bg-emerald-400/10", border: "border-emerald-400/20" };
+    }
+    if (props.installmentsPaid > 0) {
+      return { grade: "A", text: "Excelente", color: "text-emerald-600", bg: "bg-emerald-600/10", border: "border-emerald-600/20" };
+    }
+    return { grade: "-", text: "Novo", color: "text-muted-foreground", bg: "bg-muted", border: "border-border" };
+  };
+
   const formatDate = (dateString: string) => {
     if (!dateString) return "---";
     return new Date(dateString).toLocaleDateString("pt-BR", {
@@ -98,10 +132,61 @@ export function ClientDetails(props: ClientDetailsProps) {
     });
   };
 
+  const getSimulatedValue = () => {
+    const principal = Number(props.value) - Number(props.valuePaid);
+    const interest = Number(simInterest) / 100;
+    const installments = Number(simInstallments) || 1;
+    if (principal <= 0) return { total: 0, monthly: 0 };
+    const total = principal * (1 + interest);
+    return {
+      total,
+      monthly: total / installments
+    };
+  };
+
+  const [isExecutingRollover, setIsExecutingRollover] = useState(false);
+  const [confirmRollover, setConfirmRollover] = useState(false);
+
+  const handleRollover = async () => {
+    if (!confirmRollover) {
+      setConfirmRollover(true);
+      return;
+    }
+
+    try {
+      setIsExecutingRollover(true);
+      const simulated = getSimulatedValue();
+      
+      await api.put(`/clients/${props.id}`, {
+        value: Number(simulated.total.toFixed(2)),
+        loanInterest: Number(simInterest),
+        installments: Number(simInstallments),
+        installmentsPaid: 0,
+        lateInstallments: 0,
+        valuePaid: 0,
+        monthlyPaid: Number(simulated.monthly.toFixed(2)),
+        isDelinquent: false,
+        lastPaymentAmount: 0,
+        // Mantém as datas antigas, ou você pode querer atualizar o nextPaymentDate para +30 dias:
+        // nextPaymentDate: new Date(new Date().setDate(new Date().getDate() + 30)).toISOString()
+      });
+
+      toast.success("Dívida renegociada com sucesso!");
+      setShowSimulator(false);
+      setConfirmRollover(false);
+    } catch (error) {
+      console.error("Erro ao efetivar renegociação:", error);
+      toast.error("Erro ao renegociar dívida.");
+    } finally {
+      setIsExecutingRollover(false);
+    }
+  };
+
   const whatsappNumber = props.phone.replace(/\D/g, "");
   const whatsappLink = `https://wa.me/55${whatsappNumber}`;
 
   function printClientDetails() {
+    const statusObj = getStatusDisplay();
     const paymentsRows = payments
       .map(
         (p) => `
@@ -141,7 +226,7 @@ export function ClientDetails(props: ClientDetailsProps) {
 
         <p class="section-title">Dados Pessoais</p>
         <table>
-          <tr><td class="label">Status</td><td class="value ${status.htmlClass}">${status.text}</td></tr>
+          <tr><td class="label">Status</td><td class="value ${statusObj.htmlClass}">${statusObj.text}</td></tr>
           <tr><td class="label">Nome</td><td class="value">${props.name}</td></tr>
           <tr><td class="label">Telefone</td><td class="value">${formatPhoneDisplay(props.phone)}</td></tr>
           <tr><td class="label">E-mail</td><td class="value">${props.email || "---"}</td></tr>
@@ -266,19 +351,100 @@ export function ClientDetails(props: ClientDetailsProps) {
               Detalhes financeiros e cadastrais
             </DialogDescription>
           </div>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={printClientDetails}
-            className="print:hidden shrink-0"
-          >
-            <FileDown className="mr-2 h-4 w-4" />
-            Salvar PDF
-          </Button>
+          <div className="flex items-center gap-2">
+            {user.isLifetime && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setShowSimulator(!showSimulator)}
+                className="print:hidden shrink-0 border-amber-500 text-amber-600 hover:bg-amber-500/10 hover:text-amber-600"
+              >
+                <Calculator className="mr-2 h-4 w-4" />
+                Simular
+              </Button>
+            )}
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={printClientDetails}
+              className="print:hidden shrink-0"
+            >
+              <FileDown className="mr-2 h-4 w-4" />
+              Salvar PDF
+            </Button>
+          </div>
         </div>
       </DialogHeader>
 
       <div className="w-full flex-1 overflow-y-auto px-2 pb-6 scrollbar-thin ">
+        {showSimulator && user.isLifetime && (
+          <div className="mx-6 mb-6 p-4 rounded-lg border border-amber-500/30 bg-amber-500/5 print:hidden">
+            <h3 className="font-semibold text-amber-600 mb-4 flex items-center gap-2">
+              <Calculator className="h-4 w-4" />
+              Simulador VIP de Renegociação
+            </h3>
+            
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div className="space-y-2">
+                <Label className="text-xs text-muted-foreground">Juros (%)</Label>
+                <Input 
+                  type="number" 
+                  value={simInterest} 
+                  onChange={e => setSimInterest(e.target.value)} 
+                  className="h-8 text-sm"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs text-muted-foreground">Novas Parcelas</Label>
+                <Input 
+                  type="number" 
+                  value={simInstallments} 
+                  onChange={e => setSimInstallments(e.target.value)} 
+                  className="h-8 text-sm"
+                />
+              </div>
+            </div>
+
+            <div className="bg-background rounded-md p-3 border">
+              <div className="flex justify-between items-center mb-1">
+                <span className="text-xs text-muted-foreground">Dívida Restante (S/ Juros)</span>
+                <span className="text-sm font-medium">{formatCurrency(Number(props.value) - Number(props.valuePaid))}</span>
+              </div>
+              <div className="flex justify-between items-center mb-1">
+                <span className="text-xs text-muted-foreground">Novo Total (C/ Juros)</span>
+                <span className="text-sm font-bold text-amber-600">{formatCurrency(getSimulatedValue().total)}</span>
+              </div>
+              <div className="flex justify-between items-center pt-2 mt-2 border-t border-dashed">
+                <span className="text-xs font-semibold">Nova Parcela Mensal</span>
+                <span className="text-sm font-bold text-emerald-600">{formatCurrency(getSimulatedValue().monthly)} /mês</span>
+              </div>
+            </div>
+
+            <div className="mt-4 flex justify-end">
+              <Button
+                onClick={handleRollover}
+                disabled={isExecutingRollover}
+                className={`w-full sm:w-auto ${
+                  confirmRollover
+                    ? "bg-rose-600 hover:bg-rose-700 text-white"
+                    : "bg-amber-500 hover:bg-amber-600 text-white"
+                }`}
+              >
+                {isExecutingRollover ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Renegociando...
+                  </>
+                ) : confirmRollover ? (
+                  "Confirmar Renegociação?"
+                ) : (
+                  "Efetivar Renegociação"
+                )}
+              </Button>
+            </div>
+          </div>
+        )}
+
         <Table>
           <TableBody>
             {/* STATUS */}
@@ -295,6 +461,22 @@ export function ClientDetails(props: ClientDetailsProps) {
                 </div>
               </TableCell>
             </TableRow>
+
+            {/* SCORE INTERNO (VIP) */}
+            {user.isLifetime && (
+              <TableRow>
+                <TableCell className="text-muted-foreground text-sm pr-0">
+                  Score Interno
+                </TableCell>
+                <TableCell className="text-right">
+                  <div className="flex items-center justify-end">
+                    <span className={`px-2 py-0.5 rounded border text-xs font-bold ${getCreditScore().bg} ${getCreditScore().color} ${getCreditScore().border}`}>
+                      {getCreditScore().grade} - {getCreditScore().text}
+                    </span>
+                  </div>
+                </TableCell>
+              </TableRow>
+            )}
 
             {/* NOME */}
             <TableRow>

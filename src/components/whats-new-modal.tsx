@@ -1,4 +1,4 @@
-import { BellRing, LayoutTemplate, MonitorSmartphone, Rocket, Sparkles, X } from "lucide-react";
+import { BellRing, LayoutTemplate, MonitorSmartphone, Rocket, Sparkles, X, Crown, Calculator, Settings } from "lucide-react";
 
 import { useEffect, useState } from "react";
 
@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 
 // Incrementar esta chave sempre que quiser exibir o modal novamente
-const WHATS_NEW_KEY = "whatsNew_v1.5";
+const WHATS_NEW_KEY = "whatsNew_v1.6";
 
 interface Feature {
   icon: React.ReactNode;
@@ -23,32 +23,32 @@ interface Feature {
 
 const FEATURES: Feature[] = [
   {
-    icon: <BellRing className="h-4 w-4 text-emerald-400" />,
-    title: "Notificações Precisas e em Tempo Real",
+    icon: <Crown className="h-4 w-4 text-amber-500" />,
+    title: "VeroFlux VIP: Sócio Vitalício",
     description:
-      "O alerta do sino agora mostra o número exato de pendências e atualiza sozinho sem precisar recarregar a página.",
-    badge: "Correção",
+      "Chegou o plano Sócio Vitalício! Identificação exclusiva (coroa e bordas douradas) e acesso vitalício à plataforma sem mensalidades.",
+    badge: "Novo",
+  },
+  {
+    icon: <Calculator className="h-4 w-4 text-emerald-500" />,
+    title: "Score e Simulador de Dívidas",
+    description:
+      "Clientes VIP contam agora com nota de Score Interno e um Simulador de Renegociação com efetivação em um clique.",
+    badge: "VIP",
+  },
+  {
+    icon: <Settings className="h-4 w-4 text-blue-400" />,
+    title: "Configurações da Conta",
+    description:
+      "Nova área de Configurações para editar seus dados pessoais, alterar temas (Claro/Escuro) e assinar novos planos.",
+    badge: "Novo",
   },
   {
     icon: <MonitorSmartphone className="h-4 w-4 text-violet-400" />,
-    title: "Fim dos Alertas Duplicados",
+    title: "Manual do Usuário Atualizado",
     description:
-      "Corrigido o problema que fazia os avisos de novas notificações aparecerem duas vezes na tela.",
-    badge: "Correção",
-  },
-  {
-    icon: <LayoutTemplate className="h-4 w-4 text-blue-400" />,
-    title: "Posicionamento dos Avisos",
-    description:
-      "Os avisos de sucesso ao salvar clientes agora aparecem centralizados, facilitando a leitura.",
+      "As novas funcionalidades e recursos VIP já constam no Manual do Usuário interativo.",
     badge: "Melhoria",
-  },
-  {
-    icon: <Rocket className="h-4 w-4 text-amber-400" />,
-    title: "Interação e Acessibilidade",
-    description:
-      "Agora é possível fechar os avisos mesmo com formulários abertos e botões desativados mostram o cursor de bloqueio.",
-    badge: "Correção",
   },
 ];
 

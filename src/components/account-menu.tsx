@@ -1,4 +1,4 @@
-import { Building, ChevronDown, LogOut } from "lucide-react";
+import { Building, ChevronDown, LogOut, Crown } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 
@@ -29,7 +29,7 @@ export function AccountMenu() {
     const userJson = localStorage.getItem("user");
 
     if (!userJson) {
-      return { name: "Usuário", email: "" };
+      return { name: "Usuário", email: "", isLifetime: false };
     }
 
     try {
@@ -37,9 +37,10 @@ export function AccountMenu() {
       return {
         name: parsed.name ?? "Usuário",
         email: parsed.email ?? "",
+        isLifetime: parsed.isLifetime ?? false,
       };
     } catch {
-      return { name: "Usuário", email: "" };
+      return { name: "Usuário", email: "", isLifetime: false };
     }
   };
 
@@ -81,7 +82,14 @@ export function AccountMenu() {
 
         <DropdownMenuContent align="end" className="w-56">
           <DropdownMenuLabel className="flex flex-col">
-            <span>{user.name}</span>
+            <div className="flex items-center gap-2">
+              <span>{user.name}</span>
+              {user.isLifetime && (
+                <div title="Sócio Vitalício" className="flex items-center justify-center bg-amber-500/10 text-amber-500 p-0.5 rounded-sm border border-amber-500/20">
+                  <Crown className="h-3 w-3" />
+                </div>
+              )}
+            </div>
             <span className="text-xs font-normal text-muted-foreground">
               {user.email}
             </span>
@@ -145,12 +153,12 @@ export function SidebarAccountProfile() {
 
   const readStoredUser = () => {
     const userJson = localStorage.getItem("user");
-    if (!userJson) return { name: "Usuário", email: "" };
+    if (!userJson) return { name: "Usuário", email: "", isLifetime: false };
     try {
       const parsed = JSON.parse(userJson);
-      return { name: parsed.name ?? "Usuário", email: parsed.email ?? "" };
+      return { name: parsed.name ?? "Usuário", email: parsed.email ?? "", isLifetime: parsed.isLifetime ?? false };
     } catch {
-      return { name: "Usuário", email: "" };
+      return { name: "Usuário", email: "", isLifetime: false };
     }
   };
 
@@ -182,15 +190,16 @@ export function SidebarAccountProfile() {
           className="flex items-center gap-3 cursor-pointer"
           onClick={() => navigate("/account")}
         >
-          <div className="flex items-center justify-center h-10 w-10 rounded-full border-2 border-primary/60 text-primary font-bold bg-primary/5 shrink-0">
+          <div className={`flex items-center justify-center h-10 w-10 rounded-full border-2 font-bold shrink-0 ${user.isLifetime ? "border-amber-500 text-amber-600 bg-amber-500/10" : "border-primary/60 text-primary bg-primary/5"}`}>
             {initials}
           </div>
           <div className="flex flex-col overflow-hidden">
-            <span className="text-sm font-semibold text-foreground leading-tight truncate">
+            <span className="text-sm font-semibold text-foreground leading-tight truncate flex items-center gap-1">
               {user.name}
+              {user.isLifetime && <Crown className="h-3 w-3 text-amber-500 shrink-0" />}
             </span>
-            <span className="text-xs text-muted-foreground mt-0.5 hover:underline truncate">
-              Meu perfil
+            <span className={`text-xs mt-0.5 hover:underline truncate ${user.isLifetime ? "text-amber-600 font-medium" : "text-muted-foreground"}`}>
+              {user.isLifetime ? "Sócio Vitalício" : "Meu perfil"}
             </span>
           </div>
         </div>
