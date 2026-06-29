@@ -325,7 +325,7 @@ export function Header() {
 
         <nav className="hidden md:flex md:flex-col items-start space-x-0 md:space-x-0 space-y-0 md:space-y-2 w-full">
           <NavLink
-            to="/"
+            to="/dashboard"
             className="w-full justify-start px-3 py-2.5 rounded-md hover:bg-accent hover:text-accent-foreground data-[current=true]:bg-accent data-[current=true]:text-accent-foreground transition-colors"
           >
             <ChartSpline className="h-4 w-4 mr-2" />
@@ -412,7 +412,7 @@ export function Header() {
 
           <nav className="mt-6 flex flex-col gap-2">
             <NavLink
-              to="/"
+              to="/dashboard"
               className="rounded-md px-3 py-2 text-base hover:bg-accent"
             >
               <ChartSpline className="h-5 w-5" />

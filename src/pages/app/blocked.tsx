@@ -110,7 +110,7 @@ export function BlockedPage() {
                 if (response.data?.subscriptionStatus === "active") {
                   localStorage.setItem("user", JSON.stringify(response.data));
                   toast.success("Assinatura confirmada!");
-                  navigate("/");
+                  navigate("/dashboard");
                 } else {
                   toast.error(
                     "O pagamento ainda não foi processado ou está pendente.",

@@ -12,7 +12,7 @@ export default function AuthLayout() {
     const token = localStorage.getItem("token");
 
     if (token) {
-      navigate("/", { replace: true });
+      navigate("/dashboard", { replace: true });
     }
   }, [navigate]);
 

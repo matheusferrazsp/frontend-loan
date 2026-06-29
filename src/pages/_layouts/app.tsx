@@ -23,7 +23,7 @@ export default function AppLayout() {
       const isAdmin = user.email === 'contatomatheus.oferraz@gmail.com';
       
       if (location.pathname === "/admin" && !isAdmin) {
-        navigate("/", { replace: true });
+        navigate("/dashboard", { replace: true });
         return;
       }
 

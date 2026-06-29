@@ -55,12 +55,12 @@ export function SignIn() {
           action: {
             label: "Ir para o Dashboard",
             onClick: () => {
-              navigate("/");
+              navigate("/dashboard");
             },
           },
         },
       );
-      setTimeout(() => navigate("/"), 2000);
+      setTimeout(() => navigate("/dashboard"), 2000);
     } catch (error: any) {
       if (error.response?.status === 401) {
         toast.error("Credenciais inválidas.");
@@ -126,7 +126,7 @@ export function SignIn() {
           <p className="text-sm text-muted-foreground text-center">
             Não tem uma conta?{" "}
             <a
-              href="/landing"
+              href="/"
               className="text-blue-500 hover:underline"
             >
               Conheça nossos planos e inicie seu teste grátis
