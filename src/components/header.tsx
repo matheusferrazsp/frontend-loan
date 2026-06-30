@@ -391,7 +391,7 @@ export function Header() {
         onClick={() => setIsMobileMenuOpen(false)}
       >
         <div
-          className={`h-full w-3/4 md:w-1/2 bg-background border-r p-4 transition-transform duration-300 ease-in-out flex flex-col ${
+          className={`h-full w-3/4 md:w-1/2 bg-background border-r p-4 pb-24 transition-transform duration-300 ease-in-out flex flex-col ${
             isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
           }`}
           onClick={(event) => event.stopPropagation()}
