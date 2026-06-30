@@ -1,6 +1,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AxiosError } from "axios";
-import { CreditCard, ExternalLink, Loader2, ShoppingCart, Info } from "lucide-react";
+import {
+  CreditCard,
+  ExternalLink,
+  Info,
+  Loader2,
+  ShoppingCart,
+} from "lucide-react";
 import { toast } from "sonner";
 import { z } from "zod";
 
@@ -167,13 +173,16 @@ export function AccountDetails() {
         .get(`/users/${userId}`)
         .then((res) => {
           setSubscriptionData(res.data);
-          
+
           // Atualiza o cache local para evitar flicker nos próximos reloads
           const stored = localStorage.getItem(USER_STORAGE_KEY);
           if (stored) {
             try {
               const parsed = JSON.parse(stored);
-              localStorage.setItem(USER_STORAGE_KEY, JSON.stringify({ ...parsed, ...res.data }));
+              localStorage.setItem(
+                USER_STORAGE_KEY,
+                JSON.stringify({ ...parsed, ...res.data }),
+              );
             } catch (e) {
               console.error(e);
             }
@@ -395,28 +404,39 @@ export function AccountDetails() {
                 </div>
 
                 <div className="flex flex-col gap-3 w-full my-2">
-                  {subscriptionData?.subscriptionStatus === 'trialing' && (
+                  {subscriptionData?.subscriptionStatus === "trialing" && (
                     <div className="flex items-start gap-3 p-4 border rounded-lg w-full bg-blue-500/10 border-blue-500/20 text-blue-700 dark:text-blue-400 text-sm">
                       <Info className="w-5 h-5 shrink-0 mt-0.5" />
                       <p>
-                        Você está no seu <strong>período de teste gratuito</strong>. Nenhuma cobrança foi realizada no momento.
+                        Você está no seu{" "}
+                        <strong>período de teste gratuito</strong>. Nenhuma
+                        cobrança foi realizada no momento.
                       </p>
                     </div>
                   )}
 
-                  {(!subscriptionData || !["active", "trialing"].includes(subscriptionData.subscriptionStatus)) && (
+                  {(!subscriptionData ||
+                    !["active", "trialing"].includes(
+                      subscriptionData.subscriptionStatus,
+                    )) && (
                     <div className="flex items-start gap-3 p-4 border rounded-lg w-full bg-amber-500/10 border-amber-500/20 text-amber-700 dark:text-amber-400 text-sm">
                       <Info className="w-5 h-5 shrink-0 mt-0.5" />
                       <p>
-                        <strong>Fique tranquilo!</strong> Seus dados de cartão são usados apenas para pagamentos futuros. 
-                        <strong> Você não será cobrado</strong> durante os dias de teste gratuito.
+                        <strong>Fique tranquilo!</strong> Seus dados de cartão
+                        são usados apenas para pagamentos futuros e você pode
+                        cancelar a qualquer momento.
+                        <strong> Você não será cobrado</strong> durante os dias
+                        de teste gratuito.
                       </p>
                     </div>
                   )}
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-3 w-full">
-                  {(!subscriptionData || !["active", "trialing"].includes(subscriptionData.subscriptionStatus)) && (
+                  {(!subscriptionData ||
+                    !["active", "trialing"].includes(
+                      subscriptionData.subscriptionStatus,
+                    )) && (
                     <Button
                       onClick={handleCheckout}
                       disabled={isPortalLoading}
