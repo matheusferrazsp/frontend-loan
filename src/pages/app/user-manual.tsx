@@ -16,6 +16,8 @@ import {
   Crown,
   Settings,
   Plus,
+  BellRing,
+  LayoutDashboard,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
@@ -221,6 +223,38 @@ const SECTIONS: Section[] = [
       {
         title: "Alterar dados pessoais",
         description: "Atualize seu nome de exibição, número de WhatsApp para recebimento de alertas e prefêrencia de tema (Claro/Escuro).",
+      },
+    ],
+  },
+  {
+    id: "dashboard",
+    icon: <LayoutDashboard className="h-4 w-4" />,
+    title: "Dashboard e Gráficos",
+    color: "text-blue-500",
+    steps: [
+      {
+        title: "Resumo Financeiro",
+        description: "Visualize o Total Emprestado, Juros do Mês, Inadimplência e o card 'À Receber' com o saldo pendente do mês.",
+      },
+      {
+        title: "Desempenho Anual",
+        description: "Acompanhe as tendências de entradas e saídas ao longo do ano através do moderno gráfico de área.",
+      },
+    ],
+  },
+  {
+    id: "notificacoes",
+    icon: <BellRing className="h-4 w-4" />,
+    title: "Notificações Push",
+    color: "text-emerald-500",
+    steps: [
+      {
+        title: "Permitir notificações",
+        description: "Ao acessar o sistema, autorize o navegador a enviar notificações para receber alertas no computador ou celular.",
+      },
+      {
+        title: "Eventos notificados",
+        description: "Você será avisado em tempo real sempre que clientes forem criados ou pagamentos registrados.",
       },
     ],
   },

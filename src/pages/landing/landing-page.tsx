@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 
 import { useEffect, useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 
 import { ThemeToggle } from "@/components/theme/theme-toggle";
 import {
@@ -32,13 +32,15 @@ import { Button } from "@/components/ui/button";
 export function LandingPage() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
       setIsLoggedIn(true);
+      navigate("/dashboard", { replace: true });
     }
-  }, []);
+  }, [navigate]);
 
   useEffect(() => {
     if (!isMobileMenuOpen) return;

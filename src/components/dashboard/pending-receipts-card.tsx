@@ -66,6 +66,14 @@ export function PendingReceiptsCard({
     }
   }, [isLoading, rawData]);
 
+  if (isLoading) {
+    return (
+      <Card className="h-32 flex items-center justify-center">
+        <Loader2 className="animate-spin text-muted-foreground" />
+      </Card>
+    );
+  }
+
   return (
     <Card className="shadow-sm">
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -73,7 +81,7 @@ export function PendingReceiptsCard({
         <Banknote className="h-4 w-4 text-orange-500" />
       </CardHeader>
       <CardContent className="space-y-1 relative min-h-[60px]">
-        {isLoading || !renderData ? (
+        {!renderData ? (
           <div className="absolute inset-0 flex items-center pt-2 justify-start pb-4">
             <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
           </div>
