@@ -3,6 +3,7 @@ import { Outlet, useNavigate, useLocation } from "react-router";
 
 import { Header } from "@/components/header";
 import { WhatsNewModal } from "@/components/whats-new-modal";
+import { MobileBottomNav } from "@/components/mobile-bottom-nav";
 
 export default function AppLayout() {
   const navigate = useNavigate();
@@ -38,9 +39,11 @@ export default function AppLayout() {
       <WhatsNewModal />
       <Header />
 
-      <div className="flex flex-1 flex-col gap-4 p-4 md:p-8 pt-6 w-full max-w-full overflow-hidden">
+      <div className="flex flex-1 flex-col gap-4 p-4 md:p-8 pt-6 pb-24 md:pb-8 w-full max-w-full overflow-hidden">
         <Outlet />
       </div>
+
+      <MobileBottomNav />
     </div>
   );
 }
