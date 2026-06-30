@@ -97,7 +97,7 @@ export function BlockedPage() {
             <CreditCard className="w-4 h-4" />
             {isPending
               ? "Cadastrar Cartão e Iniciar Teste"
-              : "Pagar Assinatura (R$ 49,90)"}
+              : "Pagar Assinatura (R$ 29,90)"}
           </Button>
 
           <Button

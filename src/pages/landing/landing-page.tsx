@@ -222,9 +222,14 @@ export function LandingPage() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
               {/* Left Column: Text */}
               <div className="text-left animate-in fade-in slide-in-from-bottom-8 duration-1000">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#00c48c]/10 text-[#00c48c] mb-6 text-sm font-medium">
-                  <span className="flex h-2 w-2 rounded-full bg-[#00c48c] animate-pulse"></span>
-                  Gerencie seus empréstimos
+                <div className="flex flex-col items-start gap-3 mb-6">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#00c48c]/10 text-[#00c48c] text-sm font-medium">
+                    <span className="flex h-2 w-2 rounded-full bg-[#00c48c] animate-pulse"></span>
+                    Gerencie seus empréstimos
+                  </div>
+                  <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-sm font-bold shadow-sm">
+                    🚀 Oferta especial: de R$ 49,90 por apenas R$ 29,90/mês
+                  </div>
                 </div>
                 <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
                   Profissionalize suas{" "}
@@ -834,11 +839,12 @@ export function LandingPage() {
                   <h3 className="text-2xl font-bold text-center">
                     Assinatura VeroFlux
                   </h3>
-                  <div className="mt-4 flex items-baseline justify-center gap-1">
-                    <span className="text-4xl font-extrabold">R$ 49,90</span>
-                    <span className="text-muted-foreground font-medium">
-                      /mês
-                    </span>
+                  <div className="mt-4 flex flex-col items-center justify-center gap-1">
+                    <span className="text-lg font-medium text-muted-foreground line-through">De R$ 49,90</span>
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-4xl font-extrabold text-[#00c48c]">R$ 29,90</span>
+                      <span className="text-muted-foreground font-medium">/mês</span>
+                    </div>
                   </div>
                 </div>
                 <ul className="space-y-4 mb-8">

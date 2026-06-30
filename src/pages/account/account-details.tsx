@@ -389,7 +389,7 @@ export function AccountDetails() {
                       Assinatura VeroFlux
                     </span>
                     <span className="text-sm text-muted-foreground">
-                      R$ 49,90 / mês
+                      R$ 29,90 / mês
                     </span>
                   </div>
                 </div>
