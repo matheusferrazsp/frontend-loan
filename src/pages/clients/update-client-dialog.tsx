@@ -5,7 +5,6 @@ import {
   AlignLeft,
   Calendar,
   CheckCircle2,
-  CheckSquare,
   CreditCard,
   DollarSign,
   Hash,
@@ -283,6 +282,10 @@ export function UpdateClientDialog({
     }
   }
 
+  const storedUser = localStorage.getItem("user");
+  const user = storedUser ? JSON.parse(storedUser) : null;
+  const isBlocked = user && !user.isLifetime && ['pending', 'past_due', 'canceled', 'unpaid'].includes(user.subscriptionStatus);
+
   return (
     <DialogContent
       onOpenAutoFocus={(e) => e.preventDefault()}
@@ -290,9 +293,24 @@ export function UpdateClientDialog({
     >
       <DialogHeader className="pt-10 px-6 pb-0">
         <DialogTitle>Atualizar empréstimo</DialogTitle>
-        <DialogDescription>Altere os dados necessários.</DialogDescription>
+        <DialogDescription>
+          {isBlocked ? "Ação Bloqueada" : "Altere os dados necessários."}
+        </DialogDescription>
       </DialogHeader>
 
+      {isBlocked ? (
+        <div className="flex flex-col flex-1 items-center justify-center p-6 text-center space-y-4">
+          <AlertTriangle className="h-16 w-16 text-amber-500" />
+          <h2 className="text-xl font-bold text-foreground">Assinatura Pendente</h2>
+          <p className="text-muted-foreground">
+            Você precisa finalizar sua assinatura para gerenciar empréstimos.
+            Acesse as configurações da sua conta para regularizar o acesso.
+          </p>
+          <Button onClick={() => window.location.href = "/account"} className="mt-4">
+            Ir para Minha Conta
+          </Button>
+        </div>
+      ) : (
       <form
         onSubmit={handleSubmit(handleUpdateClient)}
         className="flex flex-col flex-1 overflow-hidden"
@@ -701,6 +719,7 @@ export function UpdateClientDialog({
           <Button type="submit">Salvar Alterações</Button>
         </DialogFooter>
       </form>
+      )}
     </DialogContent>
   );
 }

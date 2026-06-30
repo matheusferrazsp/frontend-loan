@@ -217,6 +217,16 @@ export function ClientsTableRow({
               variant="ghost"
               size="sm"
               className="text-rose-500 hover:text-rose-600"
+              onClick={(e) => {
+                const storedUser = localStorage.getItem("user");
+                const user = storedUser ? JSON.parse(storedUser) : null;
+                const isBlocked = user && !user.isLifetime && ['pending', 'past_due', 'canceled', 'unpaid'].includes(user.subscriptionStatus);
+                
+                if (isBlocked) {
+                  e.preventDefault();
+                  toast.error("Assinatura pendente. Finalize seu pagamento para gerenciar.", { position: "top-center" });
+                }
+              }}
             >
               <Trash2 className="mr-1 h-3 w-3" />
               <span className="hidden md:inline">Excluir</span>

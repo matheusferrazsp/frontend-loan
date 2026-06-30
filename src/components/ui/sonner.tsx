@@ -15,6 +15,11 @@ const Toaster = ({ ...props }: ToasterProps) => {
           "--normal-border": "var(--border)",
         } as React.CSSProperties
       }
+      toastOptions={{
+        classNames: {
+          closeButton: "hover:bg-muted hover:text-foreground hover:border-border",
+        },
+      }}
       {...props}
     />
   )
