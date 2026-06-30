@@ -54,13 +54,8 @@ export default function AuthLayout() {
             asChild
             className="w-fit bg-[#00c48c] hover:bg-[#00c48c]/90 text-white font-bold h-12 px-8 rounded-md"
           >
-            <a
-              href="https://wa.me/5511921848879"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Dúvidas? Entre em contato{" "}
-              <ChevronRight className="ml-2 h-4 w-4" />
+            <a href="https://veroflux.com.br/" target="_blank" rel="noreferrer">
+              Saiba mais <ChevronRight className="ml-2 h-4 w-4" />
             </a>
           </Button>
         </div>

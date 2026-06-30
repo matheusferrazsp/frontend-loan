@@ -12,6 +12,18 @@ import {
 } from "@/components/ui/table";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Pencil, Trash2 } from "lucide-react";
 
 type User = {
   id: number;
@@ -25,6 +37,9 @@ type User = {
 export function AdminDashboard() {
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [userToEdit, setUserToEdit] = useState<User | null>(null);
+  const [editFormData, setEditFormData] = useState({ name: "", email: "", subscriptionStatus: "" });
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -58,16 +73,55 @@ export function AdminDashboard() {
     }
   }
 
+  async function handleDeleteUser(userId: number) {
+    if (!window.confirm("Tem certeza que deseja excluir este usuário? Todos os clientes e pagamentos dele serão apagados permanentemente.")) return;
+    try {
+      await api.delete(`/api/admin/users/${userId}`);
+      setUsers(users.filter(u => u.id !== userId));
+      toast.success("Usuário excluído com sucesso!");
+    } catch (error) {
+      toast.error("Erro ao excluir usuário");
+    }
+  }
+
+  function openEditModal(user: User) {
+    setUserToEdit(user);
+    setEditFormData({
+      name: user.name,
+      email: user.email,
+      subscriptionStatus: user.subscriptionStatus || "incomplete"
+    });
+  }
+
+  async function handleSaveEdit() {
+    if (!userToEdit) return;
+    try {
+      setIsSaving(true);
+      const response = await api.put(`/api/admin/users/${userToEdit.id}`, editFormData);
+      
+      setUsers(users.map(u => 
+        u.id === userToEdit.id ? { ...u, ...response.data } : u
+      ));
+      
+      toast.success("Usuário atualizado com sucesso!");
+      setUserToEdit(null);
+    } catch (error) {
+      toast.error("Erro ao atualizar usuário");
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
   return (
     <>
       <Helmet>
         <title>Painel Admin Interno</title>
       </Helmet>
 
-      <div className="flex flex-col gap-6 p-8">
+      <div className="flex flex-col gap-6 w-full">
         <h1 className="text-3xl font-bold">Gerenciamento de Usuários (Admin)</h1>
         
-        <div className="border rounded-md">
+        <div className="border rounded-md overflow-x-auto w-full">
           <Table>
             <TableHeader>
               <TableRow>
@@ -76,6 +130,7 @@ export function AdminDashboard() {
                 <TableHead>E-mail</TableHead>
                 <TableHead>Status (Stripe)</TableHead>
                 <TableHead>Cliente Vitalício</TableHead>
+                <TableHead className="text-right">Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -105,12 +160,74 @@ export function AdminDashboard() {
                         onCheckedChange={() => toggleLifetime(user.id, user.isLifetime)}
                       />
                     </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <Button variant="outline" size="icon" onClick={() => openEditModal(user)}>
+                          <Pencil className="w-4 h-4" />
+                        </Button>
+                        <Button variant="destructive" size="icon" onClick={() => handleDeleteUser(user.id)}>
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
                   </TableRow>
                 ))
               )}
             </TableBody>
           </Table>
         </div>
+
+        {/* Modal de Edição */}
+        <Dialog open={!!userToEdit} onOpenChange={(open) => !open && setUserToEdit(null)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Editar Usuário</DialogTitle>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="name">Nome</Label>
+                <Input
+                  id="name"
+                  value={editFormData.name}
+                  onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="email">E-mail</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={editFormData.email}
+                  onChange={(e) => setEditFormData({ ...editFormData, email: e.target.value })}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="status">Status da Assinatura</Label>
+                <Select
+                  value={editFormData.subscriptionStatus}
+                  onValueChange={(val) => setEditFormData({ ...editFormData, subscriptionStatus: val })}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="active">Ativo</SelectItem>
+                    <SelectItem value="trialing">Teste Grátis</SelectItem>
+                    <SelectItem value="past_due">Inadimplente</SelectItem>
+                    <SelectItem value="canceled">Cancelado</SelectItem>
+                    <SelectItem value="incomplete">Pendente</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setUserToEdit(null)} disabled={isSaving}>Cancelar</Button>
+              <Button onClick={handleSaveEdit} disabled={isSaving}>
+                {isSaving ? "Salvando..." : "Salvar Alterações"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </>
   );
