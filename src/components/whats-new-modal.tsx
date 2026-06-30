@@ -1,4 +1,4 @@
-import { BellRing, LayoutTemplate, MonitorSmartphone, Rocket, Sparkles, X, Crown, Calculator, Settings } from "lucide-react";
+import { Calculator, Sparkles, X } from "lucide-react";
 
 import { useEffect, useState } from "react";
 
@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog";
 
 // Incrementar esta chave sempre que quiser exibir o modal novamente
-const WHATS_NEW_KEY = "whatsNew_v1.6";
+const WHATS_NEW_KEY = "whatsNew_v1.7";
 
 interface Feature {
   icon: React.ReactNode;
@@ -23,32 +23,11 @@ interface Feature {
 
 const FEATURES: Feature[] = [
   {
-    icon: <Crown className="h-4 w-4 text-amber-500" />,
-    title: "VeroFlux VIP: Sócio Vitalício",
-    description:
-      "Chegou o plano Sócio Vitalício! Identificação exclusiva (coroa e bordas douradas) e acesso vitalício à plataforma sem mensalidades.",
-    badge: "Novo",
-  },
-  {
     icon: <Calculator className="h-4 w-4 text-emerald-500" />,
     title: "Score e Simulador de Dívidas",
     description:
       "Clientes VIP contam agora com nota de Score Interno e um Simulador de Renegociação com efetivação em um clique.",
     badge: "VIP",
-  },
-  {
-    icon: <Settings className="h-4 w-4 text-blue-400" />,
-    title: "Configurações da Conta",
-    description:
-      "Nova área de Configurações para editar seus dados pessoais, alterar temas (Claro/Escuro) e assinar novos planos.",
-    badge: "Novo",
-  },
-  {
-    icon: <MonitorSmartphone className="h-4 w-4 text-violet-400" />,
-    title: "Manual do Usuário Atualizado",
-    description:
-      "As novas funcionalidades e recursos VIP já constam no Manual do Usuário interativo.",
-    badge: "Melhoria",
   },
 ];
 
