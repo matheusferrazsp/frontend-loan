@@ -1,5 +1,5 @@
 import { Loader2 } from "lucide-react";
-import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
 import { useCallback, useEffect, useState } from "react";
 
@@ -106,48 +106,72 @@ export function AnnualChart({ refreshTrigger }: { refreshTrigger?: number }) {
         <CardTitle>Desempenho Anual</CardTitle>
         <CardDescription>Janeiro - Dezembro 2025</CardDescription>
       </CardHeader>
-      <CardContent className="flex-1 flex md:pt-15">
+      <CardContent className="flex-1 pb-0">
         <ChartContainer
           config={chartConfig}
-          className="mx-auto md:max-h-[250px] aspect-square w-full "
+          className="mx-auto h-[180px] w-full"
         >
-          <BarChart
+          <AreaChart
             accessibilityLayer
             data={renderChartData}
             margin={{
               left: isMobile ? -50 : 0,
               right: 10,
+              top: 10,
+              bottom: 0,
             }}
           >
+            <defs>
+              <linearGradient id="fillEntry" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="var(--color-chart-2)" stopOpacity={0.8} />
+                <stop offset="95%" stopColor="var(--color-chart-2)" stopOpacity={0.1} />
+              </linearGradient>
+              <linearGradient id="fillExit" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="var(--color-chart-5)" stopOpacity={0.8} />
+                <stop offset="95%" stopColor="var(--color-chart-5)" stopOpacity={0.1} />
+              </linearGradient>
+            </defs>
             <CartesianGrid vertical={false} />
             <XAxis
               dataKey="month"
-              tickLine={true}
+              tickLine={false}
               tickMargin={10}
-              axisLine={true}
-              tickFormatter={(value) => value.slice(0, 1)}
+              axisLine={false}
+              tickFormatter={(value) => value.slice(0, 3)}
             />
             <YAxis
               tickFormatter={(value) => value.toLocaleString()}
               className="hidden md:block"
+              axisLine={false}
+              tickLine={false}
             />
             <ChartTooltip
               cursor={false}
               content={<ChartTooltipContent indicator="dashed" />}
             />
-            <Bar
+            <Area
+              type="monotone"
               dataKey="entry"
-              fill="var(--color-chart-2)"
-              radius={4}
-              barSize={8}
+              stroke="var(--color-chart-2)"
+              fillOpacity={1}
+              fill="url(#fillEntry)"
+              strokeWidth={3}
+              isAnimationActive={true}
+              animationBegin={100}
+              animationDuration={1500}
             />
-            <Bar
+            <Area
+              type="monotone"
               dataKey="exit"
-              fill="var(--color-chart-5)"
-              radius={4}
-              barSize={8}
+              stroke="var(--color-chart-5)"
+              fillOpacity={1}
+              fill="url(#fillExit)"
+              strokeWidth={3}
+              isAnimationActive={true}
+              animationBegin={300}
+              animationDuration={1500}
             />
-          </BarChart>
+          </AreaChart>
         </ChartContainer>
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">

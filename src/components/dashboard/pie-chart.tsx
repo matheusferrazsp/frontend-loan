@@ -83,7 +83,7 @@ export function PieData({ refreshTrigger }: { refreshTrigger?: number }) {
   const percentageLate = useMemo(() => {
     if (totalClients === 0) return 0;
     const late =
-      renderData.find((d) => d.status.toLowerCase().includes("pendente"))
+      renderData.find((d) => d.status.toLowerCase().includes("atrasado"))
         ?.value || 0;
     return Math.round((Number(late) / totalClients) * 100);
   }, [renderData, totalClients]);
@@ -103,10 +103,10 @@ export function PieData({ refreshTrigger }: { refreshTrigger?: number }) {
         <CardDescription>Em dívida - Em dia</CardDescription>
       </CardHeader>
 
-      <CardContent className="flex-1 flex md:pt-15">
+      <CardContent className="flex-1 pb-0">
         <ChartContainer
           config={pieChartConfig}
-          className="mx-auto md:max-h-[250px] aspect-square w-full"
+          className="mx-auto h-[180px] w-full"
         >
           <PieChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
             <ChartTooltip
@@ -117,7 +117,8 @@ export function PieData({ refreshTrigger }: { refreshTrigger?: number }) {
               data={renderData}
               dataKey="value"
               nameKey="status"
-              innerRadius={70}
+              innerRadius={65}
+              outerRadius={75}
               strokeWidth={5}
               isAnimationActive={true}
               animationBegin={50}

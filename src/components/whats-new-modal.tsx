@@ -1,4 +1,10 @@
-import { BellRing, Calculator, Sparkles, X } from "lucide-react";
+import {
+  BarChart3,
+  BellRing,
+  LayoutDashboard,
+  Sparkles,
+  X,
+} from "lucide-react";
 
 import { useEffect, useState } from "react";
 
@@ -12,7 +18,7 @@ import {
 } from "@/components/ui/dialog";
 
 // Incrementar esta chave sempre que quiser exibir o modal novamente
-const WHATS_NEW_KEY = "whatsNew_v1.8";
+const WHATS_NEW_KEY = "whatsNew_v1.9";
 
 interface Feature {
   icon: React.ReactNode;
@@ -23,18 +29,25 @@ interface Feature {
 
 const FEATURES: Feature[] = [
   {
-    icon: <BellRing className="h-4 w-4 text-blue-500" />,
-    title: "Notificações Push",
+    icon: <LayoutDashboard className="h-4 w-4 text-primary" />,
+    title: "Dashboard Turbinado",
     description:
-      "Receba notificações em tempo real direto no seu dispositivo (computador ou celular) sobre as atualizações dos seus clientes e pagamentos.",
+      "Novo layout com card 'À Receber', proporções otimizadas para melhor visualização sem scroll e novos gráficos modernos.",
     badge: "Novo",
   },
   {
-    icon: <Calculator className="h-4 w-4 text-emerald-500" />,
-    title: "Score e Simulador de Dívidas",
+    icon: <BarChart3 className="h-4 w-4 text-emerald-500" />,
+    title: "Gráfico Anual Premium",
     description:
-      "Clientes VIP contam agora com nota de Score Interno e um Simulador de Renegociação com efetivação em um clique.",
-    badge: "VIP",
+      "Substituímos as barras por um belíssimo gráfico de área em degradê, facilitando a leitura das tendências financeiras do ano.",
+    badge: "Visual",
+  },
+  {
+    icon: <BellRing className="h-4 w-4 text-blue-500" />,
+    title: "Notificações Push em Tempo Real",
+    description:
+      "Fique por dentro de tudo! Agora o sistema avisa você por notificações push caso as permita.",
+    badge: "Oficial",
   },
 ];
 

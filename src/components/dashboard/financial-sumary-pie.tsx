@@ -41,6 +41,7 @@ export function FinancialSummaryPie({
     try {
       setIsLoading(true);
       setRawData(null);
+      setRenderData(null);
       const response = await api.get("/dashboard/monthly-summary");
       const data = response.data;
 
@@ -73,7 +74,7 @@ export function FinancialSummaryPie({
     if (!isLoading && rawData) {
       const timer = setTimeout(() => {
         setRenderData(rawData);
-      }, 100);
+      }, 300);
       return () => clearTimeout(timer);
     }
   }, [isLoading, rawData]);
@@ -81,18 +82,18 @@ export function FinancialSummaryPie({
   const saldoFinal = (renderData?.totalIn || 0) - (renderData?.totalOut || 0);
   const isLucro = saldoFinal >= 0;
 
-  const pieChartData = [
+  const pieChartData = renderData ? [
     {
       status: "Entradas",
-      value: renderData?.totalIn || 0,
+      value: renderData.totalIn,
       fill: "var(--color-chart-2)",
     },
     {
       status: "Saídas",
-      value: renderData?.totalOut || 0,
+      value: renderData.totalOut,
       fill: "var(--color-chart-5)",
     },
-  ];
+  ] : [];
 
   if (isLoading) {
     return (
@@ -108,19 +109,24 @@ export function FinancialSummaryPie({
         <CardTitle>Resumo Financeiro (Mês Atual)</CardTitle>
         <CardDescription>Entradas vs Saídas </CardDescription>
       </CardHeader>
-      <CardContent className="flex-1 flex md:pt-15">
+      <CardContent className="flex-1 pb-0">
         <ChartContainer
-          className="mx-auto md:max-h-[250px] aspect-square w-full"
+          className="mx-auto h-[180px] w-full"
           config={{}}
         >
-          <PieChart>
+          <PieChart key={renderData ? "loaded" : "empty"}>
             <ChartTooltip content={<ChartTooltipContent />} />
             <Pie
               data={pieChartData}
               dataKey="value"
               nameKey="status"
-              innerRadius={70}
+              innerRadius={65}
+              outerRadius={75}
               strokeWidth={5}
+              isAnimationActive={true}
+              animationBegin={50}
+              animationDuration={1500}
+              animationEasing="ease-out"
             >
               <Label
                 content={({ viewBox }) => {
