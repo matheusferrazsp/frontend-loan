@@ -20,9 +20,8 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 403 && error.response?.data?.code === 'SUBSCRIPTION_PAST_DUE') {
-      if (window.location.pathname !== '/account') {
-        window.location.href = '/account';
-      }
+      // O redirect forçado foi removido para permitir o acesso "Somente Leitura" (Freemium Look-around)
+      console.warn("Acesso bloqueado: Assinatura pendente.");
     }
     return Promise.reject(error);
   }
