@@ -178,11 +178,11 @@ export function DelinquentClients() {
         <ClientTableFilters onFilter={handleFilter} />
       </div>
 
-      <div className="-mx-5 md:mx-0 border-y md:border-x md:rounded-md overflow-hidden mt-4">
+      <div className="border rounded-md overflow-x-auto w-full mt-4">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="md:w-[64px] w-[32px]"></TableHead>
+              <TableHead className="hidden md:table-cell w-[64px]"></TableHead>
               <TableHead>Cliente</TableHead>
               <TableHead className="hidden md:table-cell">
                 Mensalidade

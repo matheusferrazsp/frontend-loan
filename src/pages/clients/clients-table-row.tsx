@@ -126,21 +126,23 @@ export function ClientsTableRow({
   }
 
   return (
-    <TableRow>
-      <TableCell>
-        <Dialog open={isDetailsOpen} onOpenChange={handleOpenChange}>
+    <Dialog open={isDetailsOpen} onOpenChange={handleOpenChange}>
+      <TableRow>
+        <TableCell className="hidden md:table-cell w-[64px]">
           <DialogTrigger asChild>
             <Button variant="outline" size="xs" className="-ml-2 md:ml-0">
               <Search className="h-3 w-3 md:size-4" />
             </Button>
           </DialogTrigger>
-          <ClientDetails {...client} />
-        </Dialog>
-      </TableCell>
+        </TableCell>
 
-      <TableCell className="text-sm font-medium ">
-        <div className="flex flex-col">
-          {client.name}
+      <TableCell className="text-sm font-medium">
+        <div className="flex flex-col items-start">
+          <DialogTrigger asChild>
+            <button className="text-left font-bold text-blue-400 underline decoration-blue-400/50 md:text-foreground md:no-underline md:hover:no-underline md:font-medium transition-colors hover:text-blue-400/80 md:cursor-text">
+              {client.name}
+            </button>
+          </DialogTrigger>
           <span className="text-muted-foreground md:hidden">
             {Number(client.monthlyPaid).toLocaleString("pt-BR", {
               style: "currency",
@@ -251,5 +253,7 @@ export function ClientsTableRow({
         </AlertDialog>
       </TableCell>
     </TableRow>
+    <ClientDetails {...client} />
+  </Dialog>
   );
 }

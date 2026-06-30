@@ -202,22 +202,34 @@ export function Clients() {
 
   function printClientsTable() {
     const formatCurrency = (value: number) =>
-      Number(value).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+      Number(value).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL",
+      });
 
     const formatDate = (dateString: string) => {
       if (!dateString) return "---";
-      return new Date(dateString).toLocaleDateString("pt-BR", { timeZone: "UTC" });
+      return new Date(dateString).toLocaleDateString("pt-BR", {
+        timeZone: "UTC",
+      });
     };
 
     const getStatus = (client: (typeof filteredClients)[0]) => {
-      if (client.isDelinquent) return { text: "Inadimplente", color: "#dc2626" };
+      if (client.isDelinquent)
+        return { text: "Inadimplente", color: "#dc2626" };
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       if (client.nextPaymentDate) {
         const due = new Date(client.nextPaymentDate);
-        const dueZero = new Date(due.getUTCFullYear(), due.getUTCMonth(), due.getUTCDate());
-        if (dueZero.getTime() === today.getTime()) return { text: "Vence hoje", color: "#d97706" };
-        if (dueZero < today || client.lateInstallments > 0) return { text: "Atrasado", color: "#dc2626" };
+        const dueZero = new Date(
+          due.getUTCFullYear(),
+          due.getUTCMonth(),
+          due.getUTCDate(),
+        );
+        if (dueZero.getTime() === today.getTime())
+          return { text: "Vence hoje", color: "#d97706" };
+        if (dueZero < today || client.lateInstallments > 0)
+          return { text: "Atrasado", color: "#dc2626" };
       }
       return { text: "Em dia", color: "#16a34a" };
     };
@@ -400,18 +412,20 @@ export function Clients() {
         <h1 className="text-2xl font-bold">Relatório de Empréstimos</h1>
       </div>
 
-      <div className="-mx-5 md:mx-0 border-y md:border-x md:rounded-md overflow-hidden">
+      <div className="border rounded-md overflow-x-auto w-full">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="md:w-[64px] w-[32px]"></TableHead>
-              <TableHead>Cliente</TableHead>
+              <TableHead className="hidden md:table-cell w-[64px]"></TableHead>
+              <TableHead>Cliente/Juros</TableHead>
               <TableHead className="hidden md:table-cell">
                 Mensalidade
               </TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Vencimento</TableHead>
-              <TableHead className="hidden print:table-cell">Últ. Pagamento</TableHead>
+              <TableHead className="hidden print:table-cell">
+                Últ. Pagamento
+              </TableHead>
               <TableHead className="w-[164px] print:hidden">Editar</TableHead>
               <TableHead className="w-[132px] print:hidden">Excluir</TableHead>
             </TableRow>
