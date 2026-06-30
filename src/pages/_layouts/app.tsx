@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import { Outlet, useNavigate, useLocation } from "react-router";
 
+import { usePushNotifications } from "@/hooks/use-push-notifications";
 import { Header } from "@/components/header";
 import { WhatsNewModal } from "@/components/whats-new-modal";
 import { MobileBottomNav } from "@/components/mobile-bottom-nav";
@@ -8,6 +9,8 @@ import { MobileBottomNav } from "@/components/mobile-bottom-nav";
 export default function AppLayout() {
   const navigate = useNavigate();
   const location = useLocation();
+
+  usePushNotifications();
 
   useEffect(() => {
     const token = localStorage.getItem("token");

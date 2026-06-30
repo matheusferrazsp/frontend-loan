@@ -7,10 +7,6 @@ import { AnnualChart } from "@/components/dashboard/annual-chart";
 import { FinancialSummaryPie } from "@/components/dashboard/financial-sumary-pie";
 import { PaidOff } from "@/components/dashboard/paid-off-card";
 import { PieData } from "@/components/dashboard/pie-chart";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogTrigger } from "@/components/ui/dialog";
-
-import { CreateClientDialog } from "@/pages/clients/create-client-dialog";
 
 import { MonthInterestCard } from "../../components/dashboard/month-interest-card";
 import { TotalValueReturned } from "../../components/dashboard/month-returned-value";
@@ -86,25 +82,6 @@ export function Dashboard() {
         <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
           Dashboard
         </h1>
-        <div>
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button
-                className="md:hidden border-1 dark:border-emerald-400 border-emerald-500 mb-2 mt-2 dark:text-emerald-400 text-emerald-500 font-medium"
-                variant="ghost"
-                size="lg"
-              >
-                Novo Empréstimo
-              </Button>
-            </DialogTrigger>
-            <CreateClientDialog
-              onSuccess={() => {
-                setCardsRefreshTrigger((prev) => prev + 1);
-                setChartsRefreshTrigger((prev) => prev + 1);
-              }}
-            />
-          </Dialog>
-        </div>
 
         <div className="grid gap-4 md:grid-cols-5 md:gap-4">
           <MonthInterestCard refreshTrigger={cardsRefreshTrigger} />
