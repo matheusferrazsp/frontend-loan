@@ -125,11 +125,8 @@ export function SignIn() {
           </p>
           <p className="text-sm text-muted-foreground text-center">
             Não tem uma conta?{" "}
-            <a
-              href="/"
-              className="text-blue-500 hover:underline"
-            >
-              Conheça nossos planos e inicie seu teste grátis
+            <a href="/sign-up" className="text-blue-500 hover:underline">
+              Cadastre-se agora mesmo!
             </a>
           </p>
         </form>
