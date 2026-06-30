@@ -80,8 +80,8 @@ function getAuthenticatedUserId() {
 
 function extractApiErrorMessage(error: unknown, fallbackMessage: string) {
   if (error instanceof AxiosError) {
-    const message = (error.response?.data as { error?: string } | undefined)
-      ?.error;
+    const data = error.response?.data as { error?: string; message?: string } | undefined;
+    const message = data?.error || data?.message;
 
     if (message) {
       return message;
@@ -216,7 +216,9 @@ export function AccountDetails() {
         window.location.href = response.data.url;
       }
     } catch (error) {
-      toast.error("Erro ao iniciar checkout.");
+      toast.error(
+        extractApiErrorMessage(error, "Erro ao iniciar checkout.")
+      );
     } finally {
       setIsPortalLoading(false);
     }
