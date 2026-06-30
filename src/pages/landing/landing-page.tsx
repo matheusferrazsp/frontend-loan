@@ -31,6 +31,14 @@ import { Button } from "@/components/ui/button";
 
 export function LandingPage() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      setIsLoggedIn(true);
+    }
+  }, []);
 
   useEffect(() => {
     if (!isMobileMenuOpen) return;
@@ -75,19 +83,30 @@ export function LandingPage() {
           <div className="flex items-center gap-3">
             <ThemeToggle />
             <div className="hidden sm:flex items-center gap-3">
-              <Button
-                variant="ghost"
-                className="font-semibold text-muted-foreground hover:text-foreground rounded-full"
-                asChild
-              >
-                <Link to="/sign-in">Entrar</Link>
-              </Button>
-              <Button
-                className="rounded-full bg-[#00c48c] hover:bg-[#00c48c]/90 text-white font-bold shadow-md shadow-[#00c48c]/20"
-                asChild
-              >
-                <Link to="/sign-up">Começar Grátis</Link>
-              </Button>
+              {isLoggedIn ? (
+                <Button
+                  className="rounded-full bg-[#00c48c] hover:bg-[#00c48c]/90 text-white font-bold shadow-md shadow-[#00c48c]/20"
+                  asChild
+                >
+                  <Link to="/dashboard">Acessar Painel</Link>
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    variant="ghost"
+                    className="font-semibold text-muted-foreground hover:text-foreground rounded-full"
+                    asChild
+                  >
+                    <Link to="/sign-in">Entrar</Link>
+                  </Button>
+                  <Button
+                    className="rounded-full bg-[#00c48c] hover:bg-[#00c48c]/90 text-white font-bold shadow-md shadow-[#00c48c]/20"
+                    asChild
+                  >
+                    <Link to="/sign-up">Começar Grátis</Link>
+                  </Button>
+                </>
+              )}
             </div>
             <Button
               variant="ghost"
@@ -156,17 +175,30 @@ export function LandingPage() {
             </a>
           </nav>
           <div className="mt-auto flex flex-col gap-4">
-            <Button variant="outline" className="w-full" asChild>
-              <Link to="/sign-in">Entrar</Link>
-            </Button>
-            <Button
-              className="w-full bg-[#00c48c] hover:bg-[#00c48c]/90 text-white font-bold shadow-md shadow-[#00c48c]/20"
-              asChild
-            >
-              <Link to="/sign-up" onClick={() => setIsMobileMenuOpen(false)}>
-                Começar Grátis
-              </Link>
-            </Button>
+            {isLoggedIn ? (
+              <Button
+                className="w-full bg-[#00c48c] hover:bg-[#00c48c]/90 text-white font-bold shadow-md shadow-[#00c48c]/20"
+                asChild
+              >
+                <Link to="/dashboard" onClick={() => setIsMobileMenuOpen(false)}>
+                  Acessar Painel
+                </Link>
+              </Button>
+            ) : (
+              <>
+                <Button variant="outline" className="w-full" asChild>
+                  <Link to="/sign-in" onClick={() => setIsMobileMenuOpen(false)}>Entrar</Link>
+                </Button>
+                <Button
+                  className="w-full bg-[#00c48c] hover:bg-[#00c48c]/90 text-white font-bold shadow-md shadow-[#00c48c]/20"
+                  asChild
+                >
+                  <Link to="/sign-up" onClick={() => setIsMobileMenuOpen(false)}>
+                    Começar Grátis
+                  </Link>
+                </Button>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -246,7 +278,11 @@ export function LandingPage() {
                     className="w-full sm:w-auto text-base h-12 px-8 rounded-full bg-[#00c48c] hover:bg-[#00c48c]/90 text-white"
                     asChild
                   >
-                    <Link to="/sign-up">Teste Grátis por 3 Dias</Link>
+                    {isLoggedIn ? (
+                      <Link to="/dashboard">Acessar Painel de Controle</Link>
+                    ) : (
+                      <Link to="/sign-up">Teste Grátis por 3 Dias</Link>
+                    )}
                   </Button>
                   <Button
                     size="lg"

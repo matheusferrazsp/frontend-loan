@@ -1,9 +1,10 @@
 import { AlertTriangle, ChartSpline, Plus, UserRoundPen } from "lucide-react";
+
 import { useState } from "react";
 import { Link, useLocation } from "react-router";
 
-import { cn } from "@/lib/utils";
 import { Dialog, DialogTrigger } from "@/components/ui/dialog";
+import { cn } from "@/lib/utils";
 import { CreateClientDialog } from "@/pages/clients/create-client-dialog";
 
 export function MobileBottomNav() {
@@ -22,7 +23,7 @@ export function MobileBottomNav() {
       to: "/clients",
     },
     {
-      label: "Atrasados",
+      label: "Inadimplentes",
       icon: AlertTriangle,
       to: "/delinquent-clients",
     },
@@ -40,10 +41,12 @@ export function MobileBottomNav() {
               "flex flex-col items-center justify-center gap-1 rounded-md px-3 py-2 text-xs font-medium transition-colors",
               isActive
                 ? "text-primary"
-                : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
             )}
           >
-            <item.icon className={cn("h-5 w-5", isActive ? "stroke-[2.5px]" : "")} />
+            <item.icon
+              className={cn("h-5 w-5", isActive ? "stroke-[2.5px]" : "")}
+            />
             <span className="truncate max-w-[64px]">{item.label}</span>
           </Link>
         );
@@ -51,13 +54,13 @@ export function MobileBottomNav() {
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogTrigger asChild>
-          <button
-            className="flex flex-col items-center justify-center gap-1 rounded-md px-3 py-2 text-xs font-medium transition-colors text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-          >
+          <button className="flex flex-col items-center justify-center gap-1 rounded-md px-3 py-2 text-xs font-medium transition-colors text-muted-foreground hover:bg-accent hover:text-accent-foreground">
             <div className="flex items-center justify-center bg-primary text-primary-foreground rounded-full w-8 h-8 shadow-sm">
               <Plus className="h-5 w-5 stroke-[2.5px]" />
             </div>
-            <span className="truncate max-w-[64px] font-semibold text-primary mt-[-2px]">Novo</span>
+            <span className="truncate max-w-[64px] font-semibold text-primary mt-[-2px]">
+              Novo
+            </span>
           </button>
         </DialogTrigger>
         <CreateClientDialog onSuccess={() => setIsDialogOpen(false)} />
