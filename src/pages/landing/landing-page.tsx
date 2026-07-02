@@ -265,25 +265,22 @@ export function LandingPage() {
                     🚀 Oferta especial: de R$ 49,90 por apenas R$ 29,90/mês
                   </div>
                 </div>
-                <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
-                  Profissionalize suas{" "}
-                  <span className="text-[#00c48c]">Cobranças</span>
+                <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl leading-tight">
+                  Abandone o <span className="text-[#00c48c] underline decoration-amber-500 decoration-wavy">caderno</span> e as planilhas complexas.
                 </h1>
                 <p className="mt-6 text-lg text-muted-foreground md:text-xl max-w-lg">
-                  Automatize cálculos de juros, controle inadimplências e tenha
-                  uma visão clara dos seus recebíveis em uma única plataforma
-                  feita para o seu negócio.
+                  Tenha controle total dos seus empréstimos com cálculo automático de juros e receba <strong className="text-foreground font-semibold">notificações diárias</strong> no celular de quem precisa pagar. Nunca mais perca um recebimento!
                 </p>
                 <div className="mt-10 flex flex-col sm:flex-row items-center gap-4">
                   <Button
                     size="lg"
-                    className="w-full sm:w-auto text-base h-12 px-8 rounded-full bg-[#00c48c] hover:bg-[#00c48c]/90 text-white"
+                    className="w-full sm:w-auto text-base h-12 px-8 rounded-full bg-[#00c48c] hover:bg-[#00c48c]/90 text-white font-bold shadow-lg shadow-[#00c48c]/25"
                     asChild
                   >
                     {isLoggedIn ? (
                       <Link to="/dashboard">Acessar Painel de Controle</Link>
                     ) : (
-                      <Link to="/sign-up">Teste Grátis por 3 Dias</Link>
+                      <Link to="/sign-up">Começar 3 Dias Grátis Agora</Link>
                     )}
                   </Button>
                   <Button
@@ -293,10 +290,16 @@ export function LandingPage() {
                     asChild
                   >
                     <a href="#planos">
-                      Saber mais <ChevronRight className="ml-1 h-4 w-4" />
+                      Ver planos <ChevronRight className="ml-1 h-4 w-4" />
                     </a>
                   </Button>
                 </div>
+                {!isLoggedIn && (
+                  <p className="mt-3 text-xs text-muted-foreground flex items-center gap-1.5 font-medium">
+                    <ShieldCheck className="h-4 w-4 text-[#00c48c]" />
+                    Configuração simples em 2 minutos • Cancele quando quiser
+                  </p>
+                )}
               </div>
 
               {/* Right Column: PRODUCT SHOWCASE */}
@@ -437,9 +440,8 @@ export function LandingPage() {
                 Tudo o que você precisa em um só lugar
               </h2>
               <p className="text-lg text-muted-foreground">
-                Deixe as planilhas para trás. O VeroFlux automatiza todo o
-                trabalho duro para você focar no que importa: fazer o seu
-                negócio crescer.
+                Deixe o caderno e as planilhas para trás. O VeroFlux automatiza todo o
+                trabalho duro para você focar no que importa: ter controle total do seu dinheiro.
               </p>
             </div>
 
@@ -474,16 +476,18 @@ export function LandingPage() {
               </div>
 
               {/* Feature 3 */}
-              <div className="group relative overflow-hidden rounded-[24px] border bg-background p-8 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+              <div className="group relative overflow-hidden rounded-[24px] border border-amber-500/30 bg-gradient-to-b from-amber-500/5 to-background p-8 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                <div className="inline-block px-2.5 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 text-[11px] font-bold uppercase tracking-wider mb-4">
+                  ⭐ Destaque
+                </div>
                 <div className="h-12 w-12 rounded-xl bg-amber-500/10 flex items-center justify-center mb-6 text-amber-500 group-hover:scale-110 transition-transform">
                   <Bell className="h-6 w-6" />
                 </div>
                 <h3 className="text-xl font-bold mb-3">
-                  Notificações Inteligentes
+                  Notificações Diárias
                 </h3>
                 <p className="text-muted-foreground">
-                  Uma central de alertas avisa em tempo real sobre vencimentos
-                  do dia e pagamentos em atraso, para você agir rápido.
+                  Receba alertas diários no seu celular com a lista exata de quem precisa pagar no dia e quem está atrasado. Chega de esquecer de cobrar!
                 </p>
               </div>
 
@@ -646,8 +650,7 @@ export function LandingPage() {
                       <LayoutDashboard className="h-5 w-5" />
                     </div>
                     <p className="text-foreground/80">
-                      Agentes autônomos que buscam abandonar as planilhas de
-                      Excel e ter um painel completo em tempo real.
+                      Agentes autônomos que querem abandonar o caderno, anotações soltas e planilhas de Excel para ter tudo organizado e seguro no celular.
                     </p>
                   </div>
                 </div>
@@ -900,7 +903,11 @@ export function LandingPage() {
                   </li>
                   <li className="flex items-center gap-3">
                     <ShieldCheck className="h-5 w-5 text-[#00c48c]" />
-                    <span>Alertas automáticos de atrasos</span>
+                    <span className="font-semibold text-foreground">Notificações diárias de cobrança no celular</span>
+                  </li>
+                  <li className="flex items-center gap-3">
+                    <ShieldCheck className="h-5 w-5 text-[#00c48c]" />
+                    <span>Cálculo automático de juros compostos e simples</span>
                   </li>
                   <li className="flex items-center gap-3">
                     <ShieldCheck className="h-5 w-5 text-[#00c48c]" />
@@ -1032,26 +1039,38 @@ export function LandingPage() {
         <section className="py-24 bg-[#00c48c] text-white">
           <div className="container mx-auto px-4 md:px-6 text-center">
             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-6">
-              Pronto para profissionalizar seus empréstimos?
+              Pronto para abandonar o caderno e ter controle total?
             </h2>
             <p className="mx-auto max-w-2xl text-white/90 text-lg mb-10">
-              Junte-se a diversos profissionais que já organizaram suas finanças
-              e reduziram as dores de cabeça com cobranças.
+              Junte-se a diversos profissionais que já organizaram suas cobranças no celular
+              e nunca mais esqueceram de cobrar uma parcela.
             </p>
-            <Button
-              size="lg"
-              className="bg-zinc-900 text-white hover:bg-zinc-800 hover:text-white font-semibold h-12 px-8 rounded-full border-0 transition-colors"
-              asChild
-            >
-              <a
-                href="https://wa.me/5511921848879?text=Olá,%20gostaria%20de%20fazer%20um%20teste%20gratuito!"
-                target="_blank"
-                rel="noreferrer"
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Button
+                size="lg"
+                className="w-full sm:w-auto bg-zinc-900 text-white hover:bg-zinc-800 hover:text-white font-bold h-14 px-10 rounded-full border-0 transition-all text-lg shadow-xl hover:scale-105"
+                asChild
               >
-                Entrar em Contato
-                <ChevronRight className="ml-2 h-5 w-5" />
-              </a>
-            </Button>
+                <Link to="/sign-up">
+                  Começar 3 Dias Grátis Agora
+                  <ChevronRight className="ml-2 h-5 w-5" />
+                </Link>
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                className="w-full sm:w-auto bg-transparent border-2 border-white/40 text-white hover:bg-white/10 font-semibold h-14 px-8 rounded-full transition-colors text-base"
+                asChild
+              >
+                <a
+                  href="https://wa.me/5511921848879?text=Olá,%20gostaria%20de%20tirar%20uma%20dúvida%20sobre%20o%20VeroFlux!"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Dúvidas? Fale no WhatsApp
+                </a>
+              </Button>
+            </div>
           </div>
         </section>
       </main>
