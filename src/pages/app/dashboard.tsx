@@ -39,21 +39,14 @@ export function Dashboard() {
     socket.on("connect", handleConnect);
     socket.on("reconnect", handleReconnect);
 
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible") {
-        triggerRefresh("visibilitychange");
-      }
-    };
     const handleOnline = () => triggerRefresh("online");
 
-    document.addEventListener("visibilitychange", handleVisibilityChange);
     window.addEventListener("online", handleOnline);
 
     return () => {
       socket.off("clientesAtualizados", handleClientesAtualizados);
       socket.off("connect", handleConnect);
       socket.off("reconnect", handleReconnect);
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
       window.removeEventListener("online", handleOnline);
     };
   }, []);

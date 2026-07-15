@@ -129,16 +129,8 @@ export function Clients() {
 
     socket.on("clientesAtualizados", handleUpdate);
 
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "visible") {
-        fetchClients();
-      }
-    };
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-
     return () => {
       socket.off("clientesAtualizados", handleUpdate);
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [fetchClients]);
 
