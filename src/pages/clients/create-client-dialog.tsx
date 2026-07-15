@@ -18,6 +18,7 @@ import { toast } from "sonner";
 
 import { useEffect } from "react";
 import React from "react";
+import { isSubscriptionBlocked } from "@/lib/utils";
 import { useRef } from "react";
 import { Controller, useForm } from "react-hook-form";
 
@@ -195,7 +196,7 @@ export function CreateClientDialog({ onSuccess }: CreateClientDialogProps) {
 
   const storedUser = localStorage.getItem("user");
   const user = storedUser ? JSON.parse(storedUser) : null;
-  const isBlocked = user && !user.isLifetime && ['pending', 'past_due', 'canceled', 'unpaid'].includes(user.subscriptionStatus);
+  const isBlocked = isSubscriptionBlocked(user);
 
   return (
     <DialogContent

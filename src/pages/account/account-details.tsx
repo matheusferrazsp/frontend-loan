@@ -13,6 +13,7 @@ import { z } from "zod";
 import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { useForm } from "react-hook-form";
+import { isSubscriptionBlocked } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -304,12 +305,7 @@ export function AccountDetails() {
     }
   }
 
-  const isBlocked =
-    subscriptionData &&
-    !subscriptionData.isLifetime &&
-    ["pending", "past_due", "canceled", "unpaid"].includes(
-      subscriptionData.subscriptionStatus,
-    );
+  const isBlocked = isSubscriptionBlocked(subscriptionData);
 
   async function handleVerifyPayment() {
     try {
@@ -343,9 +339,7 @@ export function AccountDetails() {
             <div>
               <h2 className="font-bold text-lg">Acesso Restrito</h2>
               <p className="text-sm opacity-90">
-                Sua assinatura encontra-se com o pagamento pendente ou inativo.
-                Por favor, regularize sua situação abaixo para acessar as demais
-                funcionalidades.
+                Seu período de teste grátis ou assinatura expirou. Realize o pagamento abaixo para continuar utilizando a plataforma.
               </p>
             </div>
             <Button
@@ -406,7 +400,7 @@ export function AccountDetails() {
                 </div>
 
                 <div className="flex flex-col gap-3 w-full my-2">
-                  {subscriptionData?.subscriptionStatus === "trialing" && (
+                  {subscriptionData?.subscriptionStatus === "trialing" && !isBlocked && (
                     <div className="flex items-start gap-3 p-4 border rounded-lg w-full bg-blue-500/10 border-blue-500/20 text-blue-700 dark:text-blue-400 text-sm">
                       <Info className="w-5 h-5 shrink-0 mt-0.5" />
                       <p>
@@ -417,18 +411,11 @@ export function AccountDetails() {
                     </div>
                   )}
 
-                  {(!subscriptionData ||
-                    !["active", "trialing"].includes(
-                      subscriptionData.subscriptionStatus,
-                    )) && (
+                  {isBlocked && (
                     <div className="flex items-start gap-3 p-4 border rounded-lg w-full bg-amber-500/10 border-amber-500/20 text-amber-700 dark:text-amber-400 text-sm">
                       <Info className="w-5 h-5 shrink-0 mt-0.5" />
                       <p>
-                        <strong>Fique tranquilo!</strong> Seus dados de cartão
-                        são usados apenas para pagamentos futuros e você pode
-                        cancelar a qualquer momento.
-                        <strong> Você não será cobrado</strong> durante os dias
-                        de teste gratuito.
+                        <strong>Seu período de teste ou assinatura expirou.</strong> Para continuar utilizando a plataforma sem interrupções, realize a assinatura mensal de R$ 29,90/mês.
                       </p>
                     </div>
                   )}
@@ -438,7 +425,7 @@ export function AccountDetails() {
                   {(!subscriptionData ||
                     !["active", "trialing"].includes(
                       subscriptionData.subscriptionStatus,
-                    )) && (
+                    ) || isBlocked) && (
                     <Button
                       onClick={handleCheckout}
                       disabled={isPortalLoading}
@@ -449,22 +436,24 @@ export function AccountDetails() {
                       ) : (
                         <ShoppingCart className="w-4 h-4" />
                       )}
-                      Assinar Plano
+                      Assinar Plano (R$ 29,90/mês)
                     </Button>
                   )}
-                  <Button
-                    onClick={handleOpenPortal}
-                    disabled={isPortalLoading}
-                    variant="outline"
-                    className="w-full sm:w-auto gap-2"
-                  >
-                    {isPortalLoading ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <ExternalLink className="w-4 h-4" />
-                    )}
-                    Gerenciar Assinatura (Portal)
-                  </Button>
+                  {subscriptionData?.stripeCustomerId && (
+                    <Button
+                      onClick={handleOpenPortal}
+                      disabled={isPortalLoading}
+                      variant="outline"
+                      className="w-full sm:w-auto gap-2"
+                    >
+                      {isPortalLoading ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <ExternalLink className="w-4 h-4" />
+                      )}
+                      Gerenciar Assinatura (Portal)
+                    </Button>
+                  )}
                 </div>
               </div>
             )}

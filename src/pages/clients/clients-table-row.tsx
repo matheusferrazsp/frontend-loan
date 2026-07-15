@@ -3,6 +3,7 @@ import { toast } from "sonner";
 
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router";
+import { isSubscriptionBlocked } from "@/lib/utils";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -220,11 +221,11 @@ export function ClientsTableRow({
               onClick={(e) => {
                 const storedUser = localStorage.getItem("user");
                 const user = storedUser ? JSON.parse(storedUser) : null;
-                const isBlocked = user && !user.isLifetime && ['pending', 'past_due', 'canceled', 'unpaid'].includes(user.subscriptionStatus);
+                const isBlocked = isSubscriptionBlocked(user);
                 
                 if (isBlocked) {
                   e.preventDefault();
-                  toast.error("Assinatura pendente. Finalize seu pagamento para gerenciar.", { position: "top-center" });
+                  toast.error("Seu período de teste ou assinatura expirou. Realize o pagamento para gerenciar.", { position: "top-center" });
                 }
               }}
             >

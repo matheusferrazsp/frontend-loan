@@ -12,3 +12,17 @@ export function formatDateExtended(date: string | Date) {
     year: "numeric",
   }).format(new Date(date));
 }
+
+export function isSubscriptionBlocked(user: any): boolean {
+  if (!user || user.isLifetime) return false;
+  
+  if (['pending', 'past_due', 'canceled', 'unpaid'].includes(user.subscriptionStatus)) {
+    return true;
+  }
+  
+  if (user.subscriptionStatus === 'trialing' && user.subscriptionExpiresAt && new Date(user.subscriptionExpiresAt) < new Date()) {
+    return true;
+  }
+  
+  return false;
+}

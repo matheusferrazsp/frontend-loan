@@ -5,6 +5,7 @@ import AuthLayout from "./pages/_layouts/auth";
 import { AccountDetails } from "./pages/account/account-details";
 import { AdminDashboard } from "./pages/admin/admin-dashboard";
 import { Dashboard } from "./pages/app/dashboard";
+import { BlockedPage } from "./pages/app/blocked";
 import { UserManual } from "./pages/app/user-manual";
 import { ForgotPassword } from "./pages/auth/forgot-password";
 import { ResetPassword } from "./pages/auth/reset-password";
@@ -29,6 +30,7 @@ export const router = createBrowserRouter([
       { path: "/delinquent-clients", element: <DelinquentClients /> },
       { path: "/manual", element: <UserManual /> },
       { path: "/admin", element: <AdminDashboard /> },
+      { path: "/blocked", element: <BlockedPage /> },
     ],
   },
   {

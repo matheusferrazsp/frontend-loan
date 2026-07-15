@@ -50,10 +50,9 @@ export function SignUp() {
       localStorage.setItem("token", loginResp.data.token);
       localStorage.setItem("user", JSON.stringify(loginResp.data.user));
 
-      toast.success("Conta criada! Redirecionando para iniciar seu teste grátis...");
+      toast.success("Conta criada! Seu teste grátis de 3 dias começou!");
       
-      // Send to account to force checkout
-      setTimeout(() => navigate("/account"), 2000);
+      setTimeout(() => navigate("/dashboard"), 1500);
     } catch (error: any) {
       if (error.response?.status === 409) {
         toast.error("Este e-mail já está em uso.");

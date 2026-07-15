@@ -12,6 +12,7 @@ import { useNavigate } from "react-router";
 
 import { Button } from "@/components/ui/button";
 import { api } from "@/lib/axios";
+import { isSubscriptionBlocked } from "@/lib/utils";
 
 export function BlockedPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -25,7 +26,7 @@ export function BlockedPage() {
     }
   }, []);
 
-  const isPending = user?.subscriptionStatus === "pending";
+  const isTrialExpired = user?.subscriptionStatus === "trialing" && user?.subscriptionExpiresAt && new Date(user.subscriptionExpiresAt) < new Date();
 
   async function handleCheckout() {
     try {
@@ -79,12 +80,12 @@ export function BlockedPage() {
         </div>
 
         <h1 className="text-2xl font-bold text-foreground">
-          {isPending ? "Ative seu Teste Grátis" : "Acesso Bloqueado"}
+          {isTrialExpired ? "Período de Teste Expirado" : "Acesso Bloqueado"}
         </h1>
 
         <p className="text-muted-foreground text-sm">
-          {isPending
-            ? "Para liberar seu acesso e iniciar os 3 dias gratuitos, é necessário cadastrar uma forma de pagamento. Você não será cobrado hoje e pode cancelar a qualquer momento."
+          {isTrialExpired
+            ? "Seu período de teste grátis de 3 dias expirou. Para continuar acessando a plataforma e cadastrando ou gerenciando clientes, realize o pagamento da assinatura mensal."
             : "Sua assinatura encontra-se com o pagamento pendente ou inativo. Por favor, regularize sua situação para continuar utilizando a plataforma e não perder o acesso aos seus clientes."}
         </p>
 
@@ -95,9 +96,7 @@ export function BlockedPage() {
             className="w-full gap-2"
           >
             <CreditCard className="w-4 h-4" />
-            {isPending
-              ? "Cadastrar Cartão e Iniciar Teste"
-              : "Pagar Assinatura (R$ 29,90)"}
+            Pagar Assinatura (R$ 29,90)
           </Button>
 
           <Button
@@ -107,7 +106,7 @@ export function BlockedPage() {
                 const response = await api.get(
                   `/users/${user.id}/status-check`,
                 );
-                if (response.data?.subscriptionStatus === "active") {
+                if (["active", "trialing"].includes(response.data?.subscriptionStatus) && !isSubscriptionBlocked(response.data)) {
                   localStorage.setItem("user", JSON.stringify(response.data));
                   toast.success("Assinatura confirmada!");
                   navigate("/dashboard");
@@ -129,7 +128,7 @@ export function BlockedPage() {
             Já paguei / Verificar Sistema
           </Button>
 
-          {!isPending && (
+          {user?.stripeCustomerId && (
             <Button
               onClick={handlePortal}
               disabled={isLoading}
@@ -137,7 +136,7 @@ export function BlockedPage() {
               className="w-full gap-2 text-muted-foreground"
             >
               <ExternalLink className="w-4 h-4" />
-              Atualizar Cartão
+              Atualizar Cartão / Portal
             </Button>
           )}
         </div>
