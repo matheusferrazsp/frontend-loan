@@ -1,4 +1,4 @@
-import { io } from "socket.io-client";
+import { socket } from "@/lib/socket";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
@@ -105,12 +105,11 @@ export function DelinquentClients() {
   useEffect(() => {
     fetchClients();
 
-    const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:3333";
-    const socket = io(backendUrl);
-
-    socket.on("clientesAtualizados", () => {
+    const handleUpdate = () => {
       fetchClients();
-    });
+    };
+
+    socket.on("clientesAtualizados", handleUpdate);
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible") {
@@ -121,7 +120,7 @@ export function DelinquentClients() {
     document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
-      socket.disconnect();
+      socket.off("clientesAtualizados", handleUpdate);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [fetchClients]);

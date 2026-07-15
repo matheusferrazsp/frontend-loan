@@ -9,10 +9,10 @@ import {
   X,
   Shield,
 } from "lucide-react";
-import { io } from "socket.io-client";
+import { socket } from "@/lib/socket";
 import { toast } from "sonner";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 
 import { api } from "@/lib/axios";
@@ -151,22 +151,26 @@ function NotificationBell() {
     }
   }, [navigate]);
 
+  const lastLoadRef = useRef<number>(0);
+
   useEffect(() => {
     loadNotifications();
 
-    const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:3333";
-    const socket = io(backendUrl, { transports: ["websocket"] });
-
-    socket.on("clientesAtualizados", () => {
+    const handleUpdate = () => {
+      const now = Date.now();
+      if (now - lastLoadRef.current < 5000) {
+        return;
+      }
+      lastLoadRef.current = now;
       loadNotifications();
-    });
+    };
 
-    socket.on("connect", () => {
-      loadNotifications();
-    });
+    socket.on("clientesAtualizados", handleUpdate);
+    socket.on("connect", handleUpdate);
 
     return () => {
-      socket.disconnect();
+      socket.off("clientesAtualizados", handleUpdate);
+      socket.off("connect", handleUpdate);
     };
   }, [loadNotifications]);
 

@@ -1,6 +1,6 @@
-import { io } from "socket.io-client";
+import { socket } from "@/lib/socket";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
 
 import { AnnualChart } from "@/components/dashboard/annual-chart";
@@ -17,60 +17,44 @@ import { TotalLoansOfMonth } from "../../components/dashboard/total-loans-month"
 export function Dashboard() {
   const [cardsRefreshTrigger, setCardsRefreshTrigger] = useState(0);
   const [chartsRefreshTrigger, setChartsRefreshTrigger] = useState(0);
+  const lastRefreshRef = useRef<number>(Date.now());
 
   useEffect(() => {
-    const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:3333";
-    const socket = io(backendUrl, {
-      transports: ["websocket"],
-      reconnection: true,
-      reconnectionDelay: 1000,
-      reconnectionDelayMax: 5000,
-      reconnectionAttempts: 5,
-    });
-
     const triggerRefresh = (reason: string) => {
+      const now = Date.now();
+      if (now - lastRefreshRef.current < 5000) {
+        return;
+      }
+      lastRefreshRef.current = now;
       console.log(`🔄 Dashboard: sincronizando (${reason})`);
       setCardsRefreshTrigger((prev) => prev + 1);
       setChartsRefreshTrigger((prev) => prev + 1);
     };
 
-    socket.on("clientesAtualizados", () => {
-      triggerRefresh("socket:evento clientesAtualizados");
-    });
+    const handleClientesAtualizados = () => triggerRefresh("socket:clientesAtualizados");
+    const handleConnect = () => triggerRefresh("socket:connect");
+    const handleReconnect = () => triggerRefresh("socket:reconnect");
 
-    socket.on("connect", () => {
-      triggerRefresh("socket:connect");
-    });
-
-    socket.on("disconnect", () => {
-      console.log("🔴 Socket desconectado, tentando reconectar...");
-    });
-
-    socket.on("reconnect", () => {
-      triggerRefresh("socket:reconnect");
-    });
+    socket.on("clientesAtualizados", handleClientesAtualizados);
+    socket.on("connect", handleConnect);
+    socket.on("reconnect", handleReconnect);
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible") {
         triggerRefresh("visibilitychange");
       }
     };
-
-    const handleFocus = () => triggerRefresh("focus");
     const handleOnline = () => triggerRefresh("online");
-    const handlePageShow = () => triggerRefresh("pageshow");
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
-    window.addEventListener("focus", handleFocus);
     window.addEventListener("online", handleOnline);
-    window.addEventListener("pageshow", handlePageShow);
 
     return () => {
-      socket.disconnect();
+      socket.off("clientesAtualizados", handleClientesAtualizados);
+      socket.off("connect", handleConnect);
+      socket.off("reconnect", handleReconnect);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
-      window.removeEventListener("focus", handleFocus);
       window.removeEventListener("online", handleOnline);
-      window.removeEventListener("pageshow", handlePageShow);
     };
   }, []);
 

@@ -1,6 +1,5 @@
 import { FileDown, Plus, Sheet } from "lucide-react";
-// 1. IMPORTAÇÃO DO SOCKET.IO
-import { io } from "socket.io-client";
+import { socket } from "@/lib/socket";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
@@ -123,31 +122,12 @@ export function Clients() {
   useEffect(() => {
     fetchClients();
 
-    // -- CONEXÃO WEBSOCKET --
-
-    const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:3333";
-    const socket = io(backendUrl, {
-      transports: ["websocket"],
-      reconnection: true,
-      reconnectionDelay: 1000,
-      reconnectionDelayMax: 5000,
-      reconnectionAttempts: 5,
-    });
-
-    socket.on("connect", () => {
-      console.log("🟢 Conectado ao servidor WebSocket no Frontend!");
-    });
-
-    socket.on("disconnect", () => {
-      console.log(
-        "🔴 Desconectado do servidor WebSocket, tentando reconectar...",
-      );
-    });
-
-    socket.on("clientesAtualizados", () => {
+    const handleUpdate = () => {
       console.log("🔄 Atualização em tempo real recebida!");
       fetchClients();
-    });
+    };
+
+    socket.on("clientesAtualizados", handleUpdate);
 
     const handleVisibilityChange = () => {
       if (document.visibilityState === "visible") {
@@ -157,7 +137,7 @@ export function Clients() {
     document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
-      socket.disconnect();
+      socket.off("clientesAtualizados", handleUpdate);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
   }, [fetchClients]);
