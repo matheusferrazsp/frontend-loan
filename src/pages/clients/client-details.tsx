@@ -53,6 +53,7 @@ export interface ClientDetailsProps {
   totalDebtPaid: boolean;
   isDelinquent: boolean;
   observations: string;
+  periodicity?: string;
 }
 
 export function ClientDetails(props: ClientDetailsProps) {
@@ -66,6 +67,9 @@ export function ClientDetails(props: ClientDetailsProps) {
   const [showSimulator, setShowSimulator] = useState(false);
   const [simInterest, setSimInterest] = useState("30");
   const [simInstallments, setSimInstallments] = useState("10");
+  const [simPeriodicity, setSimPeriodicity] = useState<"weekly" | "monthly">(
+    props.periodicity === "weekly" ? "weekly" : "monthly"
+  );
 
   const readStoredUser = () => {
     const userJson = localStorage.getItem("user");
@@ -136,11 +140,13 @@ export function ClientDetails(props: ClientDetailsProps) {
     const principal = Number(props.value) - Number(props.valuePaid);
     const interest = Number(simInterest) / 100;
     const installments = Number(simInstallments) || 1;
-    if (principal <= 0) return { total: 0, monthly: 0 };
+    if (principal <= 0) return { total: 0, monthly: 0, installment: 0 };
     const total = principal * (1 + interest);
+    const installment = total / installments;
     return {
       total,
-      monthly: total / installments
+      monthly: installment,
+      installment
     };
   };
 
@@ -157,6 +163,19 @@ export function ClientDetails(props: ClientDetailsProps) {
       setIsExecutingRollover(true);
       const simulated = getSimulatedValue();
       
+      const today = new Date();
+      const nextDate = new Date();
+      if (simPeriodicity === "weekly") {
+        nextDate.setDate(today.getDate() + 7);
+      } else {
+        nextDate.setMonth(today.getMonth() + 1);
+      }
+
+      const nextYear = nextDate.getFullYear();
+      const nextMonth = String(nextDate.getMonth() + 1).padStart(2, "0");
+      const nextDay = String(nextDate.getDate()).padStart(2, "0");
+      const formattedNextDate = `${nextYear}-${nextMonth}-${nextDay}`;
+
       await api.put(`/clients/${props.id}`, {
         value: Number(simulated.total.toFixed(2)),
         loanInterest: Number(simInterest),
@@ -164,11 +183,11 @@ export function ClientDetails(props: ClientDetailsProps) {
         installmentsPaid: 0,
         lateInstallments: 0,
         valuePaid: 0,
-        monthlyPaid: Number(simulated.monthly.toFixed(2)),
+        monthlyPaid: Number(simulated.installment.toFixed(2)),
         isDelinquent: false,
         lastPaymentAmount: 0,
-        // Mantém as datas antigas, ou você pode querer atualizar o nextPaymentDate para +30 dias:
-        // nextPaymentDate: new Date(new Date().setDate(new Date().getDate() + 30)).toISOString()
+        nextPaymentDate: formattedNextDate,
+        periodicity: simPeriodicity,
       });
 
       toast.success("Dívida renegociada com sucesso!");
@@ -237,7 +256,7 @@ export function ClientDetails(props: ClientDetailsProps) {
         <p class="section-title">Financeiro</p>
         <table>
           <tr><td class="label">Total do Empr\u00e9stimo</td><td class="value">${formatCurrency(props.value)}</td></tr>
-          <tr><td class="label">Juros / Mensalidade</td><td class="value">${props.loanInterest}% (${formatCurrency(props.monthlyPaid)})</td></tr>
+          <tr><td class="label">Juros / Parcela ${props.periodicity === "weekly" ? "(Semanal)" : "(Mensal)"}</td><td class="value">${props.loanInterest}% (${formatCurrency(props.monthlyPaid)})</td></tr>
           <tr><td class="label">Total Pago</td><td class="value badge-ok">${formatCurrency(props.valuePaid)}</td></tr>
           <tr><td class="label">\u00daltimo Valor Pago</td><td class="value badge-ok">${formatCurrency(props.lastPaymentAmount)}</td></tr>
         </table>
@@ -384,6 +403,38 @@ export function ClientDetails(props: ClientDetailsProps) {
               Simulador VIP de Renegociação
             </h3>
             
+            <div className="mb-4 space-y-2">
+              <Label className="text-xs text-muted-foreground">Periodicidade das Parcelas</Label>
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={simPeriodicity === "weekly" ? "default" : "outline"}
+                  onClick={() => setSimPeriodicity("weekly")}
+                  className={
+                    simPeriodicity === "weekly"
+                      ? "bg-amber-600 hover:bg-amber-700 text-white border-amber-600"
+                      : "border-amber-500/30 text-amber-600 hover:bg-amber-500/10"
+                  }
+                >
+                  Semanais (7 dias)
+                </Button>
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={simPeriodicity === "monthly" ? "default" : "outline"}
+                  onClick={() => setSimPeriodicity("monthly")}
+                  className={
+                    simPeriodicity === "monthly"
+                      ? "bg-amber-600 hover:bg-amber-700 text-white border-amber-600"
+                      : "border-amber-500/30 text-amber-600 hover:bg-amber-500/10"
+                  }
+                >
+                  Mensais (30 dias)
+                </Button>
+              </div>
+            </div>
+
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div className="space-y-2">
                 <Label className="text-xs text-muted-foreground">Juros (%)</Label>
@@ -415,8 +466,12 @@ export function ClientDetails(props: ClientDetailsProps) {
                 <span className="text-sm font-bold text-amber-600">{formatCurrency(getSimulatedValue().total)}</span>
               </div>
               <div className="flex justify-between items-center pt-2 mt-2 border-t border-dashed">
-                <span className="text-xs font-semibold">Nova Parcela Mensal</span>
-                <span className="text-sm font-bold text-emerald-600">{formatCurrency(getSimulatedValue().monthly)} /mês</span>
+                <span className="text-xs font-semibold">
+                  Nova Parcela ({simPeriodicity === "weekly" ? "Semanal" : "Mensal"})
+                </span>
+                <span className="text-sm font-bold text-emerald-600">
+                  {formatCurrency(getSimulatedValue().installment)} {simPeriodicity === "weekly" ? "/semana" : "/mês"}
+                </span>
               </div>
             </div>
 
@@ -556,10 +611,10 @@ export function ClientDetails(props: ClientDetailsProps) {
 
             <TableRow>
               <TableCell className="text-muted-foreground text-sm">
-                Juros / Mensal
+                Juros / Parcela {props.periodicity === "weekly" ? "(Semanal)" : "(Mensal)"}
               </TableCell>
               <TableCell className="text-right text-sm">
-                {props.loanInterest}% ({formatCurrency(props.monthlyPaid)})
+                {props.loanInterest}% ({formatCurrency(props.monthlyPaid)} {props.periodicity === "weekly" ? "/semana" : "/mês"})
               </TableCell>
             </TableRow>
 

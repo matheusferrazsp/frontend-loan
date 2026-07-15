@@ -48,13 +48,18 @@ interface CreateClientDialogProps {
 }
 
 export function CreateClientDialog({ onSuccess }: CreateClientDialogProps) {
-  const { register, handleSubmit, control, watch, setValue, reset } = useForm();
+  const { register, handleSubmit, control, watch, setValue, reset } = useForm<any>({
+    defaultValues: {
+      periodicity: "monthly",
+    },
+  });
   const lastPaymentBaseRef = useRef(0);
 
   const loanValue = watch("value");
   const interestPercentage = watch("loanInterest");
   const installmentsPaid = watch("installmentsPaid");
   const monthlyPaid = watch("monthlyPaid");
+  const periodicityValue = watch("periodicity") || "monthly";
 
   // --- FUNÇÕES DE UTILIDADE ---
 
@@ -140,8 +145,12 @@ export function CreateClientDialog({ onSuccess }: CreateClientDialogProps) {
       const date = new Date(loanDateValue + "T12:00:00");
 
       if (!isNaN(date.getTime())) {
-        // Adicionamos 1 mês
-        date.setMonth(date.getMonth() + 1);
+        if (periodicityValue === "weekly") {
+          date.setDate(date.getDate() + 7);
+        } else {
+          // Adicionamos 1 mês
+          date.setMonth(date.getMonth() + 1);
+        }
 
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -152,7 +161,7 @@ export function CreateClientDialog({ onSuccess }: CreateClientDialogProps) {
         setValue("nextPaymentDate", nextMonthDate);
       }
     }
-  }, [loanDateValue, setValue]);
+  }, [loanDateValue, periodicityValue, setValue]);
 
   // --- LIMPEZA AO FECHAR O MODAL ---
   useEffect(() => {
@@ -320,6 +329,42 @@ export function CreateClientDialog({ onSuccess }: CreateClientDialogProps) {
 
           <hr className="border-muted" />
 
+          <div className="space-y-2">
+            <Label className="font-semibold text-sm">Periodicidade das Parcelas</Label>
+            <div className="grid grid-cols-2 gap-3 sm:max-w-md">
+              <label
+                className={`flex items-center justify-center gap-2 p-2.5 rounded-md border text-sm font-medium cursor-pointer transition-all ${
+                  periodicityValue === "monthly"
+                    ? "bg-amber-500/15 border-amber-500 text-amber-600 font-semibold"
+                    : "border-muted hover:bg-muted/50 text-muted-foreground"
+                }`}
+              >
+                <input
+                  type="radio"
+                  value="monthly"
+                  {...register("periodicity")}
+                  className="sr-only"
+                />
+                Mensal (30 dias)
+              </label>
+              <label
+                className={`flex items-center justify-center gap-2 p-2.5 rounded-md border text-sm font-medium cursor-pointer transition-all ${
+                  periodicityValue === "weekly"
+                    ? "bg-amber-500/15 border-amber-500 text-amber-600 font-semibold"
+                    : "border-muted hover:bg-muted/50 text-muted-foreground"
+                }`}
+              >
+                <input
+                  type="radio"
+                  value="weekly"
+                  {...register("periodicity")}
+                  className="sr-only"
+                />
+                Semanal (7 dias)
+              </label>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label>Valor Empréstimo (R$)</Label>
@@ -349,7 +394,7 @@ export function CreateClientDialog({ onSuccess }: CreateClientDialogProps) {
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Juros Mensal (R$)</Label>
+              <Label>Juros / Parcela {periodicityValue === "weekly" ? "(Semanal)" : "(Mensal)"} (R$)</Label>
               <div className="relative">
                 <DollarSign className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -377,7 +422,7 @@ export function CreateClientDialog({ onSuccess }: CreateClientDialogProps) {
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Mensalidades Pagas</Label>
+              <Label>Parcelas Pagas</Label>
               <div className="relative">
                 <CheckCircle2 className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -388,7 +433,7 @@ export function CreateClientDialog({ onSuccess }: CreateClientDialogProps) {
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Mensalidades Atrasadas</Label>
+              <Label>Parcelas Atrasadas</Label>
               <div className="relative">
                 <AlertTriangle className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -415,7 +460,7 @@ export function CreateClientDialog({ onSuccess }: CreateClientDialogProps) {
               </div>
             </div>
             <div className="space-y-2 overflow-x-hidden rounded-md">
-              <Label>Próx. Mensalidade</Label>
+              <Label>Próx. Vencimento {periodicityValue === "weekly" ? "(Semanal)" : "(Mensal)"}</Label>
               <div className="relative">
                 <Calendar
                   className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground cursor-pointer z-20 pointer-events-auto"
@@ -483,7 +528,7 @@ export function CreateClientDialog({ onSuccess }: CreateClientDialogProps) {
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Status Mensalidade</Label>
+              <Label>Status {periodicityValue === "weekly" ? "Semanal" : "Mensal"}</Label>
               <Controller
                 name="monthlyFeePaid"
                 control={control}

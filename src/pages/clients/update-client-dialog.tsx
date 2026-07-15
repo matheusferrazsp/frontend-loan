@@ -56,11 +56,12 @@ export function UpdateClientDialog({
   setOpen,
   onSuccess,
 }: UpdateClientDialogProps) {
-  const { register, handleSubmit, reset, control, watch, setValue } = useForm();
+  const { register, handleSubmit, reset, control, watch, setValue } = useForm<any>();
   const lastPaymentBaseRef = useRef(0);
 
   const loanValue = watch("value");
   const interestPercentage = watch("loanInterest");
+  const periodicityValue = watch("periodicity") || "monthly";
 
   // --- FUNÇÕES DE UTILIDADE ---
 
@@ -108,12 +109,16 @@ export function UpdateClientDialog({
     setValue("phone", value);
   };
 
-  // Automação: Pula a próxima data para 1 mês à frente quando altera o Empréstimo
+  // Automação: Pula a próxima data para 1 mês ou 1 semana à frente quando altera a Data do Empréstimo
   const handleLoanDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value; // Vem no formato YYYY-MM-DD
     if (val) {
       const date = new Date(val + "T12:00:00");
-      date.setMonth(date.getMonth() + 1);
+      if (periodicityValue === "weekly") {
+        date.setDate(date.getDate() + 7);
+      } else {
+        date.setMonth(date.getMonth() + 1);
+      }
 
       const year = date.getFullYear();
       const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -134,6 +139,7 @@ export function UpdateClientDialog({
       };
       reset({
         ...client,
+        periodicity: client.periodicity || "monthly",
         loanDate: formatToInputDate(client.loanDate),
         nextPaymentDate: formatToInputDate(client.nextPaymentDate),
         lastPaymentDate: formatToInputDate(client.lastPaymentDate),
@@ -227,11 +233,16 @@ export function UpdateClientDialog({
       const todayD = String(today.getDate()).padStart(2, "0");
       setValue("lastPaymentDate", `${todayY}-${todayM}-${todayD}`);
 
-      // 5. Próxima Data = incrementa apenas o mês da data de vencimento atual em 1
+      // 5. Próxima Data = incrementa apenas o mês ou semana da data de vencimento atual
       const currentNextDate = watch("nextPaymentDate");
+      const currentPeriodicity = watch("periodicity") || "monthly";
       if (currentNextDate) {
         const oldDateObj = new Date(currentNextDate + "T12:00:00");
-        oldDateObj.setMonth(oldDateObj.getMonth() + 1);
+        if (currentPeriodicity === "weekly") {
+          oldDateObj.setDate(oldDateObj.getDate() + 7);
+        } else {
+          oldDateObj.setMonth(oldDateObj.getMonth() + 1);
+        }
 
         const nextY = oldDateObj.getFullYear();
         const nextM = String(oldDateObj.getMonth() + 1).padStart(2, "0");
@@ -258,6 +269,7 @@ export function UpdateClientDialog({
       // O resto vai direto, porque o BACKEND agora resolve dinheiro e datas.
       const formattedData = {
         ...restOfData,
+        periodicity: data.periodicity || "monthly",
         cpf: data.cpf?.replace(/\D/g, ""),
         phone: data.phone?.replace(/\D/g, ""),
         valuePaid: parseMoney(data.valuePaid),
@@ -399,6 +411,42 @@ export function UpdateClientDialog({
 
           <hr className="border-muted" />
 
+          <div className="space-y-2">
+            <Label className="font-semibold text-sm">Periodicidade das Parcelas</Label>
+            <div className="grid grid-cols-2 gap-3 sm:max-w-md">
+              <label
+                className={`flex items-center justify-center gap-2 p-2.5 rounded-md border text-sm font-medium cursor-pointer transition-all ${
+                  periodicityValue === "monthly"
+                    ? "bg-amber-500/15 border-amber-500 text-amber-600 font-semibold"
+                    : "border-muted hover:bg-muted/50 text-muted-foreground"
+                }`}
+              >
+                <input
+                  type="radio"
+                  value="monthly"
+                  {...register("periodicity")}
+                  className="sr-only"
+                />
+                Mensal (30 dias)
+              </label>
+              <label
+                className={`flex items-center justify-center gap-2 p-2.5 rounded-md border text-sm font-medium cursor-pointer transition-all ${
+                  periodicityValue === "weekly"
+                    ? "bg-amber-500/15 border-amber-500 text-amber-600 font-semibold"
+                    : "border-muted hover:bg-muted/50 text-muted-foreground"
+                }`}
+              >
+                <input
+                  type="radio"
+                  value="weekly"
+                  {...register("periodicity")}
+                  className="sr-only"
+                />
+                Semanal (7 dias)
+              </label>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             <div className="space-y-2">
               <Label>Valor Empréstimo (R$)</Label>
@@ -427,7 +475,7 @@ export function UpdateClientDialog({
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Juros Mensal (R$)</Label>
+              <Label>Juros / Parcela {periodicityValue === "weekly" ? "(Semanal)" : "(Mensal)"} (R$)</Label>
               <div className="relative">
                 <DollarSign className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -454,7 +502,7 @@ export function UpdateClientDialog({
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Mensalidades Pagas</Label>
+              <Label>Parcelas Pagas</Label>
               <div className="relative">
                 <CheckCircle2 className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -465,7 +513,7 @@ export function UpdateClientDialog({
               </div>
             </div>
             <div className="space-y-2">
-              <Label>Mensalidades Atrasadas</Label>
+              <Label>Parcelas Atrasadas</Label>
               <div className="relative">
                 <AlertTriangle className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -531,7 +579,7 @@ export function UpdateClientDialog({
                     htmlFor="confirmPayment"
                     className="font-semibold text-emerald-700 dark:text-emerald-400 cursor-pointer "
                   >
-                    Resgistrar pagamento de mensalidade
+                    Registrar pagamento da parcela
                   </Label>
                 </div>
               )}
@@ -572,7 +620,7 @@ export function UpdateClientDialog({
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Próx. Mensalidade</Label>
+              <Label>Próx. Vencimento {periodicityValue === "weekly" ? "(Semanal)" : "(Mensal)"}</Label>
               <div className="relative">
                 <Calendar
                   className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground cursor-pointer z-20 pointer-events-auto"
@@ -622,7 +670,7 @@ export function UpdateClientDialog({
 
           <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
             <div className="space-y-2 ">
-              <Label>Status Mensalidade</Label>
+              <Label>Status {periodicityValue === "weekly" ? "Semanal" : "Mensal"}</Label>
               <Controller
                 name="monthlyFeePaid"
                 control={control}
